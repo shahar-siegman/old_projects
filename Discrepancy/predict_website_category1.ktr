@@ -81,25 +81,25 @@
   <notepads>
   </notepads>
   <order>
-  <hop> <from>Group by url 2</from><to>calc discrepancy by url</to><enabled>Y</enabled> </hop>
+  <hop> <from>Group by placement_id</from><to>calc discrepancy by placement_id</to><enabled>Y</enabled> </hop>
   <hop> <from>placements with website - input</from><to>add min date field</to><enabled>Y</enabled> </hop>
   <hop> <from>add min date field</from><to>date_diff</to><enabled>Y</enabled> </hop>
   <hop> <from>date_diff</from><to>Filter rows</to><enabled>Y</enabled> </hop>
-  <hop> <from>Filter rows</from><to>Sort by website and length</to><enabled>Y</enabled> </hop>
+  <hop> <from>Filter rows</from><to>Sort by placemntId and length</to><enabled>Y</enabled> </hop>
   <hop> <from>Add sequence</from><to>calc category</to><enabled>Y</enabled> </hop>
   <hop> <from>Sort by category</from><to>map to letters</to><enabled>Y</enabled> </hop>
   <hop> <from>Sort by discrepancy</from><to>Add sequence</to><enabled>Y</enabled> </hop>
   <hop> <from>calc category</from><to>Sort by category</to><enabled>Y</enabled> </hop>
   <hop> <from>nums to letter</from><to>map to letters</to><enabled>Y</enabled> </hop>
-  <hop> <from>calc discrepancy by url</from><to>Sort by discrepancy</to><enabled>Y</enabled> </hop>
-  <hop> <from>Sort by website</from><to>Merge Join</to><enabled>Y</enabled> </hop>
-  <hop> <from>Group by url and length</from><to>Merge Join</to><enabled>Y</enabled> </hop>
-  <hop> <from>Merge Join</from><to>calc discrepancy by url length</to><enabled>Y</enabled> </hop>
-  <hop> <from>map to letters</from><to>url and category</to><enabled>Y</enabled> </hop>
-  <hop> <from>url and category</from><to>Sort by website</to><enabled>Y</enabled> </hop>
-  <hop> <from>calc discrepancy by url length</from><to>output predicted category</to><enabled>Y</enabled> </hop>
-  <hop> <from>Sort by website and length</from><to>Group by url 2</to><enabled>Y</enabled> </hop>
-  <hop> <from>Sort by website and length</from><to>Group by url and length</to><enabled>Y</enabled> </hop>
+  <hop> <from>calc discrepancy by placement_id</from><to>Sort by discrepancy</to><enabled>Y</enabled> </hop>
+  <hop> <from>Sort by placement</from><to>Merge Join</to><enabled>Y</enabled> </hop>
+  <hop> <from>Group by placement and length</from><to>Merge Join</to><enabled>Y</enabled> </hop>
+  <hop> <from>Merge Join</from><to>dscrpncy by placement, length</to><enabled>Y</enabled> </hop>
+  <hop> <from>map to letters</from><to>placement and category</to><enabled>Y</enabled> </hop>
+  <hop> <from>placement and category</from><to>Sort by placement</to><enabled>Y</enabled> </hop>
+  <hop> <from>dscrpncy by placement, length</from><to>output predicted category</to><enabled>Y</enabled> </hop>
+  <hop> <from>Sort by placemntId and length</from><to>Group by placement_id</to><enabled>Y</enabled> </hop>
+  <hop> <from>Sort by placemntId and length</from><to>Group by placement and length</to><enabled>Y</enabled> </hop>
   </order>
   <step>
     <name>Add sequence</name>
@@ -141,7 +141,7 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-<send_true_to>Sort by website and length</send_true_to>
+<send_true_to>Sort by placemntId and length</send_true_to>
 <send_false_to/>
     <compare>
 <condition>
@@ -160,7 +160,7 @@
     </step>
 
   <step>
-    <name>Group by url 2</name>
+    <name>Group by placement_id</name>
     <type>GroupBy</type>
     <description/>
     <distribute>Y</distribute>
@@ -180,7 +180,7 @@
       <give_back_row>N</give_back_row>
       <group>
         <field>
-          <name>tag_url</name>
+          <name>placementId</name>
         </field>
       </group>
       <fields>
@@ -212,7 +212,7 @@
     </step>
 
   <step>
-    <name>Group by url and length</name>
+    <name>Group by placement and length</name>
     <type>GroupBy</type>
     <description/>
     <distribute>Y</distribute>
@@ -232,7 +232,7 @@
       <give_back_row>N</give_back_row>
       <group>
         <field>
-          <name>tag_url</name>
+          <name>placementId</name>
         </field>
         <field>
           <name>ChainLength</name>
@@ -278,13 +278,13 @@
            <schema_name/>
            </partitioning>
 <join_type>INNER</join_type>
-<step1>Sort by website</step1>
-<step2>Group by url and length</step2>
+<step1>Sort by placement</step1>
+<step2>Group by placement and length</step2>
     <keys_1>
-      <key>tag_url</key>
+      <key>placementId</key>
     </keys_1>
     <keys_2>
-      <key>tag_url</key>
+      <key>placementId</key>
     </keys_2>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
@@ -363,7 +363,7 @@
     </step>
 
   <step>
-    <name>Sort by website</name>
+    <name>Sort by placement</name>
     <type>SortRows</type>
     <description/>
     <distribute>Y</distribute>
@@ -382,7 +382,7 @@
       <unique_rows>N</unique_rows>
     <fields>
       <field>
-        <name>tag_url</name>
+        <name>placementId</name>
         <ascending>Y</ascending>
         <case_sensitive>Y</case_sensitive>
         <presorted>N</presorted>
@@ -397,7 +397,7 @@
     </step>
 
   <step>
-    <name>Sort by website and length</name>
+    <name>Sort by placemntId and length</name>
     <type>SortRows</type>
     <description/>
     <distribute>N</distribute>
@@ -416,7 +416,7 @@
       <unique_rows>N</unique_rows>
     <fields>
       <field>
-        <name>tag_url</name>
+        <name>placementId</name>
         <ascending>Y</ascending>
         <case_sensitive>Y</case_sensitive>
         <presorted>N</presorted>
@@ -482,7 +482,7 @@
            </partitioning>
        <calculation><field_name>divisor</field_name>
 <calc_type>CONSTANT</calc_type>
-<field_a>96</field_a>
+<field_a>72</field_a>
 <field_b/>
 <field_c/>
 <value_type>None</value_type>
@@ -531,7 +531,7 @@
     </step>
 
   <step>
-    <name>calc discrepancy by url</name>
+    <name>calc discrepancy by placement_id</name>
     <type>Calculator</type>
     <description/>
     <distribute>N</distribute>
@@ -592,7 +592,7 @@
     </step>
 
   <step>
-    <name>calc discrepancy by url length</name>
+    <name>dscrpncy by placement, length</name>
     <type>Calculator</type>
     <description/>
     <distribute>N</distribute>
@@ -975,7 +975,7 @@
     </step>
 
   <step>
-    <name>url and category</name>
+    <name>placement and category</name>
     <type>SelectValues</type>
     <description/>
     <distribute>Y</distribute>
@@ -985,7 +985,7 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <fields>      <field>        <name>tag_url</name>
+    <fields>      <field>        <name>placementId</name>
         <rename/>
         <length>-2</length>
         <precision>-2</precision>
