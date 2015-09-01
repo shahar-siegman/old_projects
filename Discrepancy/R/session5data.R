@@ -1,3 +1,5 @@
+library(dplyr)
+library(ggplot2)
 getRawPlacementData <- function() {
   rawDF<-read.csv("C:/Shahar/Projects/Discrepancy/raw_input/data.txt")
   rawDF$Date <- as.Date(rawDF$Date,format="%d/%m/%Y")
@@ -59,8 +61,8 @@ filterAndGroupRawData <- function (df, startDate, endDate) {
     summarise(
       sumImps=sum(Impressions),
       sumServed=sum(Served),
-      sumHouse=sum(House))
-
+      sumHouse=sum(House)) %>%
+    filter(sumImps>100,sumServed>5)
   res$DiscrepancyPercent=(res$sumImps-res$sumServed-res$sumHouse)/res$sumImps
   return(res)
 }
@@ -85,8 +87,8 @@ getDiscrepancyModel <- function(groupedDF) {
     currentDiscrepancy=groupedDF$DiscrepancyPercent[i]
     interval[i]=findInterval(currentDiscrepancy, d[currentChainLength,])
     percentile[i]=interval[i]/C+1/(2*C)
-    interceptForCLModel[i]=t[1,1]+t[1,2]*percentile[i]
-    slopeForCLModel[i]=t[2,1]+t[2,2]*percentile[i]
+    interceptForCLModel[i]=exp(t[1,1]+t[1,2]*percentile[i])
+    slopeForCLModel[i]=exp(t[2,1]+t[2,2]*percentile[i])
   }
   groupedDF$interval <- interval
   groupedDF$percentile <- percentile
@@ -106,23 +108,28 @@ getTestPlacementData <- function(rawDF) {
 averagePlacmentModel <- function(groupedDF) {
   placementModelDF <- groupedDF %>%
     group_by(placementId) %>%
-    select(interceptForCLModel,slopeForCLModel) %>%
-      summarise(interceptForCLModel=mean(interceptForCLModel),
-                slopeForCLModel=mean(slopeForCLModel))
+    select(intercept,slope) %>%
+      summarise(interceptForCLModel=mean(intercept),
+                slopeForCLModel=mean(slope))
 }
 
 perdictUsingPlacementModel <- function(groupedDF,placementModelDF) {
   nLines <- nrow(groupedDF)
   predicted <- vector(length=nLines)
   for (i in 1:nLines) {
+  #for (i in 1:50) {
     currentPId <- groupedDF$placementId[i]
     currentChainLength <- groupedDF$ChainLength[i]
-    intercept <- placementModelDF$intercept[placementModelDF$placementId==currentPId]
-    if (identical(intercept,numeric(0))) {
-      predicted[i]<-0
+    pos=which(placementModelDF$placementId==currentPId)
+    # assert(length(pos)==1)
+    # print(paste(c("i=",i,"; Current PID: ",currentPId,"; matching position: ", pos),collapse=""))
+    if (identical(pos,integer(0))) {
+      # leave blank (NA)
+      # predicted[i]<-0
     } else {
-      slope <- placementModelDF$slope[placementModelDF$placementId==currentPId]
-      predicted [i] <- intercept + slope[i]*currentChainLength
+      intercept <- placementModelDF$intercept[pos]
+      slope <- placementModelDF$slope[pos]
+      predicted [i] <- intercept + slope*currentChainLength
     }
   }
 
@@ -130,11 +137,21 @@ perdictUsingPlacementModel <- function(groupedDF,placementModelDF) {
   return(groupedDF)
 }
 
-main <- function() {
-  rawDF <- getRawPlacementData()
+mainPredict <- function(rawDF=data.frame()) {
+  if (identical(rawDF,data.frame()))
+    rawDF <- getRawPlacementData()
   sampleDF <- getSamplePlacementData(rawDF)
-  discrepancyModel <- getDiscrepancyModel(sampleDF)
+  discrepancyModel <- averagePlacmentModel(getDiscrepancyModel(sampleDF))
   testDF <- getTestPlacementData(rawDF)
   predictionDF <- perdictUsingPlacementModel(testDF, discrepancyModel)
+}
+
+mainPlot <- function(predictionDF=data.frame()) {
+  if (identical(predictionDF,data.frame()))
+    predictionDF <- mainPredict()
+  write.table(predictionDF, file="predict_result.csv",sep=",",col.names=NA)
+  f <- predictionDF %>% filter(DiscrepancyPercent>0)
+  print(ggplot()+geom_point(data=f,aes(x=predicted,y=DiscrepancyPercent)))
   return(predictionDF)
+
 }
