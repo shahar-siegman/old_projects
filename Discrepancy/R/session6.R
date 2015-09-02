@@ -15,34 +15,54 @@ discrepancyCumlativeDistrib <- function(periodDF) {
     group_by(ChainLength) %>%
     mutate(DiscCDF =cume_dist(DiscrepancyPercent),
            DiscRank=min_rank(DiscrepancyPercent))
-    write.csv(p,"check_rank.csv")
+    #write.csv(p,"check_rank.csv")
   return(p)
 }
 
-matchDistrib<-function(period1,period2) {
+createPredictionSpreadsheet <- function(period1,period2) {
   period1 <- discrepancyCumlativeDistrib(period1)
-  period1ByPlacement <- period1 %>%
-    group_by(placementId) %>%
-    summarise(aveDiscRank=mean(DiscRank))
 
-  period1ByPlacement$aveDiscRank=round(period1ByPlacement$aveDiscRank)
+  joined <- period2 %>%
+    select(placementId,ChainLength,DiscrepancyPercentPeriod2=DiscrepancyPercent) %>%
+    left_join(period1 %>% select (placementId,ChainLength,DiscrepancyPercentPeriod1=DiscrepancyPercent), by=c("placementId","ChainLength"))
 
-  joined <- period1 %>%
-    select(placementId,ChainLength,DiscrepancyPercent,DiscCDF) %>%
-    left_join(period2 %>% select (placementId,ChainLength,DiscrepancyPercent), by=c("placementId","ChainLength"))
+  discrepancyModelPerPlacement <- averagePlacmentModel(getDiscrepancyModel(period1))
 
-  joined <- joined %>%
-    left_join(period1ByPlacement, by="placementId")
+  joined <- joined %>% left_join(discrepancyModelPerPlacement, by="placementId")
 
-#   joined <- joined %>%
-#     left_join(period1 %>% select(ChainLength,DiscRank,DiscrepancyPercent), by=c("ChainLength"="ChainLength","aveDiscRank"="DiscRank"))
+  joined$linearPred=joined$interceptForCLModel+joined$slopeForCLModel*joined$ChainLength
+  medianDF <- data.frame(ChainLength=1:5,medianCLDiscrepancy=dByPercentileByLength2(period1,5,1))
 
+  joined <- joined %>% left_join(medianDF, by="ChainLength")
+  return(joined)
 }
 
-main <- function(rawDF=data.frame()) {
+dByPercentileByLength2 <- function(periodDataWithCDF, maxCL, nDistribPoints) {
+  requestedProbabilityPoints=equallySpacedBetween0And1(nDistribPoints)
+  a=matrix(NA,maxCL,nDistribPoints)
+  for (cl in 1:maxCL) {
+    dataForCL <- periodDataWithCDF %>%
+      select(DiscCDF,DiscrepancyPercent) %>%
+      filter(ChainLength==cl) %>% arrange(DiscCDF)
+
+    ind<-findInterval(requestedProbabilityPoints,dataForCL$DiscCDF)
+    a[cl,] <- dataForCL$DiscrepancyPercent[ind]
+  }
+  return(a)
+}
+
+testPredictionSpreadsheet <- function(rawDF=data.frame()) {
   if (identical(rawDF,data.frame()))
     rawDF <- getRawPlacementData()
   period1 <- getSamplePlacementData(rawDF)
   period2 <- getTestPlacementData(rawDF)
-  joined <- matchDistrib(period1, period2)
+  joined <- createPredictionSpreadsheet(period1, period2)
+}
+
+testDByPercentileByLength2 <- function(rawDF=data.frame()) {
+  if (identical(rawDF,data.frame()))
+    rawDF <- getRawPlacementData()
+  period1 <- discrepancyCumlativeDistrib(getSamplePlacementData(rawDF))
+  dByPercentileByLength2(period1,5,14)
+
 }

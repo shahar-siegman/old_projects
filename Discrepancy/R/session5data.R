@@ -6,6 +6,11 @@ getRawPlacementData <- function() {
   return(rawDF)
 }
 
+equallySpacedBetween0And1 <- function(n)
+  (1:n)/n - 1/(2*n)
+
+
+
 dByPercentileByLength <- function() {
   # each row: a particular chain length
   # each column: different category
@@ -67,13 +72,13 @@ filterAndGroupRawData <- function (df, startDate, endDate) {
   return(res)
 }
 
-getDiscrepancyModel <- function(groupedDF) {
+getDiscrepancyModel <- function(period1) {
   # get the model of each placement-length
-  d<-dByPercentileByLength()
+  d<-dByPercentileByLength2(period1,5,15)
   C=ncol(d)+1
   dr=nrow(d)
   t <- fitAlongPercentiles(fitAlongChainLength(d))
-  nLines=nrow(groupedDF)
+  nLines=nrow(period1)
 
   newVec <- vector(length=nLines)
   interval <- newVec
@@ -83,18 +88,18 @@ getDiscrepancyModel <- function(groupedDF) {
 
   for (i in 1:nLines) {
     # lookup the current DiscrepancyPercent in d in the row matching the chain length
-    currentChainLength=min(groupedDF$ChainLength[i],dr)
-    currentDiscrepancy=groupedDF$DiscrepancyPercent[i]
+    currentChainLength=min(period1$ChainLength[i],dr)
+    currentDiscrepancy=period1$DiscrepancyPercent[i]
     interval[i]=findInterval(currentDiscrepancy, d[currentChainLength,])
     percentile[i]=interval[i]/C+1/(2*C)
     interceptForCLModel[i]=exp(t[1,1]+t[1,2]*percentile[i])
     slopeForCLModel[i]=exp(t[2,1]+t[2,2]*percentile[i])
   }
-  groupedDF$interval <- interval
-  groupedDF$percentile <- percentile
-  groupedDF$intercept <- interceptForCLModel
-  groupedDF$slope <- slopeForCLModel
-  return(groupedDF)
+  period1$interval <- interval
+  period1$percentile <- percentile
+  period1$intercept <- interceptForCLModel
+  period1$slope <- slopeForCLModel
+  return(period1)
 }
 
 getSamplePlacementData <- function (rawDF) {
@@ -140,10 +145,11 @@ perdictUsingPlacementModel <- function(groupedDF,placementModelDF) {
 mainPredict <- function(rawDF=data.frame()) {
   if (identical(rawDF,data.frame()))
     rawDF <- getRawPlacementData()
+  # preparations
   sampleDF <- getSamplePlacementData(rawDF)
-  discrepancyModel <- averagePlacmentModel(getDiscrepancyModel(sampleDF))
+  discrepancyModelPerPlacement <- averagePlacmentModel(getDiscrepancyModel(sampleDF))
   testDF <- getTestPlacementData(rawDF)
-  predictionDF <- perdictUsingPlacementModel(testDF, discrepancyModel)
+  predictionDF <- perdictUsingPlacementModel(testDF, discrepancyModelPerPlacement)
 }
 
 mainPlot <- function(predictionDF=data.frame()) {
