@@ -62,7 +62,7 @@ filterAndGroupRawData <- function (df, startDate, endDate) {
       sumImps=sum(Impressions),
       sumServed=sum(Served),
       sumHouse=sum(House)) %>%
-    filter(sumImps>100,sumServed>5)
+    filter(sumImps>100,sumServed>5, sumServed<sumImps, ChainLength<=5)
   res$DiscrepancyPercent=(res$sumImps-res$sumServed-res$sumHouse)/res$sumImps
   return(res)
 }
