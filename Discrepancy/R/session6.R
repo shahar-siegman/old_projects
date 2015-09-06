@@ -15,7 +15,6 @@ discrepancyCumlativeDistrib <- function(periodDF) {
     group_by(ChainLength) %>%
     mutate(DiscCDF =cume_dist(DiscrepancyPercent),
            DiscRank=min_rank(DiscrepancyPercent))
-    #write.csv(p,"check_rank.csv")
   return(p)
 }
 ### ******************************************
@@ -23,17 +22,12 @@ discrepancyCumlativeDistrib <- function(periodDF) {
 #   main function for prediction and comparison
 ### ******************************************
 createPredictionSpreadsheet <- function(period1,period2) {
-  # join the "
   period1 <- discrepancyCumlativeDistrib(period1)
-
   joined <- period2 %>%
     select(placementId,ChainLength,DiscrepancyPercentPeriod2=DiscrepancyPercent) %>%
     left_join(period1 %>% select (placementId,ChainLength,DiscrepancyPercentPeriod1=DiscrepancyPercent), by=c("placementId","ChainLength"))
-
   discrepancyModelPerPlacement <- averagePlacmentModel(getDiscrepancyModel(period1))
-
   joined <- joined %>% left_join(discrepancyModelPerPlacement, by="placementId")
-
   joined$linearPred=joined$interceptForCLModel+joined$slopeForCLModel*joined$ChainLength
   medianDF <- data.frame(ChainLength=1:5,medianCLDiscrepancy=dByPercentileByLength2(period1,5,1))
 
@@ -41,6 +35,7 @@ createPredictionSpreadsheet <- function(period1,period2) {
   return(joined)
 }
 
+# Create the precentile table
 dByPercentileByLength2 <- function(periodDataWithCDF, maxCL, nDistribPoints) {
   requestedProbabilityPoints=equallySpacedBetween0And1(nDistribPoints)
   a=matrix(NA,maxCL,nDistribPoints)

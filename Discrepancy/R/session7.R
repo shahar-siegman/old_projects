@@ -1,4 +1,4 @@
-mainAnalysisFlow <- function(rawDF = NA, placementSample=NA, externalDiscrepancyData=NA) {
+mainAnalysisFlow <- function(rawDF = NA, placementIdsToOutput=NA, externalDiscrepancyDataToJoin=NA) {
   # get the raw data, if not supplied as input
   if (identical(rawDF, NA))
     rawDF <- getRawPlacementData()
@@ -9,23 +9,21 @@ mainAnalysisFlow <- function(rawDF = NA, placementSample=NA, externalDiscrepancy
 
 
   # if DF with placements to sample was given, use it
-  if (!identical(placementSample,NA) && "placementId" %in% names(placementSample)) {
-    print (paste("Sampling",nrow(placementSample), "placements from a total of", nrow (period2)))
-    period2 <- period2 %>% inner_join(placementSample %>% select(placementId))
+  isPlacementsToOutputSpecified <- (!identical(placementIdsToOutput,NA) && "placementId" %in% names(placementIdsToOutput))
+  if (isPlacementsToOutputSpecified)  {
+    print (paste("Outputting",nrow(placementIdsToOutput), "placements from a total of", nrow (period2)))
+    period2 <- period2 %>% inner_join(placementIdsToOutput %>% select(placementId))
   }
   pred <- createPredictionSpreadsheet(period1, period2)
 
-  if (!identical(externalDiscrepancyData,NA) && "placementId" %in% names(externalDiscrepancyData)) {
+  isReferenceDiscrepancyDataSpecified <- (!identical(externalDiscrepancyDataToJoin,NA) && "placementId" %in% names(externalDiscrepancyDataToJoin))
+  if (isReferenceDiscrepancyDataSpecified)  {
     pred <- pred %>% left_join(externalDiscrepancyData, by=c("placementId","ChainLength"))
   }
   return(pred)
 }
 
 
-getPlacementSample <- function() {
-  inputDF <- read.csv("C:/Code/Service/Komoona.BigD.NetworkModelUtil/bin/Debug/pcmnts1.txt", header=FALSE)
-  inputDF <- inputDF %>% transmute(placementID=V1)
-}
 
 
 analyzePredictionSpreadsheet <- function(pred) {

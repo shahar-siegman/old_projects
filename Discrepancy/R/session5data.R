@@ -1,10 +1,5 @@
 library(dplyr)
 library(ggplot2)
-getRawPlacementData <- function() {
-  rawDF<-read.csv("C:/Shahar/Projects/Discrepancy/raw_input/data.txt")
-  rawDF$Date <- as.Date(rawDF$Date,format="%d/%m/%Y")
-  return(rawDF)
-}
 
 equallySpacedBetween0And1 <- function(n)
   (1:n)/n - 1/(2*n)
@@ -102,13 +97,6 @@ getDiscrepancyModel <- function(period1) {
   return(period1)
 }
 
-getSamplePlacementData <- function (rawDF) {
-  filterAndGroupRawData(rawDF,"2015-07-01","2015-07-08")
-}
-
-getTestPlacementData <- function(rawDF) {
-  filterAndGroupRawData(rawDF,"2015-07-09","2015-07-23")
-}
 
 averagePlacmentModel <- function(groupedDF) {
   placementModelDF <- groupedDF %>%
@@ -160,5 +148,4 @@ mainPlot <- function(predictionDF=data.frame()) {
   f <- predictionDF %>% filter(DiscrepancyPercent>0)
   print(ggplot()+geom_point(data=f,aes(x=predicted,y=DiscrepancyPercent)))
   return(predictionDF)
-
 }
