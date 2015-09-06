@@ -146,8 +146,9 @@ mainPredict <- function(rawDF=data.frame()) {
   if (identical(rawDF,data.frame()))
     rawDF <- getRawPlacementData()
   # preparations
-  sampleDF <- getSamplePlacementData(rawDF)
-  discrepancyModelPerPlacement <- averagePlacmentModel(getDiscrepancyModel(sampleDF))
+  period1 <- discrepancyCumlativeDistrib(getSamplePlacementData(rawDF))
+
+  discrepancyModelPerPlacement <- averagePlacmentModel(getDiscrepancyModel(period1))
   testDF <- getTestPlacementData(rawDF)
   predictionDF <- perdictUsingPlacementModel(testDF, discrepancyModelPerPlacement)
 }

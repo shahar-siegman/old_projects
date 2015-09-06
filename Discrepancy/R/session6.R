@@ -18,8 +18,12 @@ discrepancyCumlativeDistrib <- function(periodDF) {
     #write.csv(p,"check_rank.csv")
   return(p)
 }
-
+### ******************************************
+#   createPredictionSpreadsheet
+#   main function for prediction and comparison
+### ******************************************
 createPredictionSpreadsheet <- function(period1,period2) {
+  # join the "
   period1 <- discrepancyCumlativeDistrib(period1)
 
   joined <- period2 %>%
@@ -51,13 +55,6 @@ dByPercentileByLength2 <- function(periodDataWithCDF, maxCL, nDistribPoints) {
   return(a)
 }
 
-testPredictionSpreadsheet <- function(rawDF=data.frame()) {
-  if (identical(rawDF,data.frame()))
-    rawDF <- getRawPlacementData()
-  period1 <- getSamplePlacementData(rawDF)
-  period2 <- getTestPlacementData(rawDF)
-  joined <- createPredictionSpreadsheet(period1, period2)
-}
 
 testDByPercentileByLength2 <- function(rawDF=data.frame()) {
   if (identical(rawDF,data.frame()))
