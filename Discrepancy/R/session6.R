@@ -56,5 +56,6 @@ testDByPercentileByLength2 <- function(rawDF=data.frame()) {
     rawDF <- getRawPlacementData()
   period1 <- discrepancyCumlativeDistrib(getSamplePlacementData(rawDF))
   dByPercentileByLength2(period1,5,14)
+  # dByPercentileByLength2(period1,5,1)
 
 }

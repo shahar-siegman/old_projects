@@ -2,3 +2,21 @@ raw_input
 R/.RData
 R/.Rhistory
 **/\~*
+E30BF410
+R/ComparePredictions.csv
+R/ProductionModelDiscrepancy25.csv
+R/check_rank.csv
+R/check_rank.xlsx
+R/predict_result.xlsx
+R/session6residuals.pdf
+Results.xlsx
+category_for_predict.csv
+compute_disc_based_on_tool_output.xlsx
+discrepancy_by_placement-category_length.xlsx
+discrepancy_by_url-category_length.xlsx
+myRConnectionSampleCode.cs
+predict_website_category.ktr
+predicted_discrepancy_by_category_length.csv
+productionModelDiscrepancy25.xlsx
+results_25placements.xlsx
+websites_into_categories - Copy.ktr
