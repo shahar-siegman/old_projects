@@ -1,7 +1,7 @@
 library(dplyr)
 library(ggplot2)
 readInput <- function() {
-  rawDF<-read.csv("C:/Shahar/Projects/eCpmTooHigh/performance_with_fp.out.csv", sep=";", as.is=TRUE)
+  rawDF<-read.csv("C:/Shahar/Projects/eCpmTooHigh/performance_with_fp_oct.out.csv", sep=";", as.is=TRUE)
   rawDF$performance_date <- as.Date(rawDF$performance_date)
   return (rawDF)
 }
@@ -10,6 +10,7 @@ extractFromChangeColumns <- function(rawDF) {
   floorPriceVec <- extractFloorPriceByDate(rawDF)
   isOptimizedVec <- extractIsOptimizedByDate(rawDF)
   optimGoalVec <- extractOptimizationGoal(rawDF)
+  riskVec <- extractRiskByDate(rawDF)
   data <- rawDF %>%
     transmute(tagid
               , performance_date
@@ -19,6 +20,7 @@ extractFromChangeColumns <- function(rawDF) {
               , floorPrice = floorPriceVec
               , isOptimized = isOptimizedVec
               , optimizationGoal = optimGoalVec
+              , riskPercent = riskVec
               , ecpmSlack = ecpm-floorPrice
               , cost
               , meaningfulFloorPrice = floorPrice > 0.15
@@ -54,6 +56,14 @@ extractOptimizationGoal <- function (rawDF) {
   return (OptimGoalVec)
 }
 
+extractRiskByDate <- function (rawDF) {
+  nr <- nrow(rawDF)
+  riskVec <- numeric(nr)
+  for (i in 1:nr) {
+    riskVec[i] <- getValueByDate(rawDF$performance_date[i], rawDF$risk_percent[i], rawDF$risk_change_date[i])
+  }
+  return(riskVec)
+}
 
 getValueByDate <- function(date, valueList, changeDates, as.type=as.numeric, initialValue=NA, filterChangeDay=TRUE) {
   changeDateVec <- as.Date(strsplit(changeDates, ",")[[1]])
@@ -73,10 +83,14 @@ plots <- function(data) {
   data1 <- data[data$meaningfulImpressions,]
   ggplot()+geom_histogram(data=data1,aes(x=ecpmSlack, y=..count../sum(..count..), fill=meaningfulFloorPrice), binwidth=0.125) #
 
-  data2 <- subset(data,meaningfulImpressions & meaningfulFloorPrice & !is.na(optimizationGoal))
+  data2 <- subset(data,meaningfulImpressions & meaningfulFloorPrice & !is.na(optimizationGoal) & isOptimized==1)
   ggplot()+geom_histogram(data=data2,aes(x=ecpmSlack, fill=optimizationGoal), binwidth=0.15, alpha=0.5) +
     xlim(-0.2,1)#
-
+  g <- unique(data2$optimizationGoal)
+  for (i in 1:length(g)) {
+    print (g[i])
+    print (quantile(unlist(data2 %>% filter(optimizationGoal==g[i]) %>% select(ecpmSlack)), probs=seq(0.1, 1, 0.1) ))
+  }
 
 }
 

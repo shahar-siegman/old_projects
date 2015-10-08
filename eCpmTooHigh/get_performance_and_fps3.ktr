@@ -108,8 +108,10 @@
   <hop> <from>join by tagid</from><to>Merge Join</to><enabled>Y</enabled> </hop>
   <hop> <from>optimization on&#x2f;off</from><to>Merge Join</to><enabled>Y</enabled> </hop>
   <hop> <from>Merge Join</from><to>Merge Join 2</to><enabled>Y</enabled> </hop>
-  <hop> <from>Merge Join 2</from><to>Text file output</to><enabled>Y</enabled> </hop>
   <hop> <from>optimization goal changes</from><to>Merge Join 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>risk changes</from><to>left join risk</to><enabled>Y</enabled> </hop>
+  <hop> <from>Merge Join 2</from><to>left join risk</to><enabled>Y</enabled> </hop>
+  <hop> <from>left join risk</from><to>Text file output</to><enabled>Y</enabled> </hop>
   </order>
   <step>
     <name>Floor prices</name>
@@ -123,7 +125,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT tagid&#xd;&#xa;	, group_concat&#x28;floor order by date&#x29; floor_prices&#xd;&#xa;	, group_concat&#x28;date order by date&#x29; floor_change_dates&#xd;&#xa;FROM kmn_floor_prices_history &#xd;&#xa;WHERE date between &#x27;2015-01-01&#x27; and &#x27;2015-09-01&#x27;&#xd;&#xa;and floor &#x3e; 0&#xd;&#xa;group by tagid&#x3b;&#xd;&#xa;&#xd;&#xa;</sql>
+    <sql>SELECT tagid&#xd;&#xa;	, group_concat&#x28;floor order by date&#x29; floor_prices&#xd;&#xa;	, group_concat&#x28;date order by date&#x29; floor_change_dates&#xd;&#xa;FROM kmn_floor_prices_history &#xd;&#xa;WHERE date between &#x27;2015-01-01&#x27; and &#x27;2015-10-01&#x27;&#xd;&#xa;and floor &#x3e; 0&#xd;&#xa;group by tagid&#x3b;&#xd;&#xa;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -166,6 +168,34 @@
     </step>
 
   <step>
+    <name>Merge Join 2</name>
+    <type>MergeJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<join_type>INNER</join_type>
+<step1>Merge Join</step1>
+<step2>optimization goal changes</step2>
+    <keys_1>
+      <key>tagid</key>
+    </keys_1>
+    <keys_2>
+      <key>tagid</key>
+    </keys_2>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>545</xloc>
+      <yloc>145</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
     <name>Text file output</name>
     <type>TextFileOutput</type>
     <description/>
@@ -190,7 +220,7 @@
     <fileNameField/>
     <create_parent_folder>N</create_parent_folder>
     <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;eCpmTooHigh&#x5c;performance_with_fp.out</name>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;eCpmTooHigh&#x5c;performance_with_fp_oct.out</name>
       <is_command>N</is_command>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
@@ -352,11 +382,35 @@
         <length>-1</length>
         <precision>-1</precision>
       </field>
+      <field>
+        <name>risk_change_date</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>risk_percent</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>729</xloc>
-      <yloc>147</yloc>
+      <xloc>874</xloc>
+      <yloc>143</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -502,6 +556,32 @@
     </step>
 
   <step>
+    <name>optimization goal changes</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>komoona dev</connection>
+    <sql>SELECT entity_id tagid&#xd;&#xa;	, concat&#x28;substring_index&#x28;group_concat&#x28;case old_value when 1 then &#x27;A&#x27; when 2 then &#x27;B&#x27; when 3 then &#x27;C&#x27; when 4 then &#x27;A&#x2b;&#x27; else &#x27;U&#x27; end order by timestamp&#x29;,&#x27;,&#x27;,1&#x29;,&#x27;,&#x27;,&#xd;&#xa;		group_concat&#x28;case new_value when 1 then &#x27;A&#x27; when 2 then &#x27;B&#x27; when 3 then &#x27;C&#x27; when 4 then &#x27;A&#x2b;&#x27; else &#x27;u&#x27; end order by timestamp&#x29;&#x29; optimization_goal&#xd;&#xa;    , concat&#x28;&#x27;2015-01-01,&#x27;,group_concat&#x28;date&#x28;from_unixtime&#x28;timestamp&#x29;&#x29; order by timestamp&#x29;&#x29; goal_change_date&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization_goal_id&#x27;&#xd;&#xa;and timestamp between 1420070400 &#x23; Midnight Jan 1st&#xd;&#xa;		and 1443657600 &#x23; Midnight Oct. 1st&#xd;&#xa;group by tagid&#x3b;&#xd;&#xa;</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>548</xloc>
+      <yloc>247</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
     <name>optimization on&#x2f;off</name>
     <type>TableInput</type>
     <description/>
@@ -513,7 +593,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT entity_id tagid&#xd;&#xa;	, group_concat&#x28;if&#x28;new_value&#x3e;&#x3d;3,1,0&#x29; order by timestamp&#x29; optimization_in_out&#xd;&#xa;    , group_concat&#x28;date&#x28;from_unixtime&#x28;timestamp&#x29;&#x29; order by timestamp&#x29; in_out_date&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization&#x27;&#xd;&#xa;and timestamp between 1420070400 &#x23; Midnight Jan 1st&#xd;&#xa;		and 1438387200 &#x23; Midnight Aug. 1st&#xd;&#xa;group by tagid&#xd;&#xa;</sql>
+    <sql>SELECT entity_id tagid&#xd;&#xa;	, group_concat&#x28;if&#x28;new_value&#x3e;&#x3d;3,1,0&#x29; order by timestamp&#x29; optimization_in_out&#xd;&#xa;    , group_concat&#x28;date&#x28;from_unixtime&#x28;timestamp&#x29;&#x29; order by timestamp&#x29; in_out_date&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization&#x27;&#xd;&#xa;and timestamp between 1420070400 &#x23; Midnight Jan 1st&#xd;&#xa;		and 1443657600 &#x23; Midnight Oct. 1st&#xd;&#xa;group by tagid&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -539,7 +619,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT tagid&#xd;&#xa;	, date performance_date&#xd;&#xa;	, impressions&#xd;&#xa;	, served&#x2f;impressions fill&#xd;&#xa;	, cost&#xd;&#xa;	, 1000&#x2a;cost&#x2f;served ecpm&#xd;&#xa;	&#xd;&#xa;FROM kmn_tag_report&#xd;&#xa;WHERE &#xd;&#xa;	date between &#x27;2015-07-01&#x27; and &#x27;2015-08-01&#x27;&#xd;&#xa;	and impressions &#x3e; 0&#xd;&#xa;	and served &#x3e; 10&#xd;&#xa;order by tagid,performance_date</sql>
+    <sql>SELECT tagid&#xd;&#xa;	, date performance_date&#xd;&#xa;	, impressions&#xd;&#xa;	, served&#x2f;impressions fill&#xd;&#xa;	, cost&#xd;&#xa;	, 1000&#x2a;cost&#x2f;served ecpm&#xd;&#xa;	&#xd;&#xa;FROM kmn_tag_report&#xd;&#xa;WHERE &#xd;&#xa;	date between &#x27;2015-09-01&#x27; and &#x27;2015-10-01&#x27;&#xd;&#xa;	and impressions &#x3e; 0&#xd;&#xa;	and served &#x3e; 10&#xd;&#xa;order by tagid,performance_date</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -554,33 +634,7 @@
     </step>
 
   <step>
-    <name>optimization goal changes</name>
-    <type>TableInput</type>
-    <description/>
-    <distribute>N</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <connection>komoona dev</connection>
-    <sql>SELECT entity_id tagid&#xd;&#xa;	, concat&#x28;left&#x28;group_concat&#x28;case old_value when 1 then &#x27;A&#x27; when 2 then &#x27;B&#x27; when 3 then &#x27;C&#x27; when 4 then &#x27;A&#x2b;&#x27; else &#x27;U&#x27; end order by timestamp&#x29;,1&#x29;,&#x27;,&#x27;,&#xd;&#xa;		group_concat&#x28;case new_value when 1 then &#x27;A&#x27; when 2 then &#x27;B&#x27; when 3 then &#x27;C&#x27; when 4 then &#x27;A&#x2b;&#x27; else &#x27;u&#x27; end order by timestamp&#x29;&#x29; optimization_goal&#xd;&#xa;    , concat&#x28;&#x27;2015-01-01,&#x27;,group_concat&#x28;date&#x28;from_unixtime&#x28;timestamp&#x29;&#x29; order by timestamp&#x29;&#x29; goal_change_date&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization_goal_id&#x27;&#xd;&#xa;and timestamp between 1420070400 &#x23; Midnight Jan 1st&#xd;&#xa;		and 1438387200 &#x23; Midnight Aug. 1st&#xd;&#xa;group by tagid&#x3b;&#xd;&#xa;</sql>
-    <limit>0</limit>
-    <lookup/>
-    <execute_each_row>N</execute_each_row>
-    <variables_active>N</variables_active>
-    <lazy_conversion_active>N</lazy_conversion_active>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>544</xloc>
-      <yloc>247</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Merge Join 2</name>
+    <name>left join risk</name>
     <type>MergeJoin</type>
     <description/>
     <distribute>Y</distribute>
@@ -591,18 +645,44 @@
            <schema_name/>
            </partitioning>
 <join_type>INNER</join_type>
-<step1>Merge Join</step1>
-<step2>optimization goal changes</step2>
+<step1>Merge Join 2</step1>
+<step2>risk changes</step2>
     <keys_1>
       <key>tagid</key>
     </keys_1>
     <keys_2>
-      <key>tagid</key>
+      <key>placement_id</key>
     </keys_2>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>545</xloc>
+      <xloc>669</xloc>
       <yloc>145</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>risk changes</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>komoona dev</connection>
+    <sql>select placement_id&#xd;&#xa;	, group_concat&#x28;date&#x28;update_timestamp&#x29; order by update_timestamp&#x29; as risk_change_date &#xd;&#xa;	, group_concat&#x28;avg_daily_revenue_percent order by update_timestamp&#x29; risk_percent&#xd;&#xa;from kmn_risk_allocation&#xd;&#xa;where update_timestamp &#x3e;&#x3d;&#x27;2015-01-01&#x27;&#xd;&#xa;group by placement_id&#xd;&#xa;</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>666</xloc>
+      <yloc>255</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
