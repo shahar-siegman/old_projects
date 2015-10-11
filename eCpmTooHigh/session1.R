@@ -92,5 +92,10 @@ plots <- function(data) {
     print (quantile(unlist(data2 %>% filter(optimizationGoal==g[i]) %>% select(ecpmSlack)), probs=seq(0.1, 1, 0.1) ))
   }
 
+  r1 <- data %>% group_by(optimizationGoal, riskPercent) %>% summarise(count=n(),medianSlack = median(ecpmSlack)) %>% filter(count>50)
+  ggplot(data=r1)+geom_bar(aes(x=riskPercent,y=medianSlack),stat="identity",position="dodge",fill="blue")+facet_wrap(~optimizationGoal)
+
+  t1 <- dat %>% filter(optimizationGoal=="A+")
+  ggplot(data=t1 %>% filter(!is.na(riskPercent)))+geom_density(aes(x=ecpmSlack,color=as.factor(riskPercent)))
 }
 
