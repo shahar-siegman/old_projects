@@ -16,7 +16,7 @@
         </parameter>
         <parameter>
             <name>start_date</name>
-            <default_value>2015-08-01</default_value>
+            <default_value>2015-09-01</default_value>
             <description/>
         </parameter>
     </parameters>
@@ -142,22 +142,31 @@
   <order>
   <hop> <from>performance</from><to>Text file output 2</to><enabled>Y</enabled> </hop>
   <hop> <from>performance</from><to>join by tagid</to><enabled>Y</enabled> </hop>
-  <hop> <from>join by tagid</from><to>apply changelog</to><enabled>Y</enabled> </hop>
   <hop> <from>Floor prices</from><to>join by tagid</to><enabled>Y</enabled> </hop>
   <hop> <from>apply changelog</from><to>discard unneeded columns</to><enabled>Y</enabled> </hop>
   <hop> <from>discard unneeded columns</from><to>Merge Join</to><enabled>Y</enabled> </hop>
-  <hop> <from>optimization goal changes</from><to>Merge Join</to><enabled>Y</enabled> </hop>
-  <hop> <from>Merge Join</from><to>apply changelog 2</to><enabled>Y</enabled> </hop>
-  <hop> <from>apply changelog 2</from><to>discard unneeded columns 2</to><enabled>Y</enabled> </hop>
-  <hop> <from>discard unneeded columns 2</from><to>Merge Join 3</to><enabled>Y</enabled> </hop>
   <hop> <from>optimization on&#x2f;off 3</from><to>Merge Join 3</to><enabled>Y</enabled> </hop>
-  <hop> <from>Merge Join 3</from><to>apply changelog 3</to><enabled>Y</enabled> </hop>
   <hop> <from>apply changelog 3</from><to>discard unneeded columns 3</to><enabled>Y</enabled> </hop>
   <hop> <from>discard unneeded columns 3</from><to>Merge Join 4</to><enabled>Y</enabled> </hop>
   <hop> <from>risk changes 2</from><to>Merge Join 4</to><enabled>Y</enabled> </hop>
-  <hop> <from>Merge Join 4</from><to>apply changelog 4</to><enabled>Y</enabled> </hop>
   <hop> <from>apply changelog 4</from><to>discard unneeded columns 4</to><enabled>Y</enabled> </hop>
   <hop> <from>discard unneeded columns 4</from><to>Text file output 3</to><enabled>Y</enabled> </hop>
+  <hop> <from>optimization goal changes</from><to>Analytic Query</to><enabled>Y</enabled> </hop>
+  <hop> <from>Analytic Query</from><to>Merge Join</to><enabled>Y</enabled> </hop>
+  <hop> <from>apply changelog 2 2</from><to>apply changelog 2 2 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>apply changelog 2 2 2</from><to>apply changelog 2 2 2 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>apply changelog 2</from><to>discard unneeded columns 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>discard unneeded columns 2</from><to>apply changelog 2 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>apply changelog 2 2 2 2</from><to>Merge Join 3</to><enabled>Y</enabled> </hop>
+  <hop> <from>join by tagid</from><to>get tag and date in case blank</to><enabled>Y</enabled> </hop>
+  <hop> <from>get tag and date in case blank</from><to>apply changelog</to><enabled>Y</enabled> </hop>
+  <hop> <from>Merge Join</from><to>get tag and date in case blank 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>get tag and date in case blank 2</from><to>apply changelog 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>Merge Join 3</from><to>get tag and date in case blank 3</to><enabled>Y</enabled> </hop>
+  <hop> <from>get tag and date in case blank 3</from><to>apply changelog 3</to><enabled>Y</enabled> </hop>
+  <hop> <from>Merge Join 4</from><to>Calculator</to><enabled>N</enabled> </hop>
+  <hop> <from>Calculator</from><to>apply changelog 4</to><enabled>Y</enabled> </hop>
+  <hop> <from>Merge Join 4</from><to>Text file output 3 2</to><enabled>Y</enabled> </hop>
   </order>
   <step>
     <name>Floor prices</name>
@@ -171,7 +180,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT tagid&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;floor order by date&#x29;,&#x27;,&#x27;,-1&#x29; floor_price_event&#xd;&#xa;	, date&#x28;if&#x28;date&#x3c;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,date&#x29;&#x29; floor_change_date&#xd;&#xa;FROM kmn_floor_prices_history &#xd;&#xa;WHERE date between &#x27;2015-01-01&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;and floor &#x3e; 0&#xd;&#xa;group by tagid, floor_change_date&#x3b;&#xd;&#xa;</sql>
+    <sql>SELECT tagid&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;floor order by date&#x29;,&#x27;,&#x27;,-1&#x29; floor_price_event&#xd;&#xa;	, date&#x28;if&#x28;date&#x3c;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,date&#x29;&#x29; floor_change_date&#xd;&#xa;FROM kmn_floor_prices_history &#xd;&#xa;WHERE date between &#x27;2015-01-01&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;and floor &#x3e; 0&#xd;&#xa;and tagid &#x21;&#x3d;&#x27;00f424dd97c68c0fa197d62726446882&#x27;&#xd;&#xa;group by tagid, floor_change_date&#x3b;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -179,8 +188,8 @@
     <lazy_conversion_active>N</lazy_conversion_active>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>335</xloc>
-      <yloc>255</yloc>
+      <xloc>245</xloc>
+      <yloc>275</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -196,9 +205,9 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-<join_type>LEFT OUTER</join_type>
+<join_type>FULL OUTER</join_type>
 <step1>discard unneeded columns</step1>
-<step2>optimization goal changes</step2>
+<step2>Analytic Query</step2>
     <keys_1>
       <key>tagid</key>
       <key>performance_date</key>
@@ -209,8 +218,8 @@
     </keys_2>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>503</xloc>
-      <yloc>157</yloc>
+      <xloc>458</xloc>
+      <yloc>204</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -237,8 +246,8 @@
     </keys_2>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>744</xloc>
-      <yloc>183</yloc>
+      <xloc>740</xloc>
+      <yloc>201</yloc>
       <draw>N</draw>
       </GUI>
     </step>
@@ -247,15 +256,15 @@
     <name>Merge Join 3</name>
     <type>MergeJoin</type>
     <description/>
-    <distribute>Y</distribute>
+    <distribute>N</distribute>
     <custom_distribution/>
     <copies>1</copies>
          <partitioning>
            <method>none</method>
            <schema_name/>
            </partitioning>
-<join_type>LEFT OUTER</join_type>
-<step1>discard unneeded columns 2</step1>
+<join_type>FULL OUTER</join_type>
+<step1>apply changelog 2 2 2 2</step1>
 <step2>optimization on&#x2f;off 3</step2>
     <keys_1>
       <key>tagid</key>
@@ -267,8 +276,8 @@
     </keys_2>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>726</xloc>
-      <yloc>181</yloc>
+      <xloc>722</xloc>
+      <yloc>199</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -284,7 +293,7 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-<join_type>LEFT OUTER</join_type>
+<join_type>FULL OUTER</join_type>
 <step1>discard unneeded columns 3</step1>
 <step2>risk changes 2</step2>
     <keys_1>
@@ -297,8 +306,8 @@
     </keys_2>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>934</xloc>
-      <yloc>183</yloc>
+      <xloc>925</xloc>
+      <yloc>203</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -720,8 +729,8 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>976</xloc>
-      <yloc>186</yloc>
+      <xloc>967</xloc>
+      <yloc>206</yloc>
       <draw>N</draw>
       </GUI>
     </step>
@@ -856,8 +865,8 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>198</xloc>
-      <yloc>246</yloc>
+      <xloc>115</xloc>
+      <yloc>266</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -913,7 +922,7 @@
         <decimal/>
         <group/>
         <nullif/>
-        <trim_type>both</trim_type>
+        <trim_type>none</trim_type>
         <length>-1</length>
         <precision>-1</precision>
       </field>
@@ -925,81 +934,81 @@
         <decimal/>
         <group/>
         <nullif/>
-        <trim_type>both</trim_type>
+        <trim_type>none</trim_type>
         <length>-1</length>
         <precision>-1</precision>
       </field>
       <field>
         <name>impressions</name>
         <type>Integer</type>
-        <format>0</format>
+        <format>&#x23;&#x3b;-&#x23;</format>
         <currency/>
         <decimal>.</decimal>
         <group>,</group>
         <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <length>9</length>
+        <precision>0</precision>
       </field>
       <field>
         <name>fill</name>
         <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
+        <format>&#x23;,&#x23;&#x23;0.&#x23;&#x23;&#x23;</format>
         <currency/>
         <decimal>.</decimal>
         <group/>
         <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <length>17</length>
+        <precision>4</precision>
       </field>
       <field>
         <name>cost</name>
         <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
+        <format>&#x23;.&#x23;&#x3b;-&#x23;.&#x23;</format>
         <currency/>
         <decimal>.</decimal>
         <group>,</group>
         <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <length>10</length>
+        <precision>4</precision>
       </field>
       <field>
         <name>profit</name>
         <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
+        <format>&#x23;.&#x23;&#x3b;-&#x23;.&#x23;</format>
         <currency/>
         <decimal>.</decimal>
         <group>,</group>
         <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <length>10</length>
+        <precision>4</precision>
       </field>
       <field>
         <name>client_ecpm</name>
         <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
+        <format>&#x23;,&#x23;&#x23;0.&#x23;&#x23;&#x23;</format>
         <currency/>
         <decimal>.</decimal>
         <group/>
         <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <length>18</length>
+        <precision>8</precision>
       </field>
       <field>
         <name>total_ecpm</name>
         <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
+        <format>&#x23;,&#x23;&#x23;0.&#x23;&#x23;&#x23;</format>
         <currency/>
         <decimal>.</decimal>
         <group/>
         <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <length>19</length>
+        <precision>8</precision>
       </field>
       <field>
         <name>floor_price</name>
@@ -1009,7 +1018,55 @@
         <decimal/>
         <group/>
         <nullif/>
-        <trim_type>both</trim_type>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>next_goal</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>2</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>next_goal_date</name>
+        <type>String</type>
+        <format>yyyy-MM-dd</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>prev_goal</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>2</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>prev_goal_date</name>
+        <type>String</type>
+        <format>yyyy-MM-dd</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
         <length>-1</length>
         <precision>-1</precision>
       </field>
@@ -1021,7 +1078,7 @@
         <decimal/>
         <group/>
         <nullif/>
-        <trim_type>both</trim_type>
+        <trim_type>none</trim_type>
         <length>-1</length>
         <precision>-1</precision>
       </field>
@@ -1033,7 +1090,7 @@
         <decimal/>
         <group/>
         <nullif/>
-        <trim_type>both</trim_type>
+        <trim_type>none</trim_type>
         <length>-1</length>
         <precision>-1</precision>
       </field>
@@ -1045,7 +1102,19 @@
         <decimal/>
         <group/>
         <nullif/>
-        <trim_type>both</trim_type>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>date1</name>
+        <type>Date</type>
+        <format>yyyy-MM-dd</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
         <length>-1</length>
         <precision>-1</precision>
       </field>
@@ -1160,7 +1229,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 </usage_parameter></usage_parameters>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>395</xloc>
-      <yloc>78</yloc>
+      <yloc>31</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1264,7 +1333,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 </usage_parameter></usage_parameters>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>563</xloc>
-      <yloc>85</yloc>
+      <yloc>38</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1368,7 +1437,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 </usage_parameter></usage_parameters>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>775</xloc>
-      <yloc>91</yloc>
+      <yloc>44</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1471,8 +1540,8 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 <parameter_description/>
 </usage_parameter></usage_parameters>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1022</xloc>
-      <yloc>107</yloc>
+      <xloc>1038</xloc>
+      <yloc>51</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1492,10 +1561,55 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       <remove>        <name>tagid_1</name>
       </remove>      <remove>        <name>floor_price_event</name>
       </remove>      <remove>        <name>floor_change_date</name>
-      </remove>    </fields>     <cluster_schema/>
+      </remove>      <meta>        <name>fill</name>
+        <rename>fill</rename>
+        <type>Number</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>&#x23;,&#x23;&#x23;0.&#x23;&#x23;&#x23;</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>      <meta>        <name>client_ecpm</name>
+        <rename>client_ecpm</rename>
+        <type>Number</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>&#x23;,&#x23;&#x23;0.&#x23;&#x23;&#x23;</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>      <meta>        <name>total_ecpm</name>
+        <rename>total_ecpm</rename>
+        <type>Number</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>&#x23;,&#x23;&#x23;0.&#x23;&#x23;&#x23;</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>427</xloc>
-      <yloc>208</yloc>
+      <xloc>384</xloc>
+      <yloc>200</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1515,10 +1629,40 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       <remove>        <name>optimization_goal_event</name>
       </remove>      <remove>        <name>goal_change_date</name>
       </remove>      <remove>        <name>tagid_1</name>
-      </remove>    </fields>     <cluster_schema/>
+      </remove>      <meta>        <name>prev_goal_date</name>
+        <rename>prev_goal_date</rename>
+        <type>String</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>      <meta>        <name>next_goal_date</name>
+        <rename>next_goal_date</rename>
+        <type>String</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>616</xloc>
-      <yloc>207</yloc>
+      <xloc>575</xloc>
+      <yloc>196</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1538,6 +1682,9 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       <remove>        <name>tagid_1</name>
       </remove>      <remove>        <name>in_out_date</name>
       </remove>      <remove>        <name>optimization_in_out</name>
+      </remove>      <remove>        <name>prev_goal_1</name>
+      </remove>      <remove>        <name>prev_goal_date_1</name>
+      </remove>      <remove>        <name>next_goal_1</name>
       </remove>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>838</xloc>
@@ -1580,7 +1727,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <method>none</method>
            <schema_name/>
            </partitioning>
-<join_type>LEFT OUTER</join_type>
+<join_type>FULL OUTER</join_type>
 <step1>performance</step1>
 <step2>Floor prices</step2>
     <keys_1>
@@ -1593,8 +1740,8 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     </keys_2>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>330</xloc>
-      <yloc>158</yloc>
+      <xloc>247</xloc>
+      <yloc>178</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1639,7 +1786,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT tagid&#xd;&#xa;	, date&#x28;goal_change_time&#x29; goal_change_date &#xd;&#xa;    , case substring_index&#x28;group_concat&#x28;optimization_goal_event order by goal_change_time&#x29;,&#x27;,&#x27;,-1&#x29;&#xd;&#xa;		when 1 then &#x27;A&#x27; &#xd;&#xa;        when 2 then &#x27;B&#x27; &#xd;&#xa;        when 3 then &#x27;C&#x27; &#xd;&#xa;        when 4 then &#x27;A&#x2b;&#x27; &#xd;&#xa;        else &#x27;U&#x27; end  optimization_goal_event&#xd;&#xa;FROM &#x28;&#xd;&#xa;SELECT entity_id tagid&#xd;&#xa;	, &#x27;&#x24;&#x7b;start_date&#x7d; 00&#x3a;00&#x3a;00&#x27; goal_change_time &#xd;&#xa;	, substring_index&#x28;group_concat&#x28;old_value order by timestamp&#x29;,&#x27;,&#x27;,1&#x29; optimization_goal_event&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization_goal_id&#x27;&#xd;&#xa;and timestamp between unix_timestamp&#x28;&#x27;2015-01-01&#x27;&#x29; &#x23; Midnight Jan 1st&#xd;&#xa;		and unix_timestamp&#x28;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; &#xd;&#xa;group by tagid&#xd;&#xa;&#xd;&#xa;UNION&#xd;&#xa;&#xd;&#xa;SELECT entity_id tagid&#xd;&#xa;    , if&#x28;from_unixtime&#x28;timestamp&#x29;&#x3e;&#x3d;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,from_unixtime&#x28;timestamp&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d; 00&#x3a;00&#x3a;01&#x27;&#x29; goal_change_time&#xd;&#xa;	, new_value optimization_goal_event&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization_goal_id&#x27;&#xd;&#xa;and timestamp between unix_timestamp&#x28;&#x27;2015-01-01&#x27;&#x29; &#x23; Midnight Jan 1st&#xd;&#xa;		and unix_timestamp&#x28;&#x24;&#x7b;end_date&#x7d;&#x29;  &#x23; Midnight Oct. 1st&#xd;&#xa;&#x29; a&#xd;&#xa;group by tagid, goal_change_date</sql>
+    <sql>SELECT tagid&#xd;&#xa;	, date&#x28;goal_change_time&#x29; goal_change_date &#xd;&#xa;    , case substring_index&#x28;group_concat&#x28;optimization_goal_event order by goal_change_time&#x29;,&#x27;,&#x27;,-1&#x29;&#xd;&#xa;		when 1 then &#x27;A&#x27; &#xd;&#xa;        when 2 then &#x27;B&#x27; &#xd;&#xa;        when 3 then &#x27;C&#x27; &#xd;&#xa;        when 4 then &#x27;A&#x2b;&#x27; &#xd;&#xa;        else &#x27;U&#x27; end  optimization_goal_event&#xd;&#xa;FROM &#x28;&#xd;&#xa;SELECT entity_id tagid&#xd;&#xa;	, &#x27;&#x24;&#x7b;start_date&#x7d; 00&#x3a;00&#x3a;00&#x27; goal_change_time &#xd;&#xa;	, substring_index&#x28;group_concat&#x28;old_value order by timestamp&#x29;,&#x27;,&#x27;,1&#x29; optimization_goal_event&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization_goal_id&#x27;&#xd;&#xa;and timestamp between unix_timestamp&#x28;&#x27;2015-01-01&#x27;&#x29; &#x23; Midnight Jan 1st&#xd;&#xa;		and unix_timestamp&#x28;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; &#xd;&#xa;group by tagid&#xd;&#xa;&#xd;&#xa;UNION&#xd;&#xa;&#xd;&#xa;SELECT entity_id tagid&#xd;&#xa;    , if&#x28;from_unixtime&#x28;timestamp&#x29;&#x3e;&#x3d;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,from_unixtime&#x28;timestamp&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d; 00&#x3a;00&#x3a;01&#x27;&#x29; goal_change_time&#xd;&#xa;	, new_value optimization_goal_event&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization_goal_id&#x27;&#xd;&#xa;and timestamp between unix_timestamp&#x28;&#x27;2015-01-01&#x27;&#x29; &#x23; Midnight Jan 1st&#xd;&#xa;		and unix_timestamp&#x28;&#x24;&#x7b;end_date&#x7d;&#x29;  &#x23; Midnight Oct. 1st&#xd;&#xa;&#x29; a&#xd;&#xa;where tagid&#x21;&#x3d;&#x27;00f424dd97c68c0fa197d62726446882&#x27;&#xd;&#xa;group by tagid, goal_change_date</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -1647,8 +1794,8 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     <lazy_conversion_active>N</lazy_conversion_active>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>512</xloc>
-      <yloc>259</yloc>
+      <xloc>459</xloc>
+      <yloc>486</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1673,8 +1820,8 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     <lazy_conversion_active>N</lazy_conversion_active>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>737</xloc>
-      <yloc>302</yloc>
+      <xloc>733</xloc>
+      <yloc>320</yloc>
       <draw>N</draw>
       </GUI>
     </step>
@@ -1691,7 +1838,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT entity_id tagid&#xd;&#xa;    , date&#x28;if&#x28;date&#x28;from_unixtime&#x28;timestamp&#x29;&#x29;&#x3e;&#x3d;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,date&#x28;from_unixtime&#x28;timestamp&#x29;&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29;&#x29; in_out_date&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;if&#x28;new_value&#x3e;&#x3d;3,1,0&#x29; order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29; optimization_in_out&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization&#x27;&#xd;&#xa;and timestamp between unix_timestamp&#x28;&#x27;2015-01-01&#x27;&#x29;  &#x23; Midnight Jan 1st&#xd;&#xa;		and unix_timestamp&#x28;&#x24;&#x7b;end_date&#x7d;&#x29;  &#x23; Midnight Oct. 1st&#xd;&#xa;group by tagid, timestamp&#xd;&#xa;</sql>
+    <sql>SELECT entity_id tagid&#xd;&#xa;    , date&#x28;if&#x28;date&#x28;from_unixtime&#x28;timestamp&#x29;&#x29;&#x3e;&#x3d;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,date&#x28;from_unixtime&#x28;timestamp&#x29;&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29;&#x29; in_out_date&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;if&#x28;new_value&#x3e;&#x3d;3,1,0&#x29; order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29; optimization_in_out&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization&#x27;&#xd;&#xa;and timestamp between unix_timestamp&#x28;&#x27;2015-01-01&#x27;&#x29;  &#x23; Midnight Jan 1st&#xd;&#xa;		and unix_timestamp&#x28;&#x24;&#x7b;end_date&#x7d;&#x29;  &#x23; Midnight Oct. 1st&#xd;&#xa;and entity_id&#x21;&#x3d;&#x27;00f424dd97c68c0fa197d62726446882&#x27;&#xd;&#xa;group by tagid, in_out_date&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -1699,8 +1846,8 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     <lazy_conversion_active>N</lazy_conversion_active>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>729</xloc>
-      <yloc>278</yloc>
+      <xloc>725</xloc>
+      <yloc>296</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1725,8 +1872,8 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     <lazy_conversion_active>N</lazy_conversion_active>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>208</xloc>
-      <yloc>154</yloc>
+      <xloc>125</xloc>
+      <yloc>174</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1769,7 +1916,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>select placement_id tagid&#xd;&#xa;	, date&#x28;if&#x28;date&#x28;update_timestamp&#x29;&#x3e;&#x3d;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,date&#x28;update_timestamp&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29;&#x29; risk_change_date &#xd;&#xa;	, substring_index&#x28;group_concat&#x28;avg_daily_revenue_percent order by update_timestamp&#x29;,&#x27;,&#x27;,-1&#x29; new_risk_percent&#xd;&#xa;from kmn_risk_allocation&#xd;&#xa;where update_timestamp between &#x27;2015-01-01&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;group by tagid, risk_change_date&#xd;&#xa;</sql>
+    <sql>select placement_id tagid&#xd;&#xa;	, date&#x28;if&#x28;date&#x28;update_timestamp&#x29;&#x3e;&#x3d;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,date&#x28;update_timestamp&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29;&#x29; risk_change_date &#xd;&#xa;	, substring_index&#x28;group_concat&#x28;avg_daily_revenue_percent order by update_timestamp&#x29;,&#x27;,&#x27;,-1&#x29; new_risk_percent&#xd;&#xa;from kmn_risk_allocation&#xd;&#xa;where update_timestamp between &#x27;2015-01-01&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;and placement_id&#x21;&#x3d;&#x27;00f424dd97c68c0fa197d62726446882&#x27;&#xd;&#xa;group by tagid, risk_change_date&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -1777,8 +1924,803 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     <lazy_conversion_active>N</lazy_conversion_active>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>947</xloc>
-      <yloc>292</yloc>
+      <xloc>924</xloc>
+      <yloc>302</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Analytic Query</name>
+    <type>AnalyticQuery</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <group>
+        <field>
+          <name>tagid</name>
+        </field>
+      </group>
+      <fields>
+        <field>
+          <aggregate>next_goal</aggregate>
+          <subject>optimization_goal_event</subject>
+          <type>LEAD</type>
+          <valuefield>1</valuefield>
+        </field>
+        <field>
+          <aggregate>next_goal_date</aggregate>
+          <subject>goal_change_date</subject>
+          <type>LEAD</type>
+          <valuefield>1</valuefield>
+        </field>
+        <field>
+          <aggregate>prev_goal</aggregate>
+          <subject>optimization_goal_event</subject>
+          <type>LAG</type>
+          <valuefield>1</valuefield>
+        </field>
+        <field>
+          <aggregate>prev_goal_date</aggregate>
+          <subject>goal_change_date</subject>
+          <type>LAG</type>
+          <valuefield>1</valuefield>
+        </field>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>459</xloc>
+      <yloc>387</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>apply changelog 2 2</name>
+    <type>UserDefinedJavaClass</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+
+    <definitions>
+        <definition>
+        <class_type>TRANSFORM_CLASS</class_type>
+
+        <class_name>Processor</class_name>
+
+        <class_source><![CDATA[String valueField;
+String previousValue;
+String outValue;
+String outputField;
+String groupField;
+String previousGroupFieldValue;
+
+public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
+{
+    // Let's look up parameters only once for performance reason.
+    //
+    if (first) {
+      valueField = getParameter("VALUE_COLUMN");
+	  outputField = getParameter("OUTPUT_COLUMN");
+	  previousValue = getParameter("DEFAULT_VALUE");
+	  groupField = getParameter("GROUP_COLUMN");
+      first=false;
+    }
+
+    // First, get a row from the default input hop
+    //
+    Object[] r = getRow();
+
+    // If the row object is null, we are done processing.
+    //
+    if (r == null) {
+      setOutputDone();
+      return false;
+    }
+
+    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
+    // enough to handle any new fields you are creating in this step.
+    //
+    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
+
+    String currentValue = get(Fields.In, valueField).getString(r);
+	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
+
+	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
+		outValue=previousValue;
+	} else {
+		outValue=currentValue;
+		previousValue=currentValue;
+		previousGroupFieldValue=currentGroupFieldValue;
+		
+	}
+		
+    get(Fields.Out, outputField).setValue(outputRow, outValue);
+
+    // putRow will send the row on to the default output hop.
+    //
+    putRow(data.outputRowMeta, outputRow);
+
+    return true;
+}]]></class_source>
+        </definition>
+    </definitions>
+    <fields>
+        <field>
+        <field_name>prev_goal</field_name>
+
+        <field_type>String</field_type>
+
+        <field_length>-1</field_length>
+
+        <field_precision>-1</field_precision>
+
+        </field>
+    </fields><clear_result_fields>N</clear_result_fields>
+<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
+<parameter_value>prev_goal</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
+<parameter_value>prev_goal</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
+<parameter_value>tagid</parameter_value>
+<parameter_description/>
+</usage_parameter></usage_parameters>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>600</xloc>
+      <yloc>284</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>apply changelog 2 2 2</name>
+    <type>UserDefinedJavaClass</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+
+    <definitions>
+        <definition>
+        <class_type>TRANSFORM_CLASS</class_type>
+
+        <class_name>Processor</class_name>
+
+        <class_source><![CDATA[String valueField;
+String previousValue;
+String outValue;
+String outputField;
+String groupField;
+String previousGroupFieldValue;
+
+public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
+{
+    // Let's look up parameters only once for performance reason.
+    //
+    if (first) {
+      valueField = getParameter("VALUE_COLUMN");
+	  outputField = getParameter("OUTPUT_COLUMN");
+	  previousValue = getParameter("DEFAULT_VALUE");
+	  groupField = getParameter("GROUP_COLUMN");
+      first=false;
+    }
+
+    // First, get a row from the default input hop
+    //
+    Object[] r = getRow();
+
+    // If the row object is null, we are done processing.
+    //
+    if (r == null) {
+      setOutputDone();
+      return false;
+    }
+
+    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
+    // enough to handle any new fields you are creating in this step.
+    //
+    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
+
+    String currentValue = get(Fields.In, valueField).getString(r);
+	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
+
+	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
+		outValue=previousValue;
+	} else {
+		outValue=currentValue;
+		previousValue=currentValue;
+		previousGroupFieldValue=currentGroupFieldValue;
+		
+	}
+		
+    get(Fields.Out, outputField).setValue(outputRow, outValue);
+
+    // putRow will send the row on to the default output hop.
+    //
+    putRow(data.outputRowMeta, outputRow);
+
+    return true;
+}]]></class_source>
+        </definition>
+    </definitions>
+    <fields>
+        <field>
+        <field_name>prev_goal_date</field_name>
+
+        <field_type>String</field_type>
+
+        <field_length>-1</field_length>
+
+        <field_precision>-1</field_precision>
+
+        </field>
+    </fields><clear_result_fields>N</clear_result_fields>
+<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
+<parameter_value>prev_goal_date</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
+<parameter_value>prev_goal_date</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
+<parameter_value>tagid</parameter_value>
+<parameter_description/>
+</usage_parameter></usage_parameters>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>627</xloc>
+      <yloc>361</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>apply changelog 2 2 2 2</name>
+    <type>UserDefinedJavaClass</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+
+    <definitions>
+        <definition>
+        <class_type>TRANSFORM_CLASS</class_type>
+
+        <class_name>Processor</class_name>
+
+        <class_source><![CDATA[String valueField;
+String previousValue;
+String outValue;
+String outputField;
+String groupField;
+String previousGroupFieldValue;
+
+public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
+{
+    // Let's look up parameters only once for performance reason.
+    //
+    if (first) {
+      valueField = getParameter("VALUE_COLUMN");
+	  outputField = getParameter("OUTPUT_COLUMN");
+	  previousValue = getParameter("DEFAULT_VALUE");
+	  groupField = getParameter("GROUP_COLUMN");
+      first=false;
+    }
+
+    // First, get a row from the default input hop
+    //
+    Object[] r = getRow();
+
+    // If the row object is null, we are done processing.
+    //
+    if (r == null) {
+      setOutputDone();
+      return false;
+    }
+
+    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
+    // enough to handle any new fields you are creating in this step.
+    //
+    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
+
+    String currentValue = get(Fields.In, valueField).getString(r);
+	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
+
+	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
+		outValue=previousValue;
+	} else {
+		outValue=currentValue;
+		previousValue=currentValue;
+		previousGroupFieldValue=currentGroupFieldValue;
+		
+	}
+		
+    get(Fields.Out, outputField).setValue(outputRow, outValue);
+
+    // putRow will send the row on to the default output hop.
+    //
+    putRow(data.outputRowMeta, outputRow);
+
+    return true;
+}]]></class_source>
+        </definition>
+    </definitions>
+    <fields>
+        <field>
+        <field_name>next_goal</field_name>
+
+        <field_type>String</field_type>
+
+        <field_length>-1</field_length>
+
+        <field_precision>-1</field_precision>
+
+        </field>
+    </fields><clear_result_fields>N</clear_result_fields>
+<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
+<parameter_value>next_goal</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
+<parameter_value>next_goal</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
+<parameter_value>tagid</parameter_value>
+<parameter_description/>
+</usage_parameter></usage_parameters>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>650</xloc>
+      <yloc>462</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>get tag and date in case blank</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <formula><field_name>tagid</field_name>
+<formula_string>if&#x28;isblank&#x28;&#x5b;tagid&#x5d;&#x29;&#x3b;&#x5b;tagid_1&#x5d;&#x3b;&#x5b;tagid&#x5d;&#x29;</formula_string>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>tagid</replace_field>
+</formula>
+       <formula><field_name>performance_date</field_name>
+<formula_string>if&#x28;isblank&#x28;&#x5b;performance_date&#x5d;&#x29;&#x3b;&#x5b;floor_change_date&#x5d;&#x3b;&#x5b;performance_date&#x5d;&#x29;</formula_string>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>performance_date</replace_field>
+</formula>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>317</xloc>
+      <yloc>104</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>get tag and date in case blank 2</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <formula><field_name>tagid</field_name>
+<formula_string>if&#x28;isblank&#x28;&#x5b;tagid&#x5d;&#x29;&#x3b;&#x5b;tagid_1&#x5d;&#x3b;&#x5b;tagid&#x5d;&#x29;</formula_string>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>tagid</replace_field>
+</formula>
+       <formula><field_name>performance_date</field_name>
+<formula_string>if&#x28;isblank&#x28;&#x5b;performance_date&#x5d;&#x29;&#x3b;&#x5b;goal_change_date&#x5d;&#x3b;&#x5b;performance_date&#x5d;&#x29;</formula_string>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>performance_date</replace_field>
+</formula>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>520</xloc>
+      <yloc>125</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>get tag and date in case blank 3</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <formula><field_name>tagid</field_name>
+<formula_string>if&#x28;isblank&#x28;&#x5b;tagid&#x5d;&#x29;&#x3b;&#x5b;tagid_1&#x5d;&#x3b;&#x5b;tagid&#x5d;&#x29;</formula_string>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>tagid</replace_field>
+</formula>
+       <formula><field_name>performance_date</field_name>
+<formula_string>if&#x28;isblank&#x28;&#x5b;performance_date&#x5d;&#x29;&#x3b;&#x22;2015-01-05&#x22;&#x3b;&#x5b;performance_date&#x5d;&#x29;</formula_string>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>performance_date</replace_field>
+</formula>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>752</xloc>
+      <yloc>124</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>get tag and date in case blank 4</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <formula><field_name>tagid</field_name>
+<formula_string>if&#x28;isblank&#x28;&#x5b;tagid&#x5d;&#x29;&#x3b;&#x5b;tagid_1&#x5d;&#x3b;&#x5b;tagid&#x5d;&#x29;</formula_string>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>tagid</replace_field>
+</formula>
+       <formula><field_name>performance_date</field_name>
+<formula_string>if&#x28;isblank&#x28;&#x5b;tagid&#x5d;&#x29;&#x3b;	if&#x28;isblank&#x28;&#x5b;risk_change_date&#x5d;&#x29;&#x3b;&#x22;2015-01-01&#x22;&#x3b;&#x5b;risk_change_date&#x5d;&#x29;&#x3b; &#x5b;performance_date&#x5d;&#x29;</formula_string>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>performance_date</replace_field>
+</formula>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1016</xloc>
+      <yloc>397</yloc>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Calculator</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <calculation><field_name>date1</field_name>
+<calc_type>NVL</calc_type>
+<field_a>performance_date</field_a>
+<field_b>risk_change_date</field_b>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>965</xloc>
+      <yloc>129</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Text file output 3 2</name>
+    <type>TextFileOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <separator>,</separator>
+    <enclosure>&#x22;</enclosure>
+    <enclosure_forced>N</enclosure_forced>
+    <enclosure_fix_disabled>N</enclosure_fix_disabled>
+    <header>Y</header>
+    <footer>N</footer>
+    <format>DOS</format>
+    <compression>None</compression>
+    <encoding/>
+    <endedLine/>
+    <fileNameInField>N</fileNameInField>
+    <fileNameField/>
+    <create_parent_folder>Y</create_parent_folder>
+    <file>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;ImproveMargin&#x5c;kettle_out1</name>
+      <is_command>N</is_command>
+      <servlet_output>N</servlet_output>
+      <do_not_open_new_file_init>N</do_not_open_new_file_init>
+      <extention>csv</extention>
+      <append>N</append>
+      <split>N</split>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <pad>N</pad>
+      <fast_dump>N</fast_dump>
+      <splitevery>0</splitevery>
+    </file>
+    <fields>
+      <field>
+        <name>tagid</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>performance_date</name>
+        <type>Date</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>impressions</name>
+        <type>Integer</type>
+        <format>&#x23;&#x3b;-&#x23;</format>
+        <currency/>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>9</length>
+        <precision>0</precision>
+      </field>
+      <field>
+        <name>fill</name>
+        <type>Number</type>
+        <format>&#x23;,&#x23;&#x23;0.&#x23;&#x23;&#x23;</format>
+        <currency/>
+        <decimal>.</decimal>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>17</length>
+        <precision>4</precision>
+      </field>
+      <field>
+        <name>cost</name>
+        <type>Number</type>
+        <format>&#x23;.&#x23;&#x3b;-&#x23;.&#x23;</format>
+        <currency/>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>10</length>
+        <precision>4</precision>
+      </field>
+      <field>
+        <name>profit</name>
+        <type>Number</type>
+        <format>&#x23;.&#x23;&#x3b;-&#x23;.&#x23;</format>
+        <currency/>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>10</length>
+        <precision>4</precision>
+      </field>
+      <field>
+        <name>client_ecpm</name>
+        <type>Number</type>
+        <format>&#x23;,&#x23;&#x23;0.&#x23;&#x23;&#x23;</format>
+        <currency/>
+        <decimal>.</decimal>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>18</length>
+        <precision>8</precision>
+      </field>
+      <field>
+        <name>total_ecpm</name>
+        <type>Number</type>
+        <format>&#x23;,&#x23;&#x23;0.&#x23;&#x23;&#x23;</format>
+        <currency/>
+        <decimal>.</decimal>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>19</length>
+        <precision>8</precision>
+      </field>
+      <field>
+        <name>floor_price</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>next_goal</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>2</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>next_goal_date</name>
+        <type>String</type>
+        <format>yyyy-MM-dd</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>prev_goal</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>2</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>prev_goal_date</name>
+        <type>String</type>
+        <format>yyyy-MM-dd</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>optimization_goal</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>optimization_on</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>tagid_1</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>45</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>risk_change_date</name>
+        <type>Date</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>new_risk_percent</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>1024</length>
+        <precision>-1</precision>
+      </field>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1056</xloc>
+      <yloc>328</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
