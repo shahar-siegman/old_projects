@@ -102,12 +102,118 @@
     </attributes>
   </connection>
   <order>
-  <hop> <from>Floor prices</from><to>join by tagid</to><enabled>Y</enabled> </hop>
   <hop> <from>performance</from><to>Text file output 2</to><enabled>Y</enabled> </hop>
-  <hop> <from>performance</from><to>join by tagid</to><enabled>Y</enabled> </hop>
   <hop> <from>Calculator 2</from><to>Text file output</to><enabled>Y</enabled> </hop>
-  <hop> <from>join by tagid</from><to>Calculator 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>performance</from><to>Calculator 2</to><enabled>Y</enabled> </hop>
   </order>
+  <step>
+    <name>Calculator</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <calculation><field_name>tagid</field_name>
+<calc_type>NVL</calc_type>
+<field_a>tagid</field_a>
+<field_b>tagid_1</field_b>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>performance_date</field_name>
+<calc_type>NVL</calc_type>
+<field_a>performance_date</field_a>
+<field_b>floor_change_date</field_b>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>734</xloc>
+      <yloc>91</yloc>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Calculator 2</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <calculation><field_name>date_string</field_name>
+<calc_type>CONSTANT</calc_type>
+<field_a>&#x24;&#x7b;start_date&#x7d;</field_a>
+<field_b/>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>start_date</field_name>
+<calc_type>SUBSTITUTE_VARIABLE</calc_type>
+<field_a>date_string</field_a>
+<field_b/>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>yyyy-MM-dd</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>perf_date</field_name>
+<calc_type>ADD_DAYS</calc_type>
+<field_a>start_date</field_a>
+<field_b>performance_date</field_b>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>yyyy-MM-dd</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>720</xloc>
+      <yloc>263</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
   <step>
     <name>Floor prices</name>
     <type>TableInput</type>
@@ -120,7 +226,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT tagid&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;floor order by date&#x29;,&#x27;,&#x27;,-1&#x29; floor_price_event&#xd;&#xa;	, date&#x28;if&#x28;date&#x3c;&#x27;2015-09-01&#x27;,&#x27;2015-09-01&#x27;,date&#x29;&#x29; floor_change_date&#xd;&#xa;FROM kmn_floor_prices_history &#xd;&#xa;WHERE date between &#x27;2015-01-01&#x27; and &#x27;2015-10-01&#x27;&#xd;&#xa;and floor &#x3e; 0&#xd;&#xa;group by tagid, floor_change_date&#x3b;&#xd;&#xa;</sql>
+    <sql>SELECT tagid&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;floor order by date&#x29;,&#x27;,&#x27;,-1&#x29; floor_price_event&#xd;&#xa;	, datediff&#x28;if&#x28;date&#x3c;&#x27;2015-09-01&#x27;,&#x27;2015-09-01&#x27;,date&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; floor_change_date&#xd;&#xa;FROM kmn_floor_prices_history &#xd;&#xa;WHERE date between &#x27;2015-01-01&#x27; and &#x27;2015-10-01&#x27;&#xd;&#xa;and floor &#x3e; 0&#xd;&#xa;group by tagid, floor_change_date&#x3b;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -130,7 +236,40 @@
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>471</xloc>
       <yloc>354</yloc>
-      <draw>Y</draw>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Formula</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <formula><field_name>tagid</field_name>
+<formula_string>if&#x28;isblank&#x28;&#x5b;tagid&#x5d;&#x29;&#x3b;&#x5b;tagid_1&#x5d;&#x3b;&#x5b;tagid&#x5d;&#x29;</formula_string>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>tagid</replace_field>
+</formula>
+       <formula><field_name>performance_date</field_name>
+<formula_string>if&#x28;isna&#x28;&#x5b;performance_date&#x5d;&#x29;&#x3b;na&#x28;&#x29;&#x3b;&#x5b;performance_date&#x5d;&#x29;</formula_string>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>performance_date</replace_field>
+</formula>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>616</xloc>
+      <yloc>137</yloc>
+      <draw>N</draw>
       </GUI>
     </step>
 
@@ -322,9 +461,9 @@
     </keys_2>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>468</xloc>
-      <yloc>259</yloc>
-      <draw>Y</draw>
+      <xloc>610</xloc>
+      <yloc>360</yloc>
+      <draw>N</draw>
       </GUI>
     </step>
 
@@ -340,7 +479,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT tagid&#xd;&#xa;	, date performance_date&#xd;&#xa;	, impressions&#xd;&#xa;	, served&#x2f;impressions fill&#xd;&#xa;	, cost&#xd;&#xa;	, 1000&#x2a;cost&#x2f;served ecpm&#xd;&#xa;	&#xd;&#xa;FROM kmn_tag_report&#xd;&#xa;WHERE &#xd;&#xa;	date between &#x27;2015-09-01&#x27; and &#x27;2015-09-15&#x27;&#xd;&#xa;	and impressions &#x3e; 0&#xd;&#xa;	and served &#x3e; 10&#xd;&#xa;order by tagid,performance_date&#xd;&#xa;limit 5000</sql>
+    <sql>SELECT tagid&#xd;&#xa;	, datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; performance_date&#xd;&#xa;	, impressions&#xd;&#xa;	, served&#x2f;impressions fill&#xd;&#xa;	, cost&#xd;&#xa;	, 1000&#x2a;cost&#x2f;served ecpm&#xd;&#xa;	&#xd;&#xa;FROM kmn_tag_report&#xd;&#xa;WHERE &#xd;&#xa;	date between &#x27;2015-09-01&#x27; and &#x27;2015-09-15&#x27;&#xd;&#xa;	and impressions &#x3e; 0&#xd;&#xa;	and served &#x3e; 10&#xd;&#xa;order by tagid,performance_date&#xd;&#xa;limit 500</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -350,119 +489,6 @@
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>346</xloc>
       <yloc>255</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Calculator</name>
-    <type>Calculator</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-       <calculation><field_name>tagid</field_name>
-<calc_type>NVL</calc_type>
-<field_a>tagid</field_a>
-<field_b>tagid_1</field_b>
-<field_c/>
-<value_type>String</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>performance_date</field_name>
-<calc_type>NVL</calc_type>
-<field_a>performance_date</field_a>
-<field_b>floor_change_date</field_b>
-<field_c/>
-<value_type>Date</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>734</xloc>
-      <yloc>91</yloc>
-      <draw>N</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Formula</name>
-    <type>Formula</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-       <formula><field_name>tagid</field_name>
-<formula_string>if&#x28;isblank&#x28;&#x5b;tagid&#x5d;&#x29;&#x3b;&#x5b;tagid_1&#x5d;&#x3b;&#x5b;tagid&#x5d;&#x29;</formula_string>
-<value_type>String</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<replace_field>tagid</replace_field>
-</formula>
-       <formula><field_name>performance_date</field_name>
-<formula_string>if&#x28;isna&#x28;&#x5b;performance_date&#x5d;&#x29;&#x3b;na&#x28;&#x29;&#x3b;&#x5b;performance_date&#x5d;&#x29;</formula_string>
-<value_type>Date</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<replace_field>performance_date</replace_field>
-</formula>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>616</xloc>
-      <yloc>137</yloc>
-      <draw>N</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Calculator 2</name>
-    <type>Calculator</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-       <calculation><field_name>date1</field_name>
-<calc_type>NVL</calc_type>
-<field_a>performance_date</field_a>
-<field_b>floor_change_date</field_b>
-<field_c/>
-<value_type>Date</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>720</xloc>
-      <yloc>263</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
