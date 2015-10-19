@@ -85,33 +85,34 @@ It is worthwhile to note that all the decision variables are assumed continuous.
 Despite the seeming complexity of solving an optimization problem with third-order terms, the specific details of this problem lend themselves to a solution procedure that's not overly complex or time-consuming.
 
 \subsubsection{Insight on Optimized Solutions}
-This '\emph{chainless}' formulation may seem over-simplified, as it doesn't allow for  chains, which are extensively used in real-world problems. However, even without chains, two points arise that are relevant with and without chains. 
+This '\emph{chainless}' formulation may seem over-simplified, as it doesn't allow for  chains, which are extensively used in real-world problems. However, some of the concepts important for the solution with chains can be discussed in the context of the current problems.
 
 \begin{enumerate}
-\item Since $r_i$ is expected to be a concave function of floor price (meaning it has a maximum somewhere), the revenue cannot be improved by varying the floor price . To see why, let's say for example that we decide to randomly pass a higher floor price for half of the impressions and a lower for the other half. We would obtain a similar eCPM as in the original case, but a lower rCPM (this can be seen graphically from the concaveness of the $r_i(x_i)$ function). 
+\item $r_i$ is expected to be a concave function of floor price, meaning it reaches a maximum at some floor price, which is the optimal floor price to use. Any deviation of our floor price from this optimal price, for example randomly passing a higher floor price for half of the impressions and a lower for the other half would result in a similar eCPM, but a lower rCPM. This can be seen graphically from the concaveness of the $r_i(x_i)$ function. 
 
 In summary, varying the floor price between impressions \emph{within an homogeneous population}, would only serve to decrease the average revenue per impression, and so is never a desired practice.
 
-\item The optimal solution may involve a calibrated split of the traffic between two tags. This is a non-trivial outcome. Remember, this is not about chaining tags serially. Even if we don't get a "second chance" to serve an impression, we may still want to split the impressions we get between two SSP's. The reason, as illustrated below, is tags with optimum points outside the constraints. 
+\item The optimal solution may involve a calibrated split of the traffic between two or more tags. This is a non-trivial outcome. Remember, this is not about chaining tags serially. Even if we don't get a "second chance" to serve an impression, we may still want to split the impressions we get between two SSP's. The reason, as illustrated below, is tags with optimum points outside the constraints. 
 
-Here's an example to illustrate this result: Let's say we have two SSP's. One has optimal rCPM at a very high eCPM with low fill. The fill is too low for the publisher, so if we used this SSP exclusively, we would have to lower the floor price to pull fill up to an acceptable level - taking a potentially large hit in rCPM. 
+Here's an example to illustrate this result: Let's say we have just two SSP's. One has optimal rCPM at a very high eCPM with low fill. The fill is too low for the publisher, so if we used this SSP exclusively, we would not be able to operate at the optimal point. We would have to lower the floor price to pull fill up to an acceptable level - taking a potentially large hit in rCPM. 
 
-The other SSP we are considering, is the "mirror image": it can deliver excellent fill rates, if we allow eCPM to be low enough. By itself, we wouldn't be able to utilize it at its optimum - we would have to push eCPM up to an acceptable level, again taking a posibly large hit in rCPM.
+The other SSP we are considering, is the "mirror image": it can deliver excellent fill rates, if we allow eCPM to be low enough. By itself, we wouldn't be able to utilize it at its optimum - we would have to push eCPM up to an acceptable level, again taking a possibly large hit in rCPM.
 
 So, can we do better if we combine the two? By combining, we'll be able to control the total effective eCPM through the serving ratio. Let's say that the minimum eCPM we require is \$1, and that we set the first SSP to deliver an eCPM of \$5, and the second's eCPM is set to \$0.75. Every served impression of the first creates an "eCPM surplus" of \$4 --- allowing us 16 deliveries of \$0.75 without breaching our eCPM and boosting our fill rate.
+
+\item The optimal solution will usually involve only a few SSP's. This is because we have only two constraints, so we need to tradeoff between just two degrees of freedom.
 \end{enumerate}
 
-\section{Multi-Tag Problem}
-\subsection{Subclasses of the multi-tag problem}
+\section{The Multi-Tag, Sequential Serving Problem}
+\subsection{Introduction: Subclasses of the multi-tag problem}
 It is now time to extend the discussion to situations where each impression can be passed to more than one SSP for potential fulfillment. There are a few variation that are possible:
 \begin{itemize}
 \item Parallel vs. Serial - can the same impression be passed simultaneously to a few SSP's, or does the underlying mechanism requires us to pass the impression sequentially, only if not served in the previous step?
 \item Fixed tags vs. dynamic floor price - are we limited to a single (or a few) preset floor price(s) in each SSP, or can we dynamically decide on the floor price?
 \end{itemize}
-At this point in time, it seems that three out of the four combinations have real-world applications (the missing combination being sequential serving with dynamic floor price). We'll start the discussion with sequential serving.
+At this point in time, it seems that three out of the four combinations have real-world applications (the missing combination being sequential serving with dynamic floor price). This section will focus on sequential serving.
 
-\subsection{The Sequential serving scenario}
-\subsubsection{notation}
+\subsection{notation}
 A \emph{chain} $s$ is an ordered list of SSP's to which an impression is served, by order. $s_i_j=k$ notes that the $j$th SSP on the $i$th chain is SSP with ordinal $k$. In order to maintain $s$ as a rectangular matrix, while allowing different chains  have different lengths, we can define a "dummy SSP" and assign it the ordinal 0. The maximum length of a chain (within a context of a given configuration) will be denoted by $l$. 
 
 We use $x_{ij}$ to denote the floor price of the $j$th element in the $i$th chain. $I_i$ denotes the ratio of impressions served to chain $i$.
@@ -138,64 +139,59 @@ The problem formulation is an extension of the single-tag problem.
 
 \begin{equation}
 \begin{aligned}
-&\text{Maximize} \sum_{i}{I_i \sum_{j}{r_{ij}(x_{i1},\dots, x_{ij})}} \\
-&s.t. \\ 
+&\text{Maximize} \sum_{i}{I_i \sum_{j}{r_{ij}(x_{i1},\dots, x_{ij})}}\\
+&\text{s.t.} \\ 
 &\forall ij: I_i \geq 0 , x_{ij} > 0\\
 &\sum_{i}{I_i}=1\\
 &\sum_{i}{I_i \Big( \sum_{k=1}^{l}\Big[{\prod_{j=0}^{k-1}{(1-fill_{ij}(x_{ij}))  } \Big] fill_{ik}(x_{ik})}} \Big) \geq f_1,\\ 
-&\frac{\sum_{i}{I_i \sum_{j}{r_{ij}(x_1\dots x_j)}}}{\sum_{i}{I_i \Big( \sum_{k=1}^{l}\Big[{\prod_{j=0}^{k-1}{(1-fill_{ij}(x_{ij}))  } \Big] fill_{ik}(x_{ik})}} \Big) } \geq e1 \cdot
+&\frac{\sum_{i}{I_i \sum_{j}{r_{ij}(x_1\dots x_j)}}}{\sum_{i}{I_i \Big( \sum_{k=1}^{l}\Big[{\prod_{j=0}^{k-1}{(1-fill_{ij}(x_{ij}))  } \Big] fill_{ik}(x_{ik})}} \Big) } \geq e1 \\
+&\text{Where}\\
+&\text{$x_{ij}$ is the floor price passed to SSP $s_{ij}$ which is the $j$'th element in chain $i$.}\\
+&\text{$fill_{i0} \equiv 0$ for any $i$.}
 \end{aligned} 
 \end{equation}
 
-By definition, $fill_{i0} \equiv 0$ for any $i$.
 
-\subsection{Notes}
+\subsection{Notes on the problem and solution approach}
 The above programming problem $(3)$ is evidently more complex than the single-tag problem $(2)$ presented earlier. The following subsections discuss ways to either tackle or work around the induced complexity. 
 
-\subsubsection{Separation of variables}
+\subsubsection{Choice of SSP's in chain}
+Although the $s_{ij}$ matrix doesn't explicitly appear in $(3)$, it is part of the specification of the solution. $s_{ij}$ is therefore a matrix of discrete decision variables, which results in a very high number of possible combinatorial values\footnote{Keep in mind a particular SSP order may appear in $s$ multiple times, each with a different floor price combination.}. On the other hand, as noted earlier, the optimal solution will include only a small number of optimized chains, and most chains considered during the optimization will need not be actually constructed. So while we need to \emph{consider} a very large number of potential chains, (luckily) we will end up allocating actual impressions only to a few.
 
+\subsubsection{Separation of variables}
 The above programming problem $(3)$ is evidently more complex than the single-tag problem $(2)$ presented earlier. The formulation above incorporates both the \emph{chain construction} and \emph{chain allocation} as a joint problem. While it is conceivable to numerically solve this simultaneous problem directly, a separation-of-variables approach should have advantages as a more intuitive, more manageable alternative. The separation approach is loosely described as follows:
 \begin{enumerate}
-\item Find candidate chains which are the best performers for a particular fill level.
-\item Decide on the optimal allocation that satisfies the business constraints, among these candidate chains.
+\item Find candidate chains which are the best performers for a particular fill and eCPM level.
+\item Decide on an allocation that satisfies the business constraints, among these candidate chains.
 \end{enumerate}
-This approach may yield a suboptimal solution, but it is not likely to create a significant performance gap.
-The allocation problem resembles formulation $(2)$, and is actually a simplification of that formulation since the $x_i$'s are kept constant.
+Does this approach yield inferior solutions to the joint problem? Not necessarily. It may be constructed in a way that fully exploits the available options. Anyway, at this point we are more interested in finding an algorithmically viable approach than in mathematical completeness\footnote{Anyway, I can't see a reason why it should be \emph{inherently} worse}.
 
-\subsubsection{Choice of SSP's in chain}
-Although the $s_{ij}$ matrix doesn't explicitly appear in $(3)$, it is part of the specification of the solution. $s_{ij}$ is therefore a matrix of implicit, discrete decision variables, which results in a very high number of possible combinatorial values\footnote{Keep in mind a particular SSP order may appear in $s$ multiple times, each with a different floor price combination.}. On the other hand, in order to achieve good performance at the placement level, we require a small number of top-performing chains. So (luckily), while we need to \emph{consider} a very large number of potential chains, we will end up allocating actual impressions only to a few. To summarize, the problem boils down to: 
+The allocation problem resembles formulation $(2)$, and is actually simpler since the $x_i$'s are kept constant.
+
+Another advantage of the separation of variables approach, is that actual performance of chains can be assessed before they are used in full scale.
+
+With regard to point number 1 above, Komoona's current algo searches based on enumerating and evaluating all $ \big \langle s_{ij},x_{ij} \big \rangle $ combinations within a certain range of floor prices and chain lengths, using some "minimal appreciable difference" as an increment between adjacent $x_{ij}$'s. \marginpar {[SS]: How do we prune the chains today?} One way to streamline this computationally-heavy process is to apply a numerical unconstrained optimization technique to the $x_{ij}$ space, while still enumerating the $s_{ij}$ space. 
+
+ To summarize the above two points, the problem boils down to: 
 \begin{enumerate}
 \item Search in the joint $ \big \langle s_{ij},x_{ij} \big \rangle $ space for a chain whose fill and rCPM represent a better tradeoff than the candidate chains already found.
 \item Add the chain to the placement's list of candidates for allocation.
-\item Prune previously found chains with worse tradeoffs.
+\item Prune (i.e. remove) previously found chains that are inferior to the newly found chain.
 \item Repeat until no more chains can be found, or some other stopping criteria is met.
 \end{enumerate}
 
-With regard to point number 1 above, Komoona's current search is based on enumerating and evaluating all $ \big \langle s_{ij},x_{ij} \big \rangle $ combinations within a certain range of floor prices and chain lengths, using some "minimal appreciable difference" as an increment between adjacent $x_{ij}$'s. \marginpar {[SS]: How do we prune the chains today?} One way to streamline this computationally-heavy process is to apply a numerical unconstrained optimization technique to the $x_{ij}$ space, while still enumerating the $s_{ij}$ space. 
-
+\subsection{Chain Construction}
+We now reached a point where we are able to discuss the problem of constructing effective chains which will provide both high rCPM and allow to span a wide ranges of eCPMs and fill ratios to satisfy Komoona's and our clients' changing needs.
 
 \subsubsection{Statistical dependence between a tag's performance and preceding tags' floor prices}
-The notation $r_{ij}(x_{i1},\dots, x_{ij})$ used above, which implies the $r_{ij}$'s depend on the floor prices of preceding tags in the chain, is rooted in the following reasoning: The auction process, which determines the revenue we see, contains random elements. The $r_{ij}$'s we use in our calculations represent the \emph{expected value of} revenue per impression, based on all relevant knowledge we have at that point. Since we reach a downchain tag only if the impression wasn't served by the preceding tags, we qualify the traffic that that tag receives, i.e. it is no longer a random sample of the impression pool. When we change the floor price of preceding tags, we alter that "filter". In other words, such change affects not only the number of  impressions that reach the downchain tag, but also their distribution in terms of their inherent value for the advertisers. This idea can be concisely expressed using  statistically-oriented notation (and using $d_{ij}$ as defined above):
+The notation $r_{ij}(x_{i1},\dots, x_{ij})$ used above, which implies the $r_{ij}$'s depend on the floor prices of preceding tags in the chain, is rooted in the following reasoning: The auction process, which determines the revenue we see, contains unknown elements which we consider as random variables. The $r_{ij}$'s we use in our calculations represent the \emph{expected value} of revenue per impression, based on all available relevant knowledge at that point. Since we dispatch a downchain tag only when the impression failed to be served by the preceding tags, we qualify the traffic that the tag receives, i.e. it no longer receives a randomized sample of the placement's impression population. So, when we change a floor price of a preceding tag, we alter that "filter". In other words, any such change affects not only the \emph{number} of impressions that reach the downchain tag, but also their \emph{distribution} in terms of their inherent value to the advertisers. This idea can be concisely expressed using  statistically-oriented notation (and using $d_{ij}$ as defined above):
 $r_{ij}(x_{i1},\dots, x_{ij}) =
 \mathbb{E} (r_{ij}|x_1,\dots, x_j \wedge d_{i1}, \dots, d_{ij-1}=0)$
 
-\iffalse
-\subsection{Separation of variables}
+\subsection{Considerations in Optimal Chain Construction}
+\paragraph{We're looking for chains with best rCPMs for their fill rates}. Chains are the input to the allocation algorithm. The allocation algorithm considers only the rCPM, eCPM and fill of the input entities and combines them in order to maximize revenue while adhereing to constraints. 
 
-The above programming problem $(3)$ is evidently more complex than the single-tag problem $(2)$ presented earlier. The formulation above incorporates both the \emph{chain construction} and \emph{chain allocation} as a joint problem. While it is conceivable to devise an iterative maximization scheme that solves this simultaneous problem directly, a separation-of-variables approach should have advantages as a more intuitive, more manageable alternative, which reaches competitive, if somewhat suboptimal, solutions. 
 
-We despite the multiple variables (floor prices) involved in defining a chain, there are universally only two important performance variables at the chain level, its rCPM and fill rates. So, assuming we keep the choice of SSPs and their order fixed, then the only interesting configuration are those with best rCPM at each fill level.
-
-in Komoona, this is not attempted. Instead, we try to generate some "good" chains (deferring the allocation decision). After validation of an individual chain's actual fill and rCPM through low-volume allocation, the real-world-tested chains become candidates in an allocation problem (i.e. deciding on the $I_i$'s). Note that in this stage, the chains are "black boxes", and the single-tag formulation $(2)$ becomes appropriate, with the $x_i$'s considered fixed. Another way to simplify the problem, which is more "complete", is to 
-
-\footnote{Recommendation: It would be more "complete" if there were some interaction between the allocation problem and chain-creation problem. For example, a model of the 1st and 2nd derivatives of immediate neighborhood of the , in what direction }
-
-Chain opis the simultaneous chain-optimization and 
-A few points with regard to the extended problem:
-\begin{itemize}
-\item 
-\end{itemize}
-\fi
 
 \end{large}
 \end{document}
