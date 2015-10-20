@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>tag_performance</name>
+    <name>tag_performance for parallel</name>
     <description/>
     <extended_description/>
     <trans_version/>
     <trans_type>Normal</trans_type>
+    <trans_status>0</trans_status>
     <directory>&#x2f;</directory>
     <parameters>
+        <parameter>
+            <name>placement_id</name>
+            <default_value/>
+            <description/>
+        </parameter>
     </parameters>
     <log>
 <trans-log-table><connection/>
@@ -106,58 +112,11 @@
   <hop> <from>kmn_chain_history</from><to>Sorted Merge</to><enabled>Y</enabled> </hop>
   <hop> <from>Sorted Merge</from><to>Text file output</to><enabled>Y</enabled> </hop>
   <hop> <from>main_chain_history</from><to>Sorted Merge</to><enabled>Y</enabled> </hop>
-  <hop> <from>CSV file input</from><to>layoutids</to><enabled>Y</enabled> </hop>
   <hop> <from>Sort by ad_network_id</from><to>kmn_chain_history</to><enabled>Y</enabled> </hop>
   <hop> <from>Sort by ad_network_id</from><to>main_chain_history</to><enabled>Y</enabled> </hop>
   <hop> <from>layoutids</from><to>Sort by ad_network_id</to><enabled>Y</enabled> </hop>
-  <hop> <from>CSV file input</from><to>get tag performance</to><enabled>Y</enabled> </hop>
   <hop> <from>field formats</from><to>Text file output 2</to><enabled>Y</enabled> </hop>
   </order>
-  <step>
-    <name>CSV file input</name>
-    <type>CsvInput</type>
-    <description/>
-    <distribute>N</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <filename>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;Optimization&#x5c;high_vol_placements.csv</filename>
-    <filename_field/>
-    <rownum_field/>
-    <include_filename>N</include_filename>
-    <separator>,</separator>
-    <enclosure>&#x22;</enclosure>
-    <header>Y</header>
-    <buffer_size>50000</buffer_size>
-    <lazy_conversion>Y</lazy_conversion>
-    <add_filename_result>N</add_filename_result>
-    <parallel>N</parallel>
-    <newline_possible>N</newline_possible>
-    <encoding/>
-    <fields>
-      <field>
-        <name>placementid</name>
-        <type>String</type>
-        <format/>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>32</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-    </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>211</xloc>
-      <yloc>85</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
   <step>
     <name>Sort by ad_network_id</name>
     <type>SortRows</type>
@@ -320,7 +279,7 @@
     <fileNameField/>
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;Optimization&#x5c;kettle_out</name>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;Optimization&#x5c;kettle_changes_report</name>
       <is_command>N</is_command>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
@@ -329,7 +288,7 @@
       <split>N</split>
       <haspartno>N</haspartno>
       <add_date>N</add_date>
-      <add_time>N</add_time>
+      <add_time>Y</add_time>
       <SpecifyFormat>N</SpecifyFormat>
       <date_time_format/>
       <add_to_result_filenames>Y</add_to_result_filenames>
@@ -338,30 +297,6 @@
       <splitevery>0</splitevery>
     </file>
     <fields>
-      <field>
-        <name>ad_network_id</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>startdate</name>
-        <type>Timestamp</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
       <field>
         <name>chain_name</name>
         <type>String</type>
@@ -388,6 +323,30 @@
       </field>
       <field>
         <name>tag_name</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>startdate</name>
+        <type>Timestamp</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>ad_network_id</name>
         <type>String</type>
         <format/>
         <currency/>
@@ -477,7 +436,7 @@
       <split>N</split>
       <haspartno>N</haspartno>
       <add_date>N</add_date>
-      <add_time>N</add_time>
+      <add_time>Y</add_time>
       <SpecifyFormat>N</SpecifyFormat>
       <date_time_format/>
       <add_to_result_filenames>Y</add_to_result_filenames>
@@ -636,11 +595,11 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT  ads_network_id &#xd;&#xa;	, date&#xd;&#xa;	, impressions&#xd;&#xa;	, served&#xd;&#xa;	, income&#xd;&#xa;	, publisher_income&#xd;&#xa;FROM komoona_db.kmn_cpm&#xd;&#xa;where date&#x3e;&#x27;2015-09-01&#x27;&#xd;&#xa;and tagid&#x3d;&#x3f; &#x3b;&#xd;&#xa;</sql>
+    <sql>SELECT  ads_network_id &#xd;&#xa;	, date&#xd;&#xa;	, impressions&#xd;&#xa;	, served&#xd;&#xa;	, income&#xd;&#xa;	, publisher_income&#xd;&#xa;FROM komoona_db.kmn_cpm&#xd;&#xa;where date&#x3e;&#x27;2015-09-01&#x27;&#xd;&#xa;and tagid&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27; &#x3b;&#xd;&#xa;</sql>
     <limit>0</limit>
-    <lookup>CSV file input</lookup>
-    <execute_each_row>Y</execute_each_row>
-    <variables_active>N</variables_active>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>Y</variables_active>
     <lazy_conversion_active>N</lazy_conversion_active>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
@@ -688,11 +647,11 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT id as ad_network_id &#xd;&#xa;FROM komoona_db.kmn_ads_network&#xd;&#xa;where layoutid&#x3d;&#x3f;</sql>
+    <sql>SELECT id as ad_network_id &#xd;&#xa;FROM komoona_db.kmn_ads_network&#xd;&#xa;where layoutid&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27;</sql>
     <limit>0</limit>
-    <lookup>CSV file input</lookup>
-    <execute_each_row>Y</execute_each_row>
-    <variables_active>N</variables_active>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>Y</variables_active>
     <lazy_conversion_active>N</lazy_conversion_active>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
@@ -714,7 +673,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>select 	ad_network_id&#xd;&#xa;	, startdate&#xd;&#xa;	, chain_name&#xd;&#xa;	, chain_id&#xd;&#xa;    , substring_index&#x28;substring_index&#x28;substring_index&#x28;chain_name,&#x22;&#x3a;&#x22;,ordinal&#x2b;1&#x29;,&#x22;&#x3a;&#x22;,-1&#x29;,&#x22;&#x3d;&#x22;,1&#x29; tag_name&#xd;&#xa;	, ordinal&#xd;&#xa;	, floor_price&#xd;&#xa;	, 90 as candidate_type&#xd;&#xa;from kmn_main_chain_history&#xd;&#xa;where startdate &#x3e; &#x27;2015-01-01&#x27;&#xd;&#xa;and ad_network_id &#x3d;&#x3f;&#xd;&#xa;order by startdate&#x3b;</sql>
+    <sql>select chain_name&#xd;&#xa;	, chain_id&#xd;&#xa;    , substring_index&#x28;substring_index&#x28;substring_index&#x28;chain_name,&#x22;&#x3a;&#x22;,ordinal&#x2b;1&#x29;,&#x22;&#x3a;&#x22;,-1&#x29;,&#x22;&#x3d;&#x22;,1&#x29; tag_name&#xd;&#xa;	, startdate&#xd;&#xa;	, ad_network_id&#xd;&#xa;	, ordinal&#xd;&#xa;	, floor_price &#xd;&#xa;	, 90 candidate_type&#xd;&#xa;from kmn_main_chain_history&#xd;&#xa;where startdate &#x3e; &#x27;2015-01-01&#x27;&#xd;&#xa;and ad_network_id &#x3d;&#x3f;&#xd;&#xa;order by startdate&#x3b;</sql>
     <limit>0</limit>
     <lookup>Sort by ad_network_id</lookup>
     <execute_each_row>Y</execute_each_row>
