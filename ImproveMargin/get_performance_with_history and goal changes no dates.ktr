@@ -11,7 +11,7 @@
     <parameters>
         <parameter>
             <name>end_date</name>
-            <default_value>&#x27;2015-10-14&#x27;</default_value>
+            <default_value>&#x27;2015-10-17&#x27;</default_value>
             <description/>
         </parameter>
         <parameter>
@@ -248,6 +248,82 @@
       <xloc>1180</xloc>
       <yloc>137</yloc>
       <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Calculator 2</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <calculation><field_name>start_date_string</field_name>
+<calc_type>CONSTANT</calc_type>
+<field_a>&#x24;&#x7b;start_date&#x7d;</field_a>
+<field_b/>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>start_date</field_name>
+<calc_type>SUBSTITUTE_VARIABLE</calc_type>
+<field_a>start_date_string</field_a>
+<field_b/>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>yyyy-MM-dd</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1239</xloc>
+      <yloc>199</yloc>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Filter rows</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<send_true_to>Text file output 3</send_true_to>
+<send_false_to/>
+    <compare>
+<condition>
+ <negated>N</negated>
+ <leftvalue>impressions</leftvalue>
+ <function>IS NOT NULL</function>
+ <rightvalue/>
+ </condition>
+    </compare>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1178</xloc>
+      <yloc>197</yloc>
+      <draw>Y</draw>
       </GUI>
     </step>
 
@@ -1306,6 +1382,318 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     </step>
 
   <step>
+    <name>apply changelog 3</name>
+    <type>UserDefinedJavaClass</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+
+    <definitions>
+        <definition>
+        <class_type>TRANSFORM_CLASS</class_type>
+
+        <class_name>Processor</class_name>
+
+        <class_source><![CDATA[String valueField;
+String previousValue;
+String outValue;
+String outputField;
+String groupField;
+String previousGroupFieldValue;
+
+public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
+{
+    // Let's look up parameters only once for performance reason.
+    //
+    if (first) {
+      valueField = getParameter("VALUE_COLUMN");
+	  outputField = getParameter("OUTPUT_COLUMN");
+	  previousValue = getParameter("DEFAULT_VALUE");
+	  groupField = getParameter("GROUP_COLUMN");
+      first=false;
+    }
+
+    // First, get a row from the default input hop
+    //
+    Object[] r = getRow();
+
+    // If the row object is null, we are done processing.
+    //
+    if (r == null) {
+      setOutputDone();
+      return false;
+    }
+
+    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
+    // enough to handle any new fields you are creating in this step.
+    //
+    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
+
+    String currentValue = get(Fields.In, valueField).getString(r);
+	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
+
+	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
+		outValue=previousValue;
+	} else {
+		outValue=currentValue;
+		previousValue=currentValue;
+		previousGroupFieldValue=currentGroupFieldValue;
+		
+	}
+		
+    get(Fields.Out, outputField).setValue(outputRow, outValue);
+
+    // putRow will send the row on to the default output hop.
+    //
+    putRow(data.outputRowMeta, outputRow);
+
+    return true;
+}]]></class_source>
+        </definition>
+    </definitions>
+    <fields>
+        <field>
+        <field_name>optimization_on</field_name>
+
+        <field_type>String</field_type>
+
+        <field_length>-1</field_length>
+
+        <field_precision>-1</field_precision>
+
+        </field>
+    </fields><clear_result_fields>N</clear_result_fields>
+<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
+<parameter_value>optimization_in_out</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
+<parameter_value>optimization_on</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
+<parameter_value>tagid</parameter_value>
+<parameter_description/>
+</usage_parameter></usage_parameters>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>775</xloc>
+      <yloc>44</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>apply changelog 3 2</name>
+    <type>UserDefinedJavaClass</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+
+    <definitions>
+        <definition>
+        <class_type>TRANSFORM_CLASS</class_type>
+
+        <class_name>Processor</class_name>
+
+        <class_source><![CDATA[String valueField;
+String previousValue;
+String outValue;
+String outputField;
+String groupField;
+String previousGroupFieldValue;
+
+public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
+{
+    // Let's look up parameters only once for performance reason.
+    //
+    if (first) {
+      valueField = getParameter("VALUE_COLUMN");
+	  outputField = getParameter("OUTPUT_COLUMN");
+	  previousValue = getParameter("DEFAULT_VALUE");
+	  groupField = getParameter("GROUP_COLUMN");
+      first=false;
+    }
+
+    // First, get a row from the default input hop
+    //
+    Object[] r = getRow();
+
+    // If the row object is null, we are done processing.
+    //
+    if (r == null) {
+      setOutputDone();
+      return false;
+    }
+
+    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
+    // enough to handle any new fields you are creating in this step.
+    //
+    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
+
+    String currentValue = get(Fields.In, valueField).getString(r);
+	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
+
+	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
+		outValue=previousValue;
+	} else {
+		outValue=currentValue;
+		previousValue=currentValue;
+		previousGroupFieldValue=currentGroupFieldValue;
+		
+	}
+		
+    get(Fields.Out, outputField).setValue(outputRow, outValue);
+
+    // putRow will send the row on to the default output hop.
+    //
+    putRow(data.outputRowMeta, outputRow);
+
+    return true;
+}]]></class_source>
+        </definition>
+    </definitions>
+    <fields>
+        <field>
+        <field_name>risk_percent</field_name>
+
+        <field_type>String</field_type>
+
+        <field_length>-1</field_length>
+
+        <field_precision>-1</field_precision>
+
+        </field>
+    </fields><clear_result_fields>N</clear_result_fields>
+<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
+<parameter_value>new_risk_percent</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
+<parameter_value>risk_percent</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
+<parameter_value>tagid</parameter_value>
+<parameter_description/>
+</usage_parameter></usage_parameters>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>974</xloc>
+      <yloc>49</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>apply changelog 4</name>
+    <type>UserDefinedJavaClass</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+
+    <definitions>
+        <definition>
+        <class_type>TRANSFORM_CLASS</class_type>
+
+        <class_name>Processor</class_name>
+
+        <class_source><![CDATA[String valueField;
+String previousValue;
+String outValue;
+String outputField;
+String groupField;
+String previousGroupFieldValue;
+
+public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
+{
+    // Let's look up parameters only once for performance reason.
+    //
+    if (first) {
+      valueField = getParameter("VALUE_COLUMN");
+	  outputField = getParameter("OUTPUT_COLUMN");
+	  previousValue = getParameter("DEFAULT_VALUE");
+	  groupField = getParameter("GROUP_COLUMN");
+      first=false;
+    }
+
+    // First, get a row from the default input hop
+    //
+    Object[] r = getRow();
+
+    // If the row object is null, we are done processing.
+    //
+    if (r == null) {
+      setOutputDone();
+      return false;
+    }
+
+    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
+    // enough to handle any new fields you are creating in this step.
+    //
+    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
+
+    String currentValue = get(Fields.In, valueField).getString(r);
+	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
+
+	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
+		outValue=previousValue;
+	} else {
+		outValue=currentValue;
+		previousValue=currentValue;
+		previousGroupFieldValue=currentGroupFieldValue;
+		
+	}
+		
+    get(Fields.Out, outputField).setValue(outputRow, outValue);
+
+    // putRow will send the row on to the default output hop.
+    //
+    putRow(data.outputRowMeta, outputRow);
+
+    return true;
+}]]></class_source>
+        </definition>
+    </definitions>
+    <fields>
+        <field>
+        <field_name>risk_percent</field_name>
+
+        <field_type>String</field_type>
+
+        <field_length>-1</field_length>
+
+        <field_precision>-1</field_precision>
+
+        </field>
+    </fields><clear_result_fields>N</clear_result_fields>
+<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
+<parameter_value>new_risk_percent</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
+<parameter_value>risk_percent</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
+<parameter_value>tagid</parameter_value>
+<parameter_description/>
+</usage_parameter></usage_parameters>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1038</xloc>
+      <yloc>51</yloc>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
     <name>apply changelog goal</name>
     <type>UserDefinedJavaClass</type>
     <description/>
@@ -1405,6 +1793,214 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>563</xloc>
       <yloc>38</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>apply changelog next_date</name>
+    <type>UserDefinedJavaClass</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+
+    <definitions>
+        <definition>
+        <class_type>TRANSFORM_CLASS</class_type>
+
+        <class_name>Processor</class_name>
+
+        <class_source><![CDATA[String valueField;
+String previousValue;
+String outValue;
+String outputField;
+String groupField;
+String previousGroupFieldValue;
+
+public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
+{
+    // Let's look up parameters only once for performance reason.
+    //
+    if (first) {
+      valueField = getParameter("VALUE_COLUMN");
+	  outputField = getParameter("OUTPUT_COLUMN");
+	  previousValue = getParameter("DEFAULT_VALUE");
+	  groupField = getParameter("GROUP_COLUMN");
+      first=false;
+    }
+
+    // First, get a row from the default input hop
+    //
+    Object[] r = getRow();
+
+    // If the row object is null, we are done processing.
+    //
+    if (r == null) {
+      setOutputDone();
+      return false;
+    }
+
+    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
+    // enough to handle any new fields you are creating in this step.
+    //
+    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
+
+    String currentValue = get(Fields.In, valueField).getString(r);
+	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
+
+	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
+		outValue=previousValue;
+	} else {
+		outValue=currentValue;
+		previousValue=currentValue;
+		previousGroupFieldValue=currentGroupFieldValue;
+		
+	}
+		
+    get(Fields.Out, outputField).setValue(outputRow, outValue);
+
+    // putRow will send the row on to the default output hop.
+    //
+    putRow(data.outputRowMeta, outputRow);
+
+    return true;
+}]]></class_source>
+        </definition>
+    </definitions>
+    <fields>
+        <field>
+        <field_name>next_goal_date</field_name>
+
+        <field_type>String</field_type>
+
+        <field_length>-1</field_length>
+
+        <field_precision>-1</field_precision>
+
+        </field>
+    </fields><clear_result_fields>N</clear_result_fields>
+<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
+<parameter_value>next_goal_date_event</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
+<parameter_value>next_goal_date</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
+<parameter_value>optimization_goal</parameter_value>
+<parameter_description/>
+</usage_parameter></usage_parameters>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>651</xloc>
+      <yloc>360</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>apply changelog next_goal</name>
+    <type>UserDefinedJavaClass</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+
+    <definitions>
+        <definition>
+        <class_type>TRANSFORM_CLASS</class_type>
+
+        <class_name>Processor</class_name>
+
+        <class_source><![CDATA[String valueField;
+String previousValue;
+String outValue;
+String outputField;
+String groupField;
+String previousGroupFieldValue;
+
+public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
+{
+    // Let's look up parameters only once for performance reason.
+    //
+    if (first) {
+      valueField = getParameter("VALUE_COLUMN");
+	  outputField = getParameter("OUTPUT_COLUMN");
+	  previousValue = getParameter("DEFAULT_VALUE");
+	  groupField = getParameter("GROUP_COLUMN");
+      first=false;
+    }
+
+    // First, get a row from the default input hop
+    //
+    Object[] r = getRow();
+
+    // If the row object is null, we are done processing.
+    //
+    if (r == null) {
+      setOutputDone();
+      return false;
+    }
+
+    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
+    // enough to handle any new fields you are creating in this step.
+    //
+    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
+
+    String currentValue = get(Fields.In, valueField).getString(r);
+	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
+
+	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
+		outValue=previousValue;
+	} else {
+		outValue=currentValue;
+		previousValue=currentValue;
+		previousGroupFieldValue=currentGroupFieldValue;
+		
+	}
+		
+    get(Fields.Out, outputField).setValue(outputRow, outValue);
+
+    // putRow will send the row on to the default output hop.
+    //
+    putRow(data.outputRowMeta, outputRow);
+
+    return true;
+}]]></class_source>
+        </definition>
+    </definitions>
+    <fields>
+        <field>
+        <field_name>next_goal</field_name>
+
+        <field_type>String</field_type>
+
+        <field_length>-1</field_length>
+
+        <field_precision>-1</field_precision>
+
+        </field>
+    </fields><clear_result_fields>N</clear_result_fields>
+<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
+<parameter_value>next_goal_event</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
+<parameter_value>next_goal</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
+<parameter_value>optimization_goal</parameter_value>
+<parameter_description/>
+</usage_parameter></usage_parameters>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>603</xloc>
+      <yloc>303</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1614,318 +2210,6 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       <xloc>597</xloc>
       <yloc>223</yloc>
       <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>apply changelog next_goal</name>
-    <type>UserDefinedJavaClass</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-
-    <definitions>
-        <definition>
-        <class_type>TRANSFORM_CLASS</class_type>
-
-        <class_name>Processor</class_name>
-
-        <class_source><![CDATA[String valueField;
-String previousValue;
-String outValue;
-String outputField;
-String groupField;
-String previousGroupFieldValue;
-
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
-{
-    // Let's look up parameters only once for performance reason.
-    //
-    if (first) {
-      valueField = getParameter("VALUE_COLUMN");
-	  outputField = getParameter("OUTPUT_COLUMN");
-	  previousValue = getParameter("DEFAULT_VALUE");
-	  groupField = getParameter("GROUP_COLUMN");
-      first=false;
-    }
-
-    // First, get a row from the default input hop
-    //
-    Object[] r = getRow();
-
-    // If the row object is null, we are done processing.
-    //
-    if (r == null) {
-      setOutputDone();
-      return false;
-    }
-
-    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
-    // enough to handle any new fields you are creating in this step.
-    //
-    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
-
-    String currentValue = get(Fields.In, valueField).getString(r);
-	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
-
-	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
-		outValue=previousValue;
-	} else {
-		outValue=currentValue;
-		previousValue=currentValue;
-		previousGroupFieldValue=currentGroupFieldValue;
-		
-	}
-		
-    get(Fields.Out, outputField).setValue(outputRow, outValue);
-
-    // putRow will send the row on to the default output hop.
-    //
-    putRow(data.outputRowMeta, outputRow);
-
-    return true;
-}]]></class_source>
-        </definition>
-    </definitions>
-    <fields>
-        <field>
-        <field_name>next_goal</field_name>
-
-        <field_type>String</field_type>
-
-        <field_length>-1</field_length>
-
-        <field_precision>-1</field_precision>
-
-        </field>
-    </fields><clear_result_fields>N</clear_result_fields>
-<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
-<parameter_value>next_goal_event</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
-<parameter_value>next_goal</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
-<parameter_value>optimization_goal</parameter_value>
-<parameter_description/>
-</usage_parameter></usage_parameters>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>603</xloc>
-      <yloc>303</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>apply changelog 3</name>
-    <type>UserDefinedJavaClass</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-
-    <definitions>
-        <definition>
-        <class_type>TRANSFORM_CLASS</class_type>
-
-        <class_name>Processor</class_name>
-
-        <class_source><![CDATA[String valueField;
-String previousValue;
-String outValue;
-String outputField;
-String groupField;
-String previousGroupFieldValue;
-
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
-{
-    // Let's look up parameters only once for performance reason.
-    //
-    if (first) {
-      valueField = getParameter("VALUE_COLUMN");
-	  outputField = getParameter("OUTPUT_COLUMN");
-	  previousValue = getParameter("DEFAULT_VALUE");
-	  groupField = getParameter("GROUP_COLUMN");
-      first=false;
-    }
-
-    // First, get a row from the default input hop
-    //
-    Object[] r = getRow();
-
-    // If the row object is null, we are done processing.
-    //
-    if (r == null) {
-      setOutputDone();
-      return false;
-    }
-
-    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
-    // enough to handle any new fields you are creating in this step.
-    //
-    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
-
-    String currentValue = get(Fields.In, valueField).getString(r);
-	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
-
-	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
-		outValue=previousValue;
-	} else {
-		outValue=currentValue;
-		previousValue=currentValue;
-		previousGroupFieldValue=currentGroupFieldValue;
-		
-	}
-		
-    get(Fields.Out, outputField).setValue(outputRow, outValue);
-
-    // putRow will send the row on to the default output hop.
-    //
-    putRow(data.outputRowMeta, outputRow);
-
-    return true;
-}]]></class_source>
-        </definition>
-    </definitions>
-    <fields>
-        <field>
-        <field_name>optimization_on</field_name>
-
-        <field_type>String</field_type>
-
-        <field_length>-1</field_length>
-
-        <field_precision>-1</field_precision>
-
-        </field>
-    </fields><clear_result_fields>N</clear_result_fields>
-<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
-<parameter_value>optimization_in_out</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
-<parameter_value>optimization_on</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
-<parameter_value>tagid</parameter_value>
-<parameter_description/>
-</usage_parameter></usage_parameters>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>775</xloc>
-      <yloc>44</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>apply changelog 4</name>
-    <type>UserDefinedJavaClass</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-
-    <definitions>
-        <definition>
-        <class_type>TRANSFORM_CLASS</class_type>
-
-        <class_name>Processor</class_name>
-
-        <class_source><![CDATA[String valueField;
-String previousValue;
-String outValue;
-String outputField;
-String groupField;
-String previousGroupFieldValue;
-
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
-{
-    // Let's look up parameters only once for performance reason.
-    //
-    if (first) {
-      valueField = getParameter("VALUE_COLUMN");
-	  outputField = getParameter("OUTPUT_COLUMN");
-	  previousValue = getParameter("DEFAULT_VALUE");
-	  groupField = getParameter("GROUP_COLUMN");
-      first=false;
-    }
-
-    // First, get a row from the default input hop
-    //
-    Object[] r = getRow();
-
-    // If the row object is null, we are done processing.
-    //
-    if (r == null) {
-      setOutputDone();
-      return false;
-    }
-
-    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
-    // enough to handle any new fields you are creating in this step.
-    //
-    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
-
-    String currentValue = get(Fields.In, valueField).getString(r);
-	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
-
-	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
-		outValue=previousValue;
-	} else {
-		outValue=currentValue;
-		previousValue=currentValue;
-		previousGroupFieldValue=currentGroupFieldValue;
-		
-	}
-		
-    get(Fields.Out, outputField).setValue(outputRow, outValue);
-
-    // putRow will send the row on to the default output hop.
-    //
-    putRow(data.outputRowMeta, outputRow);
-
-    return true;
-}]]></class_source>
-        </definition>
-    </definitions>
-    <fields>
-        <field>
-        <field_name>risk_percent</field_name>
-
-        <field_type>String</field_type>
-
-        <field_length>-1</field_length>
-
-        <field_precision>-1</field_precision>
-
-        </field>
-    </fields><clear_result_fields>N</clear_result_fields>
-<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
-<parameter_value>new_risk_percent</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
-<parameter_value>risk_percent</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
-<parameter_value>tagid</parameter_value>
-<parameter_description/>
-</usage_parameter></usage_parameters>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1038</xloc>
-      <yloc>51</yloc>
-      <draw>N</draw>
       </GUI>
     </step>
 
@@ -2413,290 +2697,6 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       <xloc>924</xloc>
       <yloc>302</yloc>
       <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>apply changelog next_date</name>
-    <type>UserDefinedJavaClass</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-
-    <definitions>
-        <definition>
-        <class_type>TRANSFORM_CLASS</class_type>
-
-        <class_name>Processor</class_name>
-
-        <class_source><![CDATA[String valueField;
-String previousValue;
-String outValue;
-String outputField;
-String groupField;
-String previousGroupFieldValue;
-
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
-{
-    // Let's look up parameters only once for performance reason.
-    //
-    if (first) {
-      valueField = getParameter("VALUE_COLUMN");
-	  outputField = getParameter("OUTPUT_COLUMN");
-	  previousValue = getParameter("DEFAULT_VALUE");
-	  groupField = getParameter("GROUP_COLUMN");
-      first=false;
-    }
-
-    // First, get a row from the default input hop
-    //
-    Object[] r = getRow();
-
-    // If the row object is null, we are done processing.
-    //
-    if (r == null) {
-      setOutputDone();
-      return false;
-    }
-
-    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
-    // enough to handle any new fields you are creating in this step.
-    //
-    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
-
-    String currentValue = get(Fields.In, valueField).getString(r);
-	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
-
-	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
-		outValue=previousValue;
-	} else {
-		outValue=currentValue;
-		previousValue=currentValue;
-		previousGroupFieldValue=currentGroupFieldValue;
-		
-	}
-		
-    get(Fields.Out, outputField).setValue(outputRow, outValue);
-
-    // putRow will send the row on to the default output hop.
-    //
-    putRow(data.outputRowMeta, outputRow);
-
-    return true;
-}]]></class_source>
-        </definition>
-    </definitions>
-    <fields>
-        <field>
-        <field_name>next_goal_date</field_name>
-
-        <field_type>String</field_type>
-
-        <field_length>-1</field_length>
-
-        <field_precision>-1</field_precision>
-
-        </field>
-    </fields><clear_result_fields>N</clear_result_fields>
-<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
-<parameter_value>next_goal_date_event</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
-<parameter_value>next_goal_date</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
-<parameter_value>optimization_goal</parameter_value>
-<parameter_description/>
-</usage_parameter></usage_parameters>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>651</xloc>
-      <yloc>360</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Filter rows</name>
-    <type>FilterRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-<send_true_to>Text file output 3</send_true_to>
-<send_false_to/>
-    <compare>
-<condition>
- <negated>N</negated>
- <leftvalue>impressions</leftvalue>
- <function>IS NOT NULL</function>
- <rightvalue/>
- </condition>
-    </compare>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1178</xloc>
-      <yloc>197</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>apply changelog 3 2</name>
-    <type>UserDefinedJavaClass</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-
-    <definitions>
-        <definition>
-        <class_type>TRANSFORM_CLASS</class_type>
-
-        <class_name>Processor</class_name>
-
-        <class_source><![CDATA[String valueField;
-String previousValue;
-String outValue;
-String outputField;
-String groupField;
-String previousGroupFieldValue;
-
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
-{
-    // Let's look up parameters only once for performance reason.
-    //
-    if (first) {
-      valueField = getParameter("VALUE_COLUMN");
-	  outputField = getParameter("OUTPUT_COLUMN");
-	  previousValue = getParameter("DEFAULT_VALUE");
-	  groupField = getParameter("GROUP_COLUMN");
-      first=false;
-    }
-
-    // First, get a row from the default input hop
-    //
-    Object[] r = getRow();
-
-    // If the row object is null, we are done processing.
-    //
-    if (r == null) {
-      setOutputDone();
-      return false;
-    }
-
-    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
-    // enough to handle any new fields you are creating in this step.
-    //
-    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
-
-    String currentValue = get(Fields.In, valueField).getString(r);
-	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
-
-	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
-		outValue=previousValue;
-	} else {
-		outValue=currentValue;
-		previousValue=currentValue;
-		previousGroupFieldValue=currentGroupFieldValue;
-		
-	}
-		
-    get(Fields.Out, outputField).setValue(outputRow, outValue);
-
-    // putRow will send the row on to the default output hop.
-    //
-    putRow(data.outputRowMeta, outputRow);
-
-    return true;
-}]]></class_source>
-        </definition>
-    </definitions>
-    <fields>
-        <field>
-        <field_name>risk_percent</field_name>
-
-        <field_type>String</field_type>
-
-        <field_length>-1</field_length>
-
-        <field_precision>-1</field_precision>
-
-        </field>
-    </fields><clear_result_fields>N</clear_result_fields>
-<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
-<parameter_value>new_risk_percent</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
-<parameter_value>risk_percent</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
-<parameter_value>tagid</parameter_value>
-<parameter_description/>
-</usage_parameter></usage_parameters>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>974</xloc>
-      <yloc>49</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Calculator 2</name>
-    <type>Calculator</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-       <calculation><field_name>start_date_string</field_name>
-<calc_type>CONSTANT</calc_type>
-<field_a>&#x24;&#x7b;start_date&#x7d;</field_a>
-<field_b/>
-<field_c/>
-<value_type>String</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>start_date</field_name>
-<calc_type>SUBSTITUTE_VARIABLE</calc_type>
-<field_a>start_date_string</field_a>
-<field_b/>
-<field_c/>
-<value_type>Date</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask>yyyy-MM-dd</conversion_mask>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1239</xloc>
-      <yloc>199</yloc>
-      <draw>N</draw>
       </GUI>
     </step>
 
