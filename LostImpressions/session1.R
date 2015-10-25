@@ -65,7 +65,7 @@ Analysis.Zscore <- function(rawDF) {
 }
 
 zScore <- function(groupIdentifier,values) {
-
+# this function gives a "z score" to a value based on [minLength] preceding values in timeseries.
   subscripts <- tapply(values, groupIdentifier, NULL)
   reconstructed <- numeric(length(subscripts))
   for (i in 1:max(subscripts)) {
