@@ -11,7 +11,7 @@
     <parameters>
         <parameter>
             <name>end_date</name>
-            <default_value>&#x27;2015-10-25&#x27;</default_value>
+            <default_value>&#x27;2015-10-24&#x27;</default_value>
             <description/>
         </parameter>
         <parameter>
@@ -340,7 +340,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT tagid&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;floor order by date&#x29;,&#x27;,&#x27;,-1&#x29; floor_price_event&#xd;&#xa;	, if&#x28;date&#x3c;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,0,datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29;&#x29; floor_change_date&#xd;&#xa;FROM kmn_floor_prices_history &#xd;&#xa;WHERE date between &#x27;2015-01-01&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;and floor &#x3e; 0&#xd;&#xa;&#xd;&#xa;group by tagid, floor_change_date&#x3b;&#xd;&#xa;</sql>
+    <sql>SELECT tagid&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;floor order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29; floor_price_event&#xd;&#xa;	, if&#x28;date&#x3c;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,0,datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29;&#x29; floor_change_date&#xd;&#xa;FROM kmn_floor_prices_history &#xd;&#xa;WHERE date between &#x27;2015-01-01&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;and floor &#x3e; 0&#xd;&#xa;&#xd;&#xa;group by tagid, floor_change_date&#x3b;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -2215,6 +2215,193 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     </step>
 
   <step>
+    <name>dates to excel integer dates</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <calculation><field_name>excel_ref_date</field_name>
+<calc_type>CONSTANT</calc_type>
+<field_a>2010-01-01</field_a>
+<field_b/>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask>yyyy-MM-dd</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>excel_ref_number</field_name>
+<calc_type>CONSTANT</calc_type>
+<field_a>40179</field_a>
+<field_b/>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask>0</conversion_mask>
+<decimal_symbol>.</decimal_symbol>
+<grouping_symbol>,</grouping_symbol>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>start_date_string</field_name>
+<calc_type>CONSTANT</calc_type>
+<field_a>&#x24;&#x7b;start_date&#x7d;</field_a>
+<field_b/>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>start_date_date</field_name>
+<calc_type>SUBSTITUTE_VARIABLE</calc_type>
+<field_a>start_date_string</field_a>
+<field_b/>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask>yyyy-MM-dd</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>start_date_offset</field_name>
+<calc_type>DATE_DIFF</calc_type>
+<field_a>start_date_date</field_a>
+<field_b>excel_ref_date</field_b>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>dates_offset</field_name>
+<calc_type>ADD</calc_type>
+<field_a>start_date_offset</field_a>
+<field_b>excel_ref_number</field_b>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>performance_date_int</field_name>
+<calc_type>COPY_FIELD</calc_type>
+<field_a>performance_date</field_a>
+<field_b/>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask>0</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>prev_goal_date_int</field_name>
+<calc_type>COPY_FIELD</calc_type>
+<field_a>prev_goal_date</field_a>
+<field_b/>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask>0</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>next_goal_int</field_name>
+<calc_type>COPY_FIELD</calc_type>
+<field_a>next_goal_date</field_a>
+<field_b/>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask>0</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>performance_date_xls</field_name>
+<calc_type>ADD</calc_type>
+<field_a>performance_date_int</field_a>
+<field_b>dates_offset</field_b>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>prev_goal_date_xls</field_name>
+<calc_type>ADD</calc_type>
+<field_a>prev_goal_date_int</field_a>
+<field_b>dates_offset</field_b>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>next_goal_date_xls</field_name>
+<calc_type>ADD</calc_type>
+<field_a>next_goal_int</field_a>
+<field_b>dates_offset</field_b>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1250</xloc>
+      <yloc>220</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
     <name>discard unneeded columns</name>
     <type>SelectValues</type>
     <description/>
@@ -2617,8 +2804,8 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     <lazy_conversion_active>N</lazy_conversion_active>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>769</xloc>
-      <yloc>291</yloc>
+      <xloc>771</xloc>
+      <yloc>286</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2697,193 +2884,6 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>924</xloc>
       <yloc>302</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>dates to excel integer dates</name>
-    <type>Calculator</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-       <calculation><field_name>excel_ref_date</field_name>
-<calc_type>CONSTANT</calc_type>
-<field_a>2010-01-01</field_a>
-<field_b/>
-<field_c/>
-<value_type>Date</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>Y</remove>
-<conversion_mask>yyyy-MM-dd</conversion_mask>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>excel_ref_number</field_name>
-<calc_type>CONSTANT</calc_type>
-<field_a>40179</field_a>
-<field_b/>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>Y</remove>
-<conversion_mask>0</conversion_mask>
-<decimal_symbol>.</decimal_symbol>
-<grouping_symbol>,</grouping_symbol>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>start_date_string</field_name>
-<calc_type>CONSTANT</calc_type>
-<field_a>&#x24;&#x7b;start_date&#x7d;</field_a>
-<field_b/>
-<field_c/>
-<value_type>String</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>Y</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>start_date_date</field_name>
-<calc_type>SUBSTITUTE_VARIABLE</calc_type>
-<field_a>start_date_string</field_a>
-<field_b/>
-<field_c/>
-<value_type>Date</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>Y</remove>
-<conversion_mask>yyyy-MM-dd</conversion_mask>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>start_date_offset</field_name>
-<calc_type>DATE_DIFF</calc_type>
-<field_a>start_date_date</field_a>
-<field_b>excel_ref_date</field_b>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>Y</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>dates_offset</field_name>
-<calc_type>ADD</calc_type>
-<field_a>start_date_offset</field_a>
-<field_b>excel_ref_number</field_b>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>Y</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>performance_date_int</field_name>
-<calc_type>COPY_FIELD</calc_type>
-<field_a>performance_date</field_a>
-<field_b/>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>Y</remove>
-<conversion_mask>0</conversion_mask>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>prev_goal_date_int</field_name>
-<calc_type>COPY_FIELD</calc_type>
-<field_a>prev_goal_date</field_a>
-<field_b/>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>Y</remove>
-<conversion_mask>0</conversion_mask>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>next_goal_int</field_name>
-<calc_type>COPY_FIELD</calc_type>
-<field_a>next_goal_date</field_a>
-<field_b/>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>Y</remove>
-<conversion_mask>0</conversion_mask>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>performance_date_xls</field_name>
-<calc_type>ADD</calc_type>
-<field_a>performance_date_int</field_a>
-<field_b>dates_offset</field_b>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>prev_goal_date_xls</field_name>
-<calc_type>ADD</calc_type>
-<field_a>prev_goal_date_int</field_a>
-<field_b>dates_offset</field_b>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>next_goal_date_xls</field_name>
-<calc_type>ADD</calc_type>
-<field_a>next_goal_int</field_a>
-<field_b>dates_offset</field_b>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1250</xloc>
-      <yloc>220</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
