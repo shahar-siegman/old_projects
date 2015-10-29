@@ -41,7 +41,7 @@ session4 <- function(DF) {
     geom_density(aes(x=log(predict_served_stage1 / served), y=..scaled..),fill="red", alpha=0.2) +
     geom_density(aes(x=log(predict_served_stage2 / served), y=..scaled..),fill="blue", alpha=0.5) +
     geom_vline(xintercept=0, colour="black") +
-    facet_wrap(~placement_id, scale="free")
+    facet_wrap(~placement_id)
 
   # plot the error density before-and-after residual correction
 
