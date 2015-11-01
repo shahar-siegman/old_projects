@@ -75,7 +75,7 @@
   <created_date>2015&#x2f;10&#x2f;29 17&#x3a;46&#x3a;41.620</created_date>
   <modified_user>-</modified_user>
   <modified_date>2015&#x2f;10&#x2f;29 17&#x3a;46&#x3a;41.620</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA&#x3d;</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
@@ -108,67 +108,20 @@
     </attributes>
   </connection>
   <order>
-  <hop> <from>CSV file input</from><to>placement_served</to><enabled>Y</enabled> </hop>
-  <hop> <from>CSV file input</from><to>Chain performance</to><enabled>Y</enabled> </hop>
-  <hop> <from>placement_served</from><to>Merge Join</to><enabled>Y</enabled> </hop>
-  <hop> <from>Chain performance</from><to>Merge Join</to><enabled>Y</enabled> </hop>
-  <hop> <from>Merge Join</from><to>filter and format</to><enabled>Y</enabled> </hop>
-  <hop> <from>filter and format</from><to>Text file output</to><enabled>Y</enabled> </hop>
+  <hop> <from>Group by placement, date</from><to>join 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>Sort by placementid, date</from><to>Group by placement, date</to><enabled>Y</enabled> </hop>
+  <hop> <from>mobile placement list</from><to>kmn_tag_report</to><enabled>Y</enabled> </hop>
+  <hop> <from>mobile placement list</from><to>kmn_chain_report</to><enabled>Y</enabled> </hop>
+  <hop> <from>join</from><to>join 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>join 2</from><to>Select values</to><enabled>Y</enabled> </hop>
+  <hop> <from>Select values</from><to>Text file output</to><enabled>Y</enabled> </hop>
+  <hop> <from>kmn_chain_report</from><to>join</to><enabled>Y</enabled> </hop>
+  <hop> <from>kmn_tag_report</from><to>join</to><enabled>Y</enabled> </hop>
+  <hop> <from>mobile chain performance</from><to>Filter rows</to><enabled>Y</enabled> </hop>
+  <hop> <from>Filter rows</from><to>Sort by placementid, date</to><enabled>Y</enabled> </hop>
   </order>
   <step>
-    <name>placement_served</name>
-    <type>TableInput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <connection>komoona dev</connection>
-    <sql>select tagid placement_id&#xd;&#xa;	, date&#xd;&#xa;	, sum&#x28;served&#x29; served			&#xd;&#xa;from kmn_tag_report			&#xd;&#xa;where date &#x3e;&#x3d; &#x27;2015-10-01&#x27;			&#xd;&#xa;	and date &#x3c; &#x27;2015-10-26&#x27;		&#xd;&#xa;	and tagid&#x3d;&#x3f;&#xd;&#xa;group by 1,2&#xd;&#xa;</sql>
-    <limit>0</limit>
-    <lookup>CSV file input</lookup>
-    <execute_each_row>Y</execute_each_row>
-    <variables_active>N</variables_active>
-    <lazy_conversion_active>N</lazy_conversion_active>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>401</xloc>
-      <yloc>124</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Chain performance</name>
-    <type>TableInput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <connection>komoona dev</connection>
-    <sql>select placement_id&#xd;&#xa;	, date&#xd;&#xa;	, sum&#x28;impressions&#x29; impressions&#xd;&#xa;	, sum&#x28;house&#x29; house&#xd;&#xa;	, sum&#x28;served&#x29; komoona_served			&#xd;&#xa;from kmn_chain_report			&#xd;&#xa;where date &#x3e;&#x3d; &#x27;2015-10-01&#x27;			&#xd;&#xa;	and date &#x3c; &#x27;2015-10-26&#x27;		&#xd;&#xa;	and placement_id&#x3d;&#x3f;&#xd;&#xa;group by 1,2</sql>
-    <limit>0</limit>
-    <lookup>CSV file input</lookup>
-    <execute_each_row>Y</execute_each_row>
-    <variables_active>N</variables_active>
-    <lazy_conversion_active>N</lazy_conversion_active>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>401</xloc>
-      <yloc>241</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>CSV file input</name>
+    <name>mobile placement list</name>
     <type>CsvInput</type>
     <description/>
     <distribute>N</distribute>
@@ -206,8 +159,34 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>177</xloc>
-      <yloc>189</yloc>
+      <xloc>366</xloc>
+      <yloc>201</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>kmn_chain_report</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>komoona dev</connection>
+    <sql>select placement_id&#xd;&#xa;	, date&#xd;&#xa;	, sum&#x28;impressions&#x29; cr_impressions&#xd;&#xa;	, sum&#x28;house&#x29; cr_house&#xd;&#xa;	, sum&#x28;served&#x29; komoona_served			&#xd;&#xa;from kmn_chain_report			&#xd;&#xa;where date &#x3e;&#x3d; &#x27;2015-10-01&#x27;			&#xd;&#xa;	and date &#x3c;&#x3d; &#x27;2015-10-26&#x27;		&#xd;&#xa;	and placement_id&#x3d;&#x3f;&#xd;&#xa;group by 1, 2&#xd;&#xa;order by date</sql>
+    <limit>0</limit>
+    <lookup>mobile placement list</lookup>
+    <execute_each_row>Y</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>525</xloc>
+      <yloc>159</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -225,7 +204,7 @@
            </partitioning>
 <join_type>INNER</join_type>
 <step1>placement_served</step1>
-<step2>Chain performance</step2>
+<step2>kmn_chain_report</step2>
     <keys_1>
       <key>placement_id</key>
       <key>date</key>
@@ -236,8 +215,60 @@
     </keys_2>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>515</xloc>
-      <yloc>188</yloc>
+      <xloc>568</xloc>
+      <yloc>80</yloc>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Text file output</name>
+    <type>TextFileOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <separator>,</separator>
+    <enclosure>&#x22;</enclosure>
+    <enclosure_forced>N</enclosure_forced>
+    <enclosure_fix_disabled>N</enclosure_fix_disabled>
+    <header>Y</header>
+    <footer>N</footer>
+    <format>DOS</format>
+    <compression>None</compression>
+    <encoding/>
+    <endedLine/>
+    <fileNameInField>N</fileNameInField>
+    <fileNameField/>
+    <create_parent_folder>Y</create_parent_folder>
+    <file>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;LostImpressions&#x5c;kettle_placement_data_with_komoona_served</name>
+      <is_command>N</is_command>
+      <servlet_output>N</servlet_output>
+      <do_not_open_new_file_init>N</do_not_open_new_file_init>
+      <extention>csv</extention>
+      <append>N</append>
+      <split>N</split>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <pad>N</pad>
+      <fast_dump>N</fast_dump>
+      <splitevery>0</splitevery>
+    </file>
+    <fields>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>976</xloc>
+      <yloc>195</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -310,15 +341,15 @@
         <storage_type/>
       </meta>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>631</xloc>
-      <yloc>190</yloc>
-      <draw>Y</draw>
+      <xloc>653</xloc>
+      <yloc>90</yloc>
+      <draw>N</draw>
       </GUI>
     </step>
 
   <step>
-    <name>Text file output</name>
-    <type>TextFileOutput</type>
+    <name>placement_served</name>
+    <type>TableInput</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -327,43 +358,451 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
+    <connection>komoona dev</connection>
+    <sql>select tagid placement_id&#xd;&#xa;	, date&#xd;&#xa;	, sum&#x28;served&#x29; served			&#xd;&#xa;from kmn_tag_report			&#xd;&#xa;where date &#x3e;&#x3d; &#x27;2015-10-01&#x27;			&#xd;&#xa;	and date &#x3c; &#x27;2015-10-26&#x27;		&#xd;&#xa;	and tagid&#x3d;&#x3f;&#xd;&#xa;group by 1,2&#xd;&#xa;</sql>
+    <limit>0</limit>
+    <lookup>mobile placement list</lookup>
+    <execute_each_row>Y</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>472</xloc>
+      <yloc>76</yloc>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>join 2</name>
+    <type>MergeJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<join_type>INNER</join_type>
+<step1>join</step1>
+<step2>Group by placement, date</step2>
+    <keys_1>
+      <key>placement_id</key>
+      <key>date</key>
+    </keys_1>
+    <keys_2>
+      <key>placementid</key>
+      <key>date</key>
+    </keys_2>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>757</xloc>
+      <yloc>195</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Group by placement, date</name>
+    <type>GroupBy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <all_rows>N</all_rows>
+      <ignore_aggregate>N</ignore_aggregate>
+      <field_ignore/>
+      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
+      <prefix>grp</prefix>
+      <add_linenr>N</add_linenr>
+      <linenr_fieldname/>
+      <give_back_row>N</give_back_row>
+      <group>
+        <field>
+          <name>PlacementId</name>
+        </field>
+        <field>
+          <name>date</name>
+        </field>
+      </group>
+      <fields>
+        <field>
+          <aggregate>mobile_impressions</aggregate>
+          <subject>impressions</subject>
+          <type>SUM</type>
+          <valuefield/>
+        </field>
+        <field>
+          <aggregate>mobile_kserved</aggregate>
+          <subject>served</subject>
+          <type>SUM</type>
+          <valuefield/>
+        </field>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>753</xloc>
+      <yloc>377</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>mobile chain performance</name>
+    <type>CsvInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <filename>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;LostImpressions&#x5c;kettle_mobile_chain_performance.csv</filename>
+    <filename_field/>
+    <rownum_field/>
+    <include_filename>N</include_filename>
     <separator>,</separator>
     <enclosure>&#x22;</enclosure>
-    <enclosure_forced>N</enclosure_forced>
-    <enclosure_fix_disabled>N</enclosure_fix_disabled>
     <header>Y</header>
-    <footer>N</footer>
-    <format>DOS</format>
-    <compression>None</compression>
+    <buffer_size>50000</buffer_size>
+    <lazy_conversion>Y</lazy_conversion>
+    <add_filename_result>N</add_filename_result>
+    <parallel>N</parallel>
+    <newline_possible>N</newline_possible>
     <encoding/>
-    <endedLine/>
-    <fileNameInField>N</fileNameInField>
-    <fileNameField/>
-    <create_parent_folder>Y</create_parent_folder>
-    <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;LostImpressions&#x5c;kettle_placement_data_with_komoona_served</name>
-      <is_command>N</is_command>
-      <servlet_output>N</servlet_output>
-      <do_not_open_new_file_init>N</do_not_open_new_file_init>
-      <extention>csv</extention>
-      <append>N</append>
-      <split>N</split>
-      <haspartno>N</haspartno>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <SpecifyFormat>N</SpecifyFormat>
-      <date_time_format/>
-      <add_to_result_filenames>Y</add_to_result_filenames>
-      <pad>N</pad>
-      <fast_dump>N</fast_dump>
-      <splitevery>0</splitevery>
-    </file>
     <fields>
+      <field>
+        <name>PlacementId</name>
+        <type>String</type>
+        <format/>
+        <currency>&#x24;</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <length>32</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>Date</name>
+        <type>Date</type>
+        <format>yyyy-MM-dd</format>
+        <currency>&#x24;</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>chain</name>
+        <type>String</type>
+        <format/>
+        <currency>&#x24;</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <length>19</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>served</name>
+        <type>Integer</type>
+        <format>&#x23;</format>
+        <currency>&#x24;</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <length>15</length>
+        <precision>0</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>impressions</name>
+        <type>Integer</type>
+        <format>&#x23;</format>
+        <currency>&#x24;</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <length>15</length>
+        <precision>0</precision>
+        <trim_type>none</trim_type>
+      </field>
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>747</xloc>
-      <yloc>193</yloc>
+      <xloc>422</xloc>
+      <yloc>378</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Sort by placementid, date</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
+      <prefix>out</prefix>
+      <sort_size>1000000</sort_size>
+      <free_memory/>
+      <compress>N</compress>
+      <compress_variable/>
+      <unique_rows>N</unique_rows>
+    <fields>
+      <field>
+        <name>PlacementId</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <presorted>N</presorted>
+      </field>
+      <field>
+        <name>Date</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>587</xloc>
+      <yloc>380</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>kmn_tag_report</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>komoona dev</connection>
+    <sql>select tagid placement_id&#xd;&#xa;	, date&#xd;&#xa;	, impressions&#xd;&#xa;	, served served			&#xd;&#xa;from kmn_tag_report&#xd;&#xa;where date &#x3e;&#x3d; &#x27;2015-10-01&#x27;			&#xd;&#xa;	and date &#x3c;&#x3d; &#x27;2015-10-26&#x27;		&#xd;&#xa;	and tagid&#x3d;&#x3f;&#xd;&#xa;order by date&#xd;&#xa;</sql>
+    <limit>0</limit>
+    <lookup>mobile placement list</lookup>
+    <execute_each_row>Y</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>530</xloc>
+      <yloc>252</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>join</name>
+    <type>MergeJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<join_type>INNER</join_type>
+<step1>kmn_chain_report</step1>
+<step2>kmn_tag_report</step2>
+    <keys_1>
+      <key>placement_id</key>
+      <key>date</key>
+    </keys_1>
+    <keys_2>
+      <key>placement_id</key>
+      <key>date</key>
+    </keys_2>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>678</xloc>
+      <yloc>202</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Select values</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>      <field>        <name>placement_id</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>date</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>impressions</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>served</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>cr_impressions</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>komoona_served</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>cr_house</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>mobile_impressions</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>mobile_kserved</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>        <select_unspecified>N</select_unspecified>
+      <meta>        <name>date</name>
+        <rename>date</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>886</xloc>
+      <yloc>196</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Select values 2</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>        <select_unspecified>N</select_unspecified>
+      <meta>        <name>date</name>
+        <rename>date</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>652</xloc>
+      <yloc>107</yloc>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Select values 2 2</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>        <select_unspecified>N</select_unspecified>
+      <meta>        <name>date</name>
+        <rename>date</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>611</xloc>
+      <yloc>296</yloc>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Filter rows</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<send_true_to/>
+<send_false_to/>
+    <compare>
+<condition>
+ <negated>N</negated>
+ <leftvalue>served</leftvalue>
+ <function>&#x3e;</function>
+ <rightvalue/>
+ <value><name>constant</name><type>Integer</type><text>1</text><length>-1</length><precision>0</precision><isnull>N</isnull><mask>&#x23;&#x3b;-&#x23;</mask></value> </condition>
+    </compare>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>509</xloc>
+      <yloc>377</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
