@@ -2,44 +2,54 @@ library(plyr)
 library(dplyr)
 library(zoo)
 library(ggplot2)
-cutoffDate <- as.Date("2015-09-28")
+
+runSession4 <- function() {
+currdir = 'C:/Shahar/Projects/LostImpressions/'
+rawDF <- read.csv(paste(currdir,'sample_placement_data_with_komoona_served.csv',sep=""))
+a <- session4Plots(session4(rawDF))
+write.csv(a[[3]], paste(currdir,'mobile_fill_prediction.csv'))
+return(a)
+}
 
 session4 <- function(DF) {
-
-  DF <- DF %>% select(placement_id, date, impressions,served, kserved=komoona_served) %>% filter(impressions>500, served>40)
+  DF <- DF %>% transmute(placement_id, date, impressions, served, kserved=komoona_served, komooona_fill=komoona_served/impressions) %>% filter(impressions>500, served>40)
   DF$date <- as.Date(DF$date,format="%m/%d/%Y")
   DF <- learnHistoricalRateAllPlacements(DF, key = "placement_id", series=c("impressions","served","fill"))
-  DF <- learnHistoricalRateAllPlacements(DF, key = "placement_id", series=c("","kserved","komoona_fill"))
-  DF <- advancePredictionInTimeAllPlacements(DF, key = "placement_id", series=c("smooth_komoona_fill","komoona_fill"))
+  DF <- learnHistoricalRateAllPlacements(DF, key = "placement_id", series=c("impressions","kserved","komoona_fill"))
+  DF$komoona_fill_factor <- DF$smooth_fill/DF$smooth_komoona_fill
   DF$predict_served_stage1 <- DF$smooth_fill * DF$impressions
-  DF$predict_served_stage2 <- DF$smooth_komoona_fill * DF$komoona_fill_prediction_factor * DF$impressions
+
+  DF$predict_served <- DF$smooth_fill * DF$kserved / DF$smooth_komoona_fill
+  DF$predict_kserved <- DF$smooth_komoona_fill * DF$impressions
+  DF$served_rel <- DF$predict_served / DF$served
+  DF$kserved_rel <- DF$predict_kserved / DF$kserved
+
   return(DF)
 }
-session4Plots <- function(DF)
 
+session4Plots <- function(DF) {
   # plot the linear regressions
   p1 <- ggplot(DF, aes(x=kserved_rel, y=served_rel, color=as.numeric(date-max(date)))) +
     geom_point() +
     facet_wrap(~placement_id,scale="free") +
     geom_abline(intercept=0, slope=1, colour="pink") +
-    geom_abline(aes(intercept=0,slope=slope), colour="blue") +
     xlim(c(0,3))+ylim(c(0,3))
 
   # plot the residual before-and-after linear regression
   p2 <- ggplot(DF) +
     geom_density(aes(x=log(predict_served_stage1 / served), y=..scaled..),fill="red", alpha=0.2) +
-    geom_density(aes(x=log(predict_served_stage2 / served), y=..scaled..),fill="blue", alpha=0.5) +
+    geom_density(aes(x=log(predict_served / served), y=..scaled..),fill="blue", alpha=0.5) +
     geom_vline(xintercept=0, colour="black") +
     facet_wrap(~placement_id)
 
   # plot the error density before-and-after residual correction
 
-  p3 <- ggplot(DF) +
-    geom_density(aes(x=served_resid, y=..scaled..), fill="red", alpha=0.2) +
-    geom_density(aes(x=served - served_predict, y=..scaled..), fill="blue", alpha=0.5) +
-    geom_vline(xintercept=0, colour="black") +
-    facet_wrap(~placement_id, scale="free")
-  return(list(p1,p2,p3,DF))
+#   p3 <- ggplot(DF) +
+#     geom_density(aes(x=served_resid, y=..scaled..), fill="red", alpha=0.2) +
+#     geom_density(aes(x=served - served_predict, y=..scaled..), fill="blue", alpha=0.5) +
+#     geom_vline(xintercept=0, colour="black") +
+#     facet_wrap(~placement_id, scale="free")
+  return(list(p1,p2,DF))
 }
 
 learnHistoricalRateAllPlacements <- function(DF, key , series) {
@@ -47,12 +57,6 @@ learnHistoricalRateAllPlacements <- function(DF, key , series) {
   return(a)
 }
 
-
-addSlopeColumn <- function(DF, regressionDF, groupColumn) {
-  a <- ddply(regressionDF, groupColumn, my_lm) %>% rename()
-  b <- left_join(DF,a,by=setNames("key",groupColumn))
-  return(b)
-}
 
 advancePredictionInTimeAllPlacements <- function(DF, key, series) {
   a <- ddply(DF, key, advancePrediction1Placement, series)
@@ -71,12 +75,11 @@ learnHistoricalRate1Placement <- function(DF, series) {
   smooth_num = paste("smooth_", num, sep="")
   smooth_rate = paste("smooth_", rate, sep="")
 
-  DF[,smooth_num] <- lag(rollapply(DF[, num], 14, sum, partial=T, align="right"),1)
+  DF[,smooth_num] <- lag(rollapply(DF[, num], 14, mean, partial=T, align="right"),1)
   if (denom!="") {
-    DF[,smooth_denom] <- lag(rollapply(DF[, denom], 14, sum, partial=T, align="right"),1)
+    DF[,smooth_denom] <- lag(rollapply(DF[, denom], 14, mean, partial=T, align="right"),1)
     DF[,smooth_rate] <- DF[,smooth_num] / DF[,smooth_denom]
   }
-
   return(DF)
 }
 
