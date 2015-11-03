@@ -7,15 +7,15 @@ runSession4 <- function() {
 currdir = 'C:/Shahar/Projects/LostImpressions/'
 rawDF <- read.csv(paste(currdir,'sample_placement_data_with_komoona_served.csv',sep=""))
 a <- session4Plots(session4(rawDF))
-write.csv(a[[3]], paste(currdir,'mobile_fill_prediction.csv'))
+write.csv(a[[3]], paste(currdir,'sample_fill_prediction.csv'))
 return(a)
 }
 
 session4 <- function(DF) {
   DF <- DF %>% transmute(placement_id, date, impressions, served, kserved=komoona_served, komooona_fill=komoona_served/impressions) %>% filter(impressions>500, served>40)
-  DF$date <- as.Date(DF$date,format="%m/%d/%Y")
+  DF$date <- as.Date(DF$date,format="%Y-%m-%d")
   DF <- learnHistoricalRateAllPlacements(DF, key = "placement_id", series=c("impressions","served","fill"))
-  DF <- learnHistoricalRateAllPlacements(DF, key = "placement_id", series=c("impressions","kserved","komoona_fill"))
+  DF <- learnHistoricalRateAllPlacements(DF, key = "placement_id", series=c("impressions","komoona_served","komoona_fill"))
   DF$komoona_fill_factor <- DF$smooth_fill/DF$smooth_komoona_fill
   DF$predict_served_stage1 <- DF$smooth_fill * DF$impressions
 

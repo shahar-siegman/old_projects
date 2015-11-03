@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>chain_to_query</name>
+    <name>get_mobile_performance_from_chain_report</name>
     <description/>
     <extended_description/>
     <trans_version/>
     <trans_type>Normal</trans_type>
+    <trans_status>0</trans_status>
     <directory>&#x2f;</directory>
     <parameters>
     </parameters>
@@ -69,7 +70,7 @@
   <created_date>2015&#x2f;11&#x2f;01 12&#x3a;36&#x3a;17.551</created_date>
   <modified_user>-</modified_user>
   <modified_date>2015&#x2f;11&#x2f;01 12&#x3a;36&#x3a;17.551</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA&#x3d;</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
@@ -101,14 +102,172 @@
       <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
     </attributes>
   </connection>
+  <connection>
+    <name>komoona redshift</name>
+    <server>redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439&#x2f;logs</server>
+    <type>REDSHIFT</type>
+    <access>Native</access>
+    <database>public</database>
+    <port>5439</port>
+    <username>leopold</username>
+    <password>Encrypted 2be98afc86aa79990be09bb5bcdc1fc8c</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>EXTRA_OPTION_REDSHIFT.tcpKeepAlive</code><attribute>true</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>5439</attribute></attribute>
+      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
   <order>
-  <hop> <from>Sort rows 2</from><to>Placement, date, mobile chain</to><enabled>Y</enabled> </hop>
-  <hop> <from>experiment data 2</from><to>Unique rows 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>Unique rows 2</from><to>placement, date 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>Placement, date, mobile chain</from><to>Merge Join</to><enabled>Y</enabled> </hop>
+  <hop> <from>Merge Join</from><to>Text file output</to><enabled>Y</enabled> </hop>
+  <hop> <from>placement, date 2</from><to>Placement, date</to><enabled>Y</enabled> </hop>
+  <hop> <from>Placement, date</from><to>chain performance</to><enabled>Y</enabled> </hop>
+  <hop> <from>chain performance</from><to>Text file output 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>chain performance</from><to>Merge Join</to><enabled>Y</enabled> </hop>
+  <hop> <from>Sort rows 2</from><to>Unique rows 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>experiment data 2</from><to>remove floorprices 2</to><enabled>Y</enabled> </hop>
   <hop> <from>remove floorprices 2</from><to>Sort rows 2</to><enabled>Y</enabled> </hop>
-  <hop> <from>Unique rows 2</from><to>remove floorprices 2</to><enabled>Y</enabled> </hop>
-  <hop> <from>Placement, date, mobile chain</from><to>Database lookup</to><enabled>Y</enabled> </hop>
-  <hop> <from>Database lookup</from><to>Text file output</to><enabled>Y</enabled> </hop>
+  <hop> <from>Unique rows 2</from><to>union ExperimentChain and GlobalChain columns</to><enabled>Y</enabled> </hop>
+  <hop> <from>union ExperimentChain and GlobalChain columns</from><to>pl date chain</to><enabled>Y</enabled> </hop>
+  <hop> <from>pl date chain</from><to>Placement, date, mobile chain</to><enabled>Y</enabled> </hop>
   </order>
+  <step>
+    <name>Database lookup</name>
+    <type>DBLookup</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>komoona dev</connection>
+    <cache>N</cache>
+    <cache_load_all>N</cache_load_all>
+    <cache_size>0</cache_size>
+    <lookup>
+      <schema/>
+      <table>kmn_chain_report</table>
+      <orderby/>
+      <fail_on_multiple>N</fail_on_multiple>
+      <eat_row_on_failure>N</eat_row_on_failure>
+      <key>
+        <name>PlacementId</name>
+        <field>placement_id</field>
+        <condition>&#x3d;</condition>
+        <name2/>
+      </key>
+      <key>
+        <name>Date</name>
+        <field>date</field>
+        <condition>&#x3d;</condition>
+        <name2/>
+      </key>
+      <value>
+        <name>chain_codes</name>
+        <rename>chain_codes</rename>
+        <default/>
+        <type>String</type>
+      </value>
+      <value>
+        <name>served</name>
+        <rename>served</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+      <value>
+        <name>impressions</name>
+        <rename>impressions</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+    </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1212</xloc>
+      <yloc>321</yloc>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Placement, date, mobile chain</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>      <field>        <name>PlacementId</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>Date</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>chain_type</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>chain</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>        <select_unspecified>N</select_unspecified>
+      <meta>        <name>Date</name>
+        <rename>Date</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>      <meta>        <name>chain_type</name>
+        <rename>chain_type</rename>
+        <type>String</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask/>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1058</xloc>
+      <yloc>87</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
   <step>
     <name>Sort rows</name>
     <type>SortRows</type>
@@ -150,64 +309,6 @@
     </step>
 
   <step>
-    <name>Placement, date, mobile chain</name>
-    <type>SelectValues</type>
-    <description/>
-    <distribute>N</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <fields>      <field>        <name>PlacementId</name>
-        <rename/>
-        <length>-2</length>
-        <precision>-2</precision>
-      </field>      <field>        <name>Date</name>
-        <rename/>
-        <length>-2</length>
-        <precision>-2</precision>
-      </field>      <field>        <name>chain</name>
-        <rename/>
-        <length>-2</length>
-        <precision>-2</precision>
-      </field>        <select_unspecified>N</select_unspecified>
-    </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>902</xloc>
-      <yloc>71</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Table input</name>
-    <type>TableInput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <connection>komoona dev</connection>
-    <sql>select placement_id&#xd;&#xa;	, chain_codes&#xd;&#xa;	, date&#xd;&#xa;	, impressions mimps&#xd;&#xa;	, served mserved&#xd;&#xa;from kmn_chain_report&#xd;&#xa;where placement_id &#x3d; &#x3f; &#xd;&#xa;and date &#x3d; &#x3f;  &#xd;&#xa;and chain_codes &#x3d; &#x3f;&#xd;&#xa;</sql>
-    <limit>0</limit>
-    <lookup>Placement, date, mobile chain</lookup>
-    <execute_each_row>Y</execute_each_row>
-    <variables_active>N</variables_active>
-    <lazy_conversion_active>N</lazy_conversion_active>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1069</xloc>
-      <yloc>102</yloc>
-      <draw>N</draw>
-      </GUI>
-    </step>
-
-  <step>
     <name>Sort rows 2</name>
     <type>SortRows</type>
     <description/>
@@ -239,7 +340,7 @@
         <presorted>N</presorted>
       </field>
       <field>
-        <name>chain</name>
+        <name>mobile_chain</name>
         <ascending>Y</ascending>
         <case_sensitive>N</case_sensitive>
         <presorted>N</presorted>
@@ -247,8 +348,117 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>817</xloc>
-      <yloc>62</yloc>
+      <xloc>658</xloc>
+      <yloc>72</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Table input</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>komoona dev</connection>
+    <sql>select placement_id&#xd;&#xa;	, chain_codes&#xd;&#xa;	, date&#xd;&#xa;	, impressions mimps&#xd;&#xa;	, served mserved&#xd;&#xa;from kmn_chain_report&#xd;&#xa;where placement_id &#x3d; &#x3f; &#xd;&#xa;and date &#x3d; &#x3f;  &#xd;&#xa;and chain_codes &#x3d; &#x3f;&#xd;&#xa;</sql>
+    <limit>0</limit>
+    <lookup>Placement, date, mobile chain</lookup>
+    <execute_each_row>Y</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1254</xloc>
+      <yloc>104</yloc>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Text file output</name>
+    <type>TextFileOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <separator>,</separator>
+    <enclosure>&#x22;</enclosure>
+    <enclosure_forced>N</enclosure_forced>
+    <enclosure_fix_disabled>N</enclosure_fix_disabled>
+    <header>Y</header>
+    <footer>N</footer>
+    <format>DOS</format>
+    <compression>None</compression>
+    <encoding/>
+    <endedLine/>
+    <fileNameInField>N</fileNameInField>
+    <fileNameField/>
+    <create_parent_folder>Y</create_parent_folder>
+    <file>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;LostImpressions&#x5c;kettle_mobile_chain_performance</name>
+      <is_command>N</is_command>
+      <servlet_output>N</servlet_output>
+      <do_not_open_new_file_init>N</do_not_open_new_file_init>
+      <extention>csv</extention>
+      <append>N</append>
+      <split>N</split>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <pad>N</pad>
+      <fast_dump>N</fast_dump>
+      <splitevery>0</splitevery>
+    </file>
+    <fields>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1310</xloc>
+      <yloc>76</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Unique rows 2</name>
+    <type>Unique</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <count_rows>N</count_rows>
+      <count_field/>
+      <reject_duplicate_row>N</reject_duplicate_row>
+      <error_description/>
+    <fields>      <field>        <name>PlacementId</name>
+        <case_insensitive>N</case_insensitive>
+        </field>      <field>        <name>Date</name>
+        <case_insensitive>N</case_insensitive>
+        </field>      <field>        <name>mobile_chain</name>
+        <case_insensitive>N</case_insensitive>
+        </field>      <field>        <name>nondescript_chain</name>
+        <case_insensitive>N</case_insensitive>
+        </field>      </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>745</xloc>
+      <yloc>66</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -512,8 +722,8 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>510</xloc>
-      <yloc>105</yloc>
+      <xloc>419</xloc>
+      <yloc>69</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -533,24 +743,30 @@
     <optimizationLevel>9</optimizationLevel>
     <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>&#x2f;&#x2f;Script here&#xd;&#xa;&#xd;&#xa;var chain &#x3d; ExperimentChain.replace&#x28;&#x2f;&#x3d;&#x5c;d&#x2b;&#x28;&#x5c;.&#x5c;d&#x2b;&#x29;&#x3f;&#x2f;g,&#x27;&#x27;&#x29;</jsScript_script>
-      </jsScript>    </jsScripts>    <fields>      <field>        <name>chain</name>
-        <rename>chain</rename>
+        <jsScript_script>&#x2f;&#x2f;Script here&#xd;&#xa;&#xd;&#xa;var mobile_chain &#x3d; ExperimentChain.replace&#x28;&#x2f;&#x3d;&#x5c;d&#x2b;&#x28;&#x5c;.&#x5c;d&#x2b;&#x29;&#x3f;&#x2f;g,&#x27;&#x27;&#x29;&#xd;&#xa;var nondescript_chain &#x3d; GlobalChain.replace&#x28;&#x2f;&#x3d;&#x5c;d&#x2b;&#x28;&#x5c;.&#x5c;d&#x2b;&#x29;&#x3f;&#x2f;g,&#x27;&#x27;&#x29;</jsScript_script>
+      </jsScript>    </jsScripts>    <fields>      <field>        <name>mobile_chain</name>
+        <rename>mobile_chain</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>nondescript_chain</name>
+        <rename>nondescript_chain</rename>
         <type>String</type>
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
       </field>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>729</xloc>
-      <yloc>64</yloc>
+      <xloc>549</xloc>
+      <yloc>75</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
 
   <step>
-    <name>Unique rows 2</name>
-    <type>Unique</type>
+    <name>union ExperimentChain and GlobalChain columns</name>
+    <type>Normaliser</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -559,86 +775,23 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-      <count_rows>N</count_rows>
-      <count_field/>
-      <reject_duplicate_row>N</reject_duplicate_row>
-      <error_description/>
-    <fields>      <field>        <name>PlacementId</name>
-        <case_insensitive>N</case_insensitive>
-        </field>      <field>        <name>Date</name>
-        <case_insensitive>N</case_insensitive>
-        </field>      <field>        <name>ExperimentChain</name>
-        <case_insensitive>N</case_insensitive>
+   <typefield>chain_type</typefield>
+    <fields>      <field>        <name>mobile_chain</name>
+        <value>mobile</value>
+        <norm>chain</norm>
+        </field>      <field>        <name>nondescript_chain</name>
+        <value>nondescript</value>
+        <norm>chain</norm>
         </field>      </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>619</xloc>
+      <xloc>900</xloc>
       <yloc>80</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
 
   <step>
-    <name>Database lookup</name>
-    <type>DBLookup</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <connection>komoona dev</connection>
-    <cache>N</cache>
-    <cache_load_all>N</cache_load_all>
-    <cache_size>0</cache_size>
-    <lookup>
-      <schema/>
-      <table>kmn_chain_report</table>
-      <orderby/>
-      <fail_on_multiple>N</fail_on_multiple>
-      <eat_row_on_failure>N</eat_row_on_failure>
-      <key>
-        <name>PlacementId</name>
-        <field>placement_id</field>
-        <condition>&#x3d;</condition>
-        <name2/>
-      </key>
-      <key>
-        <name>Date</name>
-        <field>date</field>
-        <condition>&#x3d;</condition>
-        <name2/>
-      </key>
-      <key>
-        <name>chain</name>
-        <field>chain_codes</field>
-        <condition>&#x3d;</condition>
-        <name2/>
-      </key>
-      <value>
-        <name>served</name>
-        <rename>served</rename>
-        <default/>
-        <type>Integer</type>
-      </value>
-      <value>
-        <name>impressions</name>
-        <rename>impressions</rename>
-        <default/>
-        <type>Integer</type>
-      </value>
-    </lookup>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>965</xloc>
-      <yloc>202</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Text file output</name>
+    <name>Text file output 2</name>
     <type>TextFileOutput</type>
     <description/>
     <distribute>Y</distribute>
@@ -662,7 +815,7 @@
     <fileNameField/>
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;LostImpressions&#x5c;kettle_mobile_chain_performance</name>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;LostImpressions&#x5c;kettle_raw_chain_performance</name>
       <is_command>N</is_command>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
@@ -680,71 +833,185 @@
       <splitevery>0</splitevery>
     </file>
     <fields>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1319</xloc>
+      <yloc>237</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>placement, date 2</name>
+    <type>Unique</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <count_rows>N</count_rows>
+      <count_field/>
+      <reject_duplicate_row>N</reject_duplicate_row>
+      <error_description/>
+    <fields>      <field>        <name>PlacementId</name>
+        <case_insensitive>N</case_insensitive>
+        </field>      <field>        <name>Date</name>
+        <case_insensitive>N</case_insensitive>
+        </field>      </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>722</xloc>
+      <yloc>216</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Merge Join</name>
+    <type>MergeJoin</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<join_type>LEFT OUTER</join_type>
+<step1>Placement, date, mobile chain</step1>
+<step2>chain performance</step2>
+    <keys_1>
+      <key>PlacementId</key>
+      <key>Date</key>
+      <key>chain</key>
+    </keys_1>
+    <keys_2>
+      <key>Placement_id</key>
+      <key>Date</key>
+      <key>chain_codes</key>
+    </keys_2>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1190</xloc>
+      <yloc>85</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Placement, date</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>      <field>        <name>PlacementId</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>Date</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>        <select_unspecified>N</select_unspecified>
+      <meta>        <name>Date</name>
+        <rename>Date</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>866</xloc>
+      <yloc>221</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>chain performance</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>komoona dev</connection>
+    <sql>SELECT placement_id&#xd;&#xa;	, date&#xd;&#xa;	, chain_codes&#xd;&#xa;	, impressions&#xd;&#xa;	, served&#xd;&#xa;from kmn_chain_report&#xd;&#xa;where placement_id&#x3d;&#x3f;&#xd;&#xa;and date &#x3d; &#x3f;&#xd;&#xa;order by chain_codes&#xd;&#xa;</sql>
+    <limit>0</limit>
+    <lookup>Placement, date</lookup>
+    <execute_each_row>Y</execute_each_row>
+    <variables_active>Y</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1121</xloc>
+      <yloc>233</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>pl date chain</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
+      <prefix>out</prefix>
+      <sort_size>1000000</sort_size>
+      <free_memory/>
+      <compress>N</compress>
+      <compress_variable/>
+      <unique_rows>N</unique_rows>
+    <fields>
       <field>
         <name>PlacementId</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>32</length>
-        <precision>-1</precision>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <presorted>N</presorted>
       </field>
       <field>
         <name>Date</name>
-        <type>Date</type>
-        <format>yyyy-MM-dd</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <presorted>N</presorted>
       </field>
       <field>
         <name>chain</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>served</name>
-        <type>Integer</type>
-        <format>&#x23;&#x3b;-&#x23;</format>
-        <currency/>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>9</length>
-        <precision>0</precision>
-      </field>
-      <field>
-        <name>impressions</name>
-        <type>Integer</type>
-        <format>&#x23;&#x3b;-&#x23;</format>
-        <currency/>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>9</length>
-        <precision>0</precision>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <presorted>N</presorted>
       </field>
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1115</xloc>
-      <yloc>214</yloc>
+      <xloc>982</xloc>
+      <yloc>107</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
