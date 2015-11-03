@@ -14,6 +14,11 @@
             <default_value/>
             <description/>
         </parameter>
+        <parameter>
+            <name>start_date</name>
+            <default_value>2015-10-01</default_value>
+            <description/>
+        </parameter>
     </parameters>
     <log>
 <trans-log-table><connection/>
@@ -64,26 +69,6 @@
     <step_performance_capturing_delay>1000</step_performance_capturing_delay>
     <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
     <dependencies>
-      <dependency>
-        <connection>komoona dev</connection>
-        <table>komoona_db.kmn_cpm&#xd;&#xa;</table>
-        <field/>
-      </dependency>
-      <dependency>
-        <connection>komoona dev</connection>
-        <table>kmn_chain_history&#xd;&#xa;</table>
-        <field/>
-      </dependency>
-      <dependency>
-        <connection>komoona dev</connection>
-        <table>komoona_db.kmn_ads_network&#xd;&#xa;</table>
-        <field/>
-      </dependency>
-      <dependency>
-        <connection>komoona dev</connection>
-        <table>kmn_main_chain_history&#xd;&#xa;</table>
-        <field/>
-      </dependency>
     </dependencies>
     <partitionschemas>
     </partitionschemas>
@@ -138,12 +123,92 @@
   <hop> <from>field formats</from><to>placement_id from variable 2</to><enabled>Y</enabled> </hop>
   <hop> <from>placement_id from variable 2</from><to>performance_report</to><enabled>Y</enabled> </hop>
   <hop> <from>placement_id from variable 2</from><to>Group by</to><enabled>Y</enabled> </hop>
-  <hop> <from>Group by</from><to>performance row count</to><enabled>Y</enabled> </hop>
-  <hop> <from>Group by 2</from><to>history row count</to><enabled>Y</enabled> </hop>
+  <hop> <from>Group by</from><to>log row count</to><enabled>Y</enabled> </hop>
+  <hop> <from>Group by 2</from><to>log history row count</to><enabled>Y</enabled> </hop>
   <hop> <from>placement_id from variable</from><to>Group by 2</to><enabled>Y</enabled> </hop>
   <hop> <from>placement_id from variable</from><to>number formats</to><enabled>Y</enabled> </hop>
   <hop> <from>number formats</from><to>changes_report</to><enabled>Y</enabled> </hop>
   </order>
+  <step>
+    <name>Group by</name>
+    <type>GroupBy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <all_rows>N</all_rows>
+      <ignore_aggregate>N</ignore_aggregate>
+      <field_ignore/>
+      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
+      <prefix>grp</prefix>
+      <add_linenr>N</add_linenr>
+      <linenr_fieldname/>
+      <give_back_row>N</give_back_row>
+      <group>
+        <field>
+          <name>placement_id</name>
+        </field>
+      </group>
+      <fields>
+        <field>
+          <aggregate>row_count</aggregate>
+          <subject/>
+          <type>COUNT_ANY</type>
+          <valuefield/>
+        </field>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>577</xloc>
+      <yloc>457</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Group by 2</name>
+    <type>GroupBy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <all_rows>N</all_rows>
+      <ignore_aggregate>N</ignore_aggregate>
+      <field_ignore/>
+      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
+      <prefix>grp</prefix>
+      <add_linenr>N</add_linenr>
+      <linenr_fieldname/>
+      <give_back_row>N</give_back_row>
+      <group>
+        <field>
+          <name>placement_id</name>
+        </field>
+      </group>
+      <fields>
+        <field>
+          <aggregate>row_count</aggregate>
+          <subject/>
+          <type>COUNT_ANY</type>
+          <valuefield/>
+        </field>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>826</xloc>
+      <yloc>176</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
   <step>
     <name>Sort by ad_network_id</name>
     <type>SortRows</type>
@@ -282,6 +347,30 @@
     </step>
 
   <step>
+    <name>ad_network id 2</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>      <field>        <name>list_ads_network_id</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>        <select_unspecified>N</select_unspecified>
+    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>745</xloc>
+      <yloc>360</yloc>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
     <name>changes_report</name>
     <type>TextFileOutput</type>
     <description/>
@@ -330,82 +419,6 @@
       <xloc>1014</xloc>
       <yloc>81</yloc>
       <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>performance_report</name>
-    <type>TextFileOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <separator>,</separator>
-    <enclosure>&#x22;</enclosure>
-    <enclosure_forced>N</enclosure_forced>
-    <enclosure_fix_disabled>N</enclosure_fix_disabled>
-    <header>Y</header>
-    <footer>N</footer>
-    <format>DOS</format>
-    <compression>None</compression>
-    <encoding/>
-    <endedLine/>
-    <fileNameInField>N</fileNameInField>
-    <fileNameField/>
-    <create_parent_folder>Y</create_parent_folder>
-    <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;Optimization&#x5c;kettle_out&#x5c;kettle_performance_report_&#x24;&#x7b;placement_id&#x7d;</name>
-      <is_command>N</is_command>
-      <servlet_output>N</servlet_output>
-      <do_not_open_new_file_init>Y</do_not_open_new_file_init>
-      <extention>csv</extention>
-      <append>N</append>
-      <split>N</split>
-      <haspartno>N</haspartno>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <SpecifyFormat>N</SpecifyFormat>
-      <date_time_format/>
-      <add_to_result_filenames>Y</add_to_result_filenames>
-      <pad>N</pad>
-      <fast_dump>N</fast_dump>
-      <splitevery>0</splitevery>
-    </file>
-    <fields>
-    </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>817</xloc>
-      <yloc>352</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>ad_network id 2</name>
-    <type>SelectValues</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <fields>      <field>        <name>list_ads_network_id</name>
-        <rename/>
-        <length>-2</length>
-        <precision>-2</precision>
-      </field>        <select_unspecified>N</select_unspecified>
-    </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>745</xloc>
-      <yloc>360</yloc>
-      <draw>N</draw>
       </GUI>
     </step>
 
@@ -526,7 +539,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT  ads_network_id &#xd;&#xa;	, date&#xd;&#xa;	, impressions&#xd;&#xa;	, served&#xd;&#xa;	, income&#xd;&#xa;	, publisher_income&#xd;&#xa;FROM komoona_db.kmn_cpm&#xd;&#xa;where date&#x3e;&#x27;2015-09-01&#x27;&#xd;&#xa;and tagid&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27; &#x3b;&#xd;&#xa;</sql>
+    <sql>SELECT  ads_network_id &#xd;&#xa;	, date&#xd;&#xa;	, impressions&#xd;&#xa;	, served&#xd;&#xa;	, income&#xd;&#xa;	, publisher_income&#xd;&#xa;FROM komoona_db.kmn_cpm&#xd;&#xa;where date&#x3e;&#x3d;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#xd;&#xa;and tagid&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27; &#x3b;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -536,6 +549,35 @@
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>320</xloc>
       <yloc>349</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>log history row count</name>
+    <type>WriteToLog</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <loglevel>log_level_minimal</loglevel>
+      <displayHeader>N</displayHeader>
+      <limitRows>N</limitRows>
+      <limitRowsNumber>0</limitRowsNumber>
+      <logmessage>placement &#x24;&#x7b;placement_id&#x7d;&#x3a;history nr. of rows</logmessage>
+    <fields>
+      <field>
+        <name>row_count</name>
+        </field>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>824</xloc>
+      <yloc>258</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -619,8 +661,8 @@
     </step>
 
   <step>
-    <name>quote</name>
-    <type>Formula</type>
+    <name>number formats</name>
+    <type>SelectValues</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -629,25 +671,108 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-       <formula><field_name>quoted_ads_network_id </field_name>
-<formula_string>&#x22;&#x27;&#x22;&#x26;&#x5b;ads_network_id&#x5d;&#x26;&#x22;&#x27;&#x22;</formula_string>
-<value_type>String</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<replace_field/>
-</formula>
-       <formula><field_name>const</field_name>
-<formula_string>1</formula_string>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<replace_field/>
-</formula>
+    <fields>        <select_unspecified>N</select_unspecified>
+      <meta>        <name>floor_price</name>
+        <rename>floor_price</rename>
+        <type>Number</type>
+        <length>4</length>
+        <precision>2</precision>
+        <conversion_mask>&#x23;.&#x23;&#x23;</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>928</xloc>
+      <yloc>77</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>log row count</name>
+    <type>WriteToLog</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <loglevel>log_level_minimal</loglevel>
+      <displayHeader>N</displayHeader>
+      <limitRows>N</limitRows>
+      <limitRowsNumber>0</limitRowsNumber>
+      <logmessage>placement &#x24;&#x7b;placement_id&#x7d;&#x3a;performance nr. of rows</logmessage>
+    <fields>
+      <field>
+        <name>row_count</name>
+        </field>
+      </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>588</xloc>
-      <yloc>209</yloc>
-      <draw>N</draw>
+      <xloc>575</xloc>
+      <yloc>543</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>performance_report</name>
+    <type>TextFileOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <separator>,</separator>
+    <enclosure>&#x22;</enclosure>
+    <enclosure_forced>N</enclosure_forced>
+    <enclosure_fix_disabled>N</enclosure_fix_disabled>
+    <header>Y</header>
+    <footer>N</footer>
+    <format>DOS</format>
+    <compression>None</compression>
+    <encoding/>
+    <endedLine/>
+    <fileNameInField>N</fileNameInField>
+    <fileNameField/>
+    <create_parent_folder>Y</create_parent_folder>
+    <file>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;Optimization&#x5c;kettle_out&#x5c;kettle_performance_report_&#x24;&#x7b;placement_id&#x7d;</name>
+      <is_command>N</is_command>
+      <servlet_output>N</servlet_output>
+      <do_not_open_new_file_init>Y</do_not_open_new_file_init>
+      <extention>csv</extention>
+      <append>N</append>
+      <split>N</split>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <pad>N</pad>
+      <fast_dump>N</fast_dump>
+      <splitevery>0</splitevery>
+    </file>
+    <fields>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>817</xloc>
+      <yloc>352</yloc>
+      <draw>Y</draw>
       </GUI>
     </step>
 
@@ -746,8 +871,8 @@
     </step>
 
   <step>
-    <name>performance row count</name>
-    <type>WriteToLog</type>
+    <name>quote</name>
+    <type>Formula</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -756,165 +881,25 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-      <loglevel>log_level_minimal</loglevel>
-      <displayHeader>N</displayHeader>
-      <limitRows>N</limitRows>
-      <limitRowsNumber>0</limitRowsNumber>
-      <logmessage>placement &#x24;&#x7b;placement_id&#x7d;&#x3a;performance nr. of rows</logmessage>
-    <fields>
-      <field>
-        <name>row_count</name>
-        </field>
-      </fields>
+       <formula><field_name>quoted_ads_network_id </field_name>
+<formula_string>&#x22;&#x27;&#x22;&#x26;&#x5b;ads_network_id&#x5d;&#x26;&#x22;&#x27;&#x22;</formula_string>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field/>
+</formula>
+       <formula><field_name>const</field_name>
+<formula_string>1</formula_string>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field/>
+</formula>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>575</xloc>
-      <yloc>543</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Group by</name>
-    <type>GroupBy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-      <all_rows>N</all_rows>
-      <ignore_aggregate>N</ignore_aggregate>
-      <field_ignore/>
-      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
-      <prefix>grp</prefix>
-      <add_linenr>N</add_linenr>
-      <linenr_fieldname/>
-      <give_back_row>N</give_back_row>
-      <group>
-        <field>
-          <name>placement_id</name>
-        </field>
-      </group>
-      <fields>
-        <field>
-          <aggregate>row_count</aggregate>
-          <subject/>
-          <type>COUNT_ANY</type>
-          <valuefield/>
-        </field>
-      </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>577</xloc>
-      <yloc>457</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>history row count</name>
-    <type>WriteToLog</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-      <loglevel>log_level_minimal</loglevel>
-      <displayHeader>N</displayHeader>
-      <limitRows>N</limitRows>
-      <limitRowsNumber>0</limitRowsNumber>
-      <logmessage>placement &#x24;&#x7b;placement_id&#x7d;&#x3a;history nr. of rows</logmessage>
-    <fields>
-      <field>
-        <name>row_count</name>
-        </field>
-      </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>824</xloc>
-      <yloc>258</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Group by 2</name>
-    <type>GroupBy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-      <all_rows>N</all_rows>
-      <ignore_aggregate>N</ignore_aggregate>
-      <field_ignore/>
-      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
-      <prefix>grp</prefix>
-      <add_linenr>N</add_linenr>
-      <linenr_fieldname/>
-      <give_back_row>N</give_back_row>
-      <group>
-        <field>
-          <name>placement_id</name>
-        </field>
-      </group>
-      <fields>
-        <field>
-          <aggregate>row_count</aggregate>
-          <subject/>
-          <type>COUNT_ANY</type>
-          <valuefield/>
-        </field>
-      </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>826</xloc>
-      <yloc>176</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>number formats</name>
-    <type>SelectValues</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <fields>        <select_unspecified>N</select_unspecified>
-      <meta>        <name>floor_price</name>
-        <rename>floor_price</rename>
-        <type>Number</type>
-        <length>4</length>
-        <precision>2</precision>
-        <conversion_mask>&#x23;.&#x23;&#x23;</conversion_mask>
-        <date_format_lenient>false</date_format_lenient>
-        <date_format_locale/>
-        <date_format_timezone/>
-        <lenient_string_to_number>false</lenient_string_to_number>
-        <encoding/>
-        <decimal_symbol/>
-        <grouping_symbol/>
-        <currency_symbol/>
-        <storage_type/>
-      </meta>    </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>928</xloc>
-      <yloc>77</yloc>
-      <draw>Y</draw>
+      <xloc>588</xloc>
+      <yloc>209</yloc>
+      <draw>N</draw>
       </GUI>
     </step>
 

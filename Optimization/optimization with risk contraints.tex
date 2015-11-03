@@ -1,0 +1,42 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage[a4paper, lmargin=1in, rmargin=1.5in]{geometry}
+\usepackage[utf8]{inputenc}
+
+\title{Constrained optimization - notes}
+\author{shahar }
+\date{October 2015}
+
+\begin{document}
+\raggedright
+\begin{large}
+
+\maketitle
+
+\section{Introduction}
+The problem we are dealing with can be described (with required simplifications) as follows: We have a placement with $N$ possible chains, each having a difference rCPM. Our goal is to maximize the total rCPM (or sometimes fill). We are dealing with two distinct types of risks involved in serving each chain, and we would like to cap the risk measure for each type. Both risks are expressed in units of currency per one thousand impressions:
+\begin{itemize}
+\item eCPM gap --- This is the risk induced by any tag in the chain whose floor price is below the publisher's required eCPM. Each time such a tag is served, Komoona may be crediting the publisher a larger amount that it earns. The risk of a chain is defined as the loss that would be sustained if the lowest-priced tag in the chain serves all of the chain's impressions at its nominal floor price.
+
+\item AdX credit revocation ---
+AdX's terms of service allow AdX to revoke any amount credited to a publisher up to two months after the fact, if AdX suspect impressions were obtained fraudulently.
+The risk measure we plan to use is an (estimation of) the total rCPM of AdX's tags in the chain
+\end{itemize}
+
+\section{Problem Formulation}
+\begin{equation}
+\begin{aligned}
+&\text{Maximize} &\sum_{i}{I_i r_i} \equiv H(I_i)\\
+&s.t. \\ 
+&\forall i: I_i \geq 0 , x_i > 0\\
+&\sum_{i}{I_i}=1\\
+&\sum_{i}{I_i risk_i} \leq r_1,\\ 
+&\sum_{i}{I_i Adx_i} \leq a_1,\\ 
+\end{aligned} 
+\end{equation}
+
+We discuss the solution to a problem of the form:
+
+\end{large}
+\end{document}
