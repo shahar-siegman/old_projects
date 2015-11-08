@@ -69,7 +69,7 @@
   <created_date>2015&#x2f;11&#x2f;03 14&#x3a;08&#x3a;05.697</created_date>
   <modified_user>-</modified_user>
   <modified_date>2015&#x2f;11&#x2f;03 14&#x3a;08&#x3a;05.697</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA&#x3d;</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
@@ -127,13 +127,19 @@
     </attributes>
   </connection>
   <order>
-  <hop> <from>Sort by placementid, chain, date</from><to>sum global and mobile metrics</to><enabled>Y</enabled> </hop>
   <hop> <from>ExperimentData.csv</from><to>remove floorprices</to><enabled>Y</enabled> </hop>
   <hop> <from>remove floorprices</from><to>Sort by placementid, chain, date</to><enabled>Y</enabled> </hop>
   <hop> <from>sum global and mobile metrics</from><to>Merge Join</to><enabled>Y</enabled> </hop>
-  <hop> <from>CSV file input</from><to>Merge Join</to><enabled>Y</enabled> </hop>
-  <hop> <from>Merge Join</from><to>remove &#x2b; rename</to><enabled>Y</enabled> </hop>
-  <hop> <from>remove &#x2b; rename</from><to>Text file output</to><enabled>Y</enabled> </hop>
+  <hop> <from>Sort by placementid, chain, date</from><to>impressions for sum columns</to><enabled>Y</enabled> </hop>
+  <hop> <from>impressions for sum columns</from><to>sum global and mobile metrics</to><enabled>Y</enabled> </hop>
+  <hop> <from>Merge Join 2</from><to>remove &#x2b; rename</to><enabled>Y</enabled> </hop>
+  <hop> <from>kettle_mobile_chain_performance.csv</from><to>rename imps served 1</to><enabled>Y</enabled> </hop>
+  <hop> <from>rename imps served 1</from><to>Merge Join</to><enabled>Y</enabled> </hop>
+  <hop> <from>kettle_mobile_chain_performance.csv</from><to>rename imps served 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>rename imps served 2</from><to>Merge Join 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>remove &#x2b; rename</from><to>Text file output 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>Merge Join</from><to>Sort by placementid, chain, date 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>Sort by placementid, chain, date 2</from><to>Merge Join 2</to><enabled>Y</enabled> </hop>
   </order>
   <step>
     <name>ExperimentData.csv</name>
@@ -262,7 +268,7 @@
       <field>
         <name>GlobalIncome</name>
         <type>Number</type>
-        <format>&#x23;.&#x23;&#x23;&#x23;&#x23;</format>
+        <format>&#x23;.&#x23;</format>
         <currency>&#x24;</currency>
         <decimal>.</decimal>
         <group>,</group>
@@ -273,7 +279,7 @@
       <field>
         <name>GlobalFill</name>
         <type>Number</type>
-        <format>&#x23;.&#x23;&#x23;&#x23;&#x23;</format>
+        <format>&#x23;.&#x23;</format>
         <currency>&#x24;</currency>
         <decimal>.</decimal>
         <group>,</group>
@@ -284,7 +290,7 @@
       <field>
         <name>GlobalEcpm</name>
         <type>Number</type>
-        <format>&#x23;.&#x23;&#x23;&#x23;&#x23;</format>
+        <format>&#x23;.&#x23;</format>
         <currency>&#x24;</currency>
         <decimal>.</decimal>
         <group>,</group>
@@ -295,7 +301,7 @@
       <field>
         <name>GlobalRcpm</name>
         <type>Number</type>
-        <format>&#x23;.&#x23;&#x23;&#x23;&#x23;</format>
+        <format>&#x23;.&#x23;</format>
         <currency>&#x24;</currency>
         <decimal>.</decimal>
         <group>,</group>
@@ -350,7 +356,7 @@
       <field>
         <name>ExperimentIncome</name>
         <type>Number</type>
-        <format>&#x23;.&#x23;&#x23;&#x23;&#x23;</format>
+        <format>&#x23;.&#x23;</format>
         <currency>&#x24;</currency>
         <decimal>.</decimal>
         <group>,</group>
@@ -361,7 +367,7 @@
       <field>
         <name>ExperimentFill</name>
         <type>Number</type>
-        <format>&#x23;.&#x23;&#x23;&#x23;&#x23;</format>
+        <format>&#x23;.&#x23;</format>
         <currency>&#x24;</currency>
         <decimal>.</decimal>
         <group>,</group>
@@ -372,7 +378,7 @@
       <field>
         <name>ExperimentEcpm</name>
         <type>Number</type>
-        <format>&#x23;.&#x23;&#x23;&#x23;&#x23;</format>
+        <format>&#x23;.&#x23;</format>
         <currency>&#x24;</currency>
         <decimal>.</decimal>
         <group>,</group>
@@ -383,7 +389,7 @@
       <field>
         <name>ExperimentRcpm</name>
         <type>Number</type>
-        <format>&#x23;.&#x23;&#x23;&#x23;&#x23;</format>
+        <format>&#x23;.&#x23;</format>
         <currency>&#x24;</currency>
         <decimal>.</decimal>
         <group>,</group>
@@ -394,8 +400,72 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>483</xloc>
-      <yloc>169</yloc>
+      <xloc>372</xloc>
+      <yloc>139</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Merge Join</name>
+    <type>MergeJoin</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<join_type>LEFT OUTER</join_type>
+<step1>sum global and mobile metrics</step1>
+<step2>rename imps served 1</step2>
+    <keys_1>
+      <key>PlacementId</key>
+      <key>Date</key>
+      <key>nondescript_chain</key>
+    </keys_1>
+    <keys_2>
+      <key>PlacementId</key>
+      <key>Date</key>
+      <key>chain</key>
+    </keys_2>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>806</xloc>
+      <yloc>179</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Merge Join 2</name>
+    <type>MergeJoin</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<join_type>LEFT OUTER</join_type>
+<step1>Sort by placementid, chain, date 2</step1>
+<step2>rename imps served 2</step2>
+    <keys_1>
+      <key>PlacementId</key>
+      <key>Date</key>
+      <key>mobile_chain</key>
+    </keys_1>
+    <keys_2>
+      <key>PlacementId</key>
+      <key>Date</key>
+      <key>chain</key>
+    </keys_2>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>962</xloc>
+      <yloc>178</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -432,7 +502,7 @@
         <presorted>N</presorted>
       </field>
       <field>
-        <name>chain</name>
+        <name>nondescript_chain</name>
         <ascending>Y</ascending>
         <case_sensitive>N</case_sensitive>
         <presorted>N</presorted>
@@ -440,15 +510,15 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>660</xloc>
-      <yloc>291</yloc>
+      <xloc>548</xloc>
+      <yloc>293</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
 
   <step>
-    <name>sum global and mobile metrics</name>
-    <type>GroupBy</type>
+    <name>Text file output 2</name>
+    <type>TextFileOutput</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -457,94 +527,229 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-      <all_rows>N</all_rows>
-      <ignore_aggregate>N</ignore_aggregate>
-      <field_ignore/>
-      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
-      <prefix>grp</prefix>
-      <add_linenr>N</add_linenr>
-      <linenr_fieldname/>
-      <give_back_row>N</give_back_row>
-      <group>
-        <field>
-          <name>PlacementId</name>
-        </field>
-        <field>
-          <name>Date</name>
-        </field>
-        <field>
-          <name>chain</name>
-        </field>
-      </group>
-      <fields>
-        <field>
-          <aggregate>true_mobile_imps</aggregate>
-          <subject>ExperimentImpressions</subject>
-          <type>SUM</type>
-          <valuefield/>
-        </field>
-        <field>
-          <aggregate>true_mobile_served</aggregate>
-          <subject>ExperimentServed</subject>
-          <type>SUM</type>
-          <valuefield/>
-        </field>
-        <field>
-          <aggregate>true_global_imps</aggregate>
-          <subject>GlobalImpressions</subject>
-          <type>SUM</type>
-          <valuefield/>
-        </field>
-        <field>
-          <aggregate>true_global_served</aggregate>
-          <subject>GlobalServed</subject>
-          <type>SUM</type>
-          <valuefield/>
-        </field>
-      </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>683</xloc>
-      <yloc>173</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>remove floorprices</name>
-    <type>ScriptValueMod</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <compatible>N</compatible>
-    <optimizationLevel>9</optimizationLevel>
-    <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
-        <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>&#x2f;&#x2f;Script here&#xd;&#xa;&#xd;&#xa;var chain &#x3d; ExperimentChain.replace&#x28;&#x2f;&#x3d;&#x5c;d&#x2b;&#x28;&#x5c;.&#x5c;d&#x2b;&#x29;&#x3f;&#x2f;g,&#x27;&#x27;&#x29;</jsScript_script>
-      </jsScript>    </jsScripts>    <fields>      <field>        <name>chain</name>
-        <rename>chain</rename>
+    <separator>,</separator>
+    <enclosure>&#x22;</enclosure>
+    <enclosure_forced>N</enclosure_forced>
+    <enclosure_fix_disabled>N</enclosure_fix_disabled>
+    <header>Y</header>
+    <footer>N</footer>
+    <format>DOS</format>
+    <compression>None</compression>
+    <encoding/>
+    <endedLine/>
+    <fileNameInField>N</fileNameInField>
+    <fileNameField/>
+    <create_parent_folder>Y</create_parent_folder>
+    <file>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;LostImpressions&#x5c;experiment_data_chainlevel</name>
+      <is_command>N</is_command>
+      <servlet_output>N</servlet_output>
+      <do_not_open_new_file_init>N</do_not_open_new_file_init>
+      <extention>csv</extention>
+      <append>N</append>
+      <split>N</split>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <pad>N</pad>
+      <fast_dump>N</fast_dump>
+      <splitevery>0</splitevery>
+    </file>
+    <fields>
+      <field>
+        <name>PlacementId</name>
         <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>both</trim_type>
         <length>-1</length>
         <precision>-1</precision>
-        <replace>N</replace>
-      </field>    </fields>     <cluster_schema/>
+      </field>
+      <field>
+        <name>Date</name>
+        <type>Date</type>
+        <format>yyyy-MM-dd</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>nondescript_chain</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>mobile_chain</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>true_global_imps</name>
+        <type>Integer</type>
+        <format>0</format>
+        <currency/>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>true_global_served</name>
+        <type>Integer</type>
+        <format>0</format>
+        <currency/>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>nd_kimpressions</name>
+        <type>Integer</type>
+        <format>0</format>
+        <currency>&#x24;</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>nd_kserved</name>
+        <type>Integer</type>
+        <format>0</format>
+        <currency>&#x24;</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>true_mobile_imps</name>
+        <type>Integer</type>
+        <format>0</format>
+        <currency/>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>true_mobile_served</name>
+        <type>Integer</type>
+        <format>0</format>
+        <currency/>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>mobile_kimpressions</name>
+        <type>Integer</type>
+        <format>0</format>
+        <currency>&#x24;</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>mobile_kserved</name>
+        <type>Integer</type>
+        <format>0</format>
+        <currency>&#x24;</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+    </fields>
+     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>494</xloc>
-      <yloc>288</yloc>
+      <xloc>1259</xloc>
+      <yloc>177</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
 
   <step>
-    <name>CSV file input</name>
-    <type>CsvInput</type>
+    <name>impressions for sum columns</name>
+    <type>Formula</type>
     <description/>
     <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <formula><field_name>nd_imps_for_sum</field_name>
+<formula_string>if&#x28;&#x5b;Order&#x5d;&#x3d;0&#x3b;&#x5b;GlobalImpressions&#x5d;&#x3b;0&#x29;</formula_string>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field/>
+</formula>
+       <formula><field_name>mobile_imps_for_sum</field_name>
+<formula_string>if&#x28;&#x5b;Order&#x5d;&#x3d;0&#x3b;&#x5b;ExperimentImpressions&#x5d;&#x3b;0&#x29;</formula_string>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field/>
+</formula>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>622</xloc>
+      <yloc>231</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>kettle_mobile_chain_performance.csv</name>
+    <type>CsvInput</type>
+    <description/>
+    <distribute>N</distribute>
     <custom_distribution/>
     <copies>1</copies>
          <partitioning>
@@ -588,6 +793,17 @@
         <trim_type>none</trim_type>
       </field>
       <field>
+        <name>chain_type</name>
+        <type>String</type>
+        <format/>
+        <currency>&#x24;</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <length>11</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
         <name>chain</name>
         <type>String</type>
         <format/>
@@ -599,14 +815,14 @@
         <trim_type>none</trim_type>
       </field>
       <field>
-        <name>served</name>
-        <type>Integer</type>
-        <format>&#x23;</format>
+        <name>chain_codes</name>
+        <type>String</type>
+        <format/>
         <currency>&#x24;</currency>
         <decimal>.</decimal>
         <group>,</group>
-        <length>15</length>
-        <precision>0</precision>
+        <length>19</length>
+        <precision>-1</precision>
         <trim_type>none</trim_type>
       </field>
       <field>
@@ -620,43 +836,22 @@
         <precision>0</precision>
         <trim_type>none</trim_type>
       </field>
+      <field>
+        <name>served</name>
+        <type>Integer</type>
+        <format>&#x23;</format>
+        <currency>&#x24;</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <length>15</length>
+        <precision>0</precision>
+        <trim_type>none</trim_type>
+      </field>
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>815</xloc>
-      <yloc>418</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Merge Join</name>
-    <type>MergeJoin</type>
-    <description/>
-    <distribute>N</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-<join_type>INNER</join_type>
-<step1>sum global and mobile metrics</step1>
-<step2>CSV file input</step2>
-    <keys_1>
-      <key>PlacementId</key>
-      <key>Date</key>
-      <key>chain</key>
-    </keys_1>
-    <keys_2>
-      <key>PlacementId</key>
-      <key>Date</key>
-      <key>chain</key>
-    </keys_2>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>806</xloc>
-      <yloc>179</yloc>
+      <xloc>801</xloc>
+      <yloc>417</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -675,9 +870,68 @@
     <fields>        <select_unspecified>N</select_unspecified>
       <remove>        <name>PlacementId_1</name>
       </remove>      <remove>        <name>Date_1</name>
+      </remove>      <remove>        <name>PlacementId_2</name>
+      </remove>      <remove>        <name>Date_2</name>
+      </remove>      <remove>        <name>chain</name>
       </remove>      <remove>        <name>chain_1</name>
-      </remove>      <meta>        <name>impressions</name>
-        <rename>komoona_impressions</rename>
+      </remove>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1122</xloc>
+      <yloc>178</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>remove floorprices</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <compatible>N</compatible>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>&#x2f;&#x2f;Script here&#xd;&#xa;&#xd;&#xa;var mobile_chain &#x3d;  ExperimentChain.replace&#x28;&#x2f;&#x3d;&#x5c;d&#x2b;&#x28;&#x5c;.&#x5c;d&#x2b;&#x29;&#x3f;&#x2f;g,&#x27;&#x27;&#x29;&#xd;&#xa;var nondescript_chain &#x3d; GlobalChain.replace&#x28;&#x2f;&#x3d;&#x5c;d&#x2b;&#x28;&#x5c;.&#x5c;d&#x2b;&#x29;&#x3f;&#x2f;g,&#x27;&#x27;&#x29;</jsScript_script>
+      </jsScript>    </jsScripts>    <fields>      <field>        <name>mobile_chain</name>
+        <rename>mobile_chain</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>nondescript_chain</name>
+        <rename>nondescript_chain</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>374</xloc>
+      <yloc>291</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>rename imps served 1</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>        <select_unspecified>N</select_unspecified>
+      <meta>        <name>impressions</name>
+        <rename>nd_kimpressions</rename>
         <type>None</type>
         <length>-2</length>
         <precision>-2</precision>
@@ -692,7 +946,7 @@
         <currency_symbol/>
         <storage_type/>
       </meta>      <meta>        <name>served</name>
-        <rename>komoona_served</rename>
+        <rename>nd_kserved</rename>
         <type>None</type>
         <length>-2</length>
         <precision>-2</precision>
@@ -708,15 +962,15 @@
         <storage_type/>
       </meta>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>943</xloc>
-      <yloc>178</yloc>
+      <xloc>803</xloc>
+      <yloc>297</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
 
   <step>
-    <name>Text file output</name>
-    <type>TextFileOutput</type>
+    <name>rename imps served 2</name>
+    <type>SelectValues</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -725,43 +979,157 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <separator>,</separator>
-    <enclosure>&#x22;</enclosure>
-    <enclosure_forced>N</enclosure_forced>
-    <enclosure_fix_disabled>N</enclosure_fix_disabled>
-    <header>Y</header>
-    <footer>N</footer>
-    <format>DOS</format>
-    <compression>None</compression>
-    <encoding/>
-    <endedLine/>
-    <fileNameInField>N</fileNameInField>
-    <fileNameField/>
-    <create_parent_folder>Y</create_parent_folder>
-    <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;LostImpressions&#x5c;experiment_data_chainlevel</name>
-      <is_command>N</is_command>
-      <servlet_output>N</servlet_output>
-      <do_not_open_new_file_init>N</do_not_open_new_file_init>
-      <extention>csv</extention>
-      <append>N</append>
-      <split>N</split>
-      <haspartno>N</haspartno>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <SpecifyFormat>N</SpecifyFormat>
-      <date_time_format/>
-      <add_to_result_filenames>Y</add_to_result_filenames>
-      <pad>N</pad>
-      <fast_dump>N</fast_dump>
-      <splitevery>0</splitevery>
-    </file>
+    <fields>        <select_unspecified>N</select_unspecified>
+      <meta>        <name>impressions</name>
+        <rename>mobile_kimpressions</rename>
+        <type>None</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask/>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>      <meta>        <name>served</name>
+        <rename>mobile_kserved</rename>
+        <type>None</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask/>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>958</xloc>
+      <yloc>315</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>sum global and mobile metrics</name>
+    <type>GroupBy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <all_rows>N</all_rows>
+      <ignore_aggregate>N</ignore_aggregate>
+      <field_ignore/>
+      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
+      <prefix>grp</prefix>
+      <add_linenr>N</add_linenr>
+      <linenr_fieldname/>
+      <give_back_row>N</give_back_row>
+      <group>
+        <field>
+          <name>PlacementId</name>
+        </field>
+        <field>
+          <name>Date</name>
+        </field>
+        <field>
+          <name>nondescript_chain</name>
+        </field>
+      </group>
+      <fields>
+        <field>
+          <aggregate>mobile_chain</aggregate>
+          <subject>mobile_chain</subject>
+          <type>FIRST_INCL_NULL</type>
+          <valuefield/>
+        </field>
+        <field>
+          <aggregate>true_mobile_imps</aggregate>
+          <subject>mobile_imps_for_sum</subject>
+          <type>SUM</type>
+          <valuefield/>
+        </field>
+        <field>
+          <aggregate>true_mobile_served</aggregate>
+          <subject>ExperimentServed</subject>
+          <type>SUM</type>
+          <valuefield/>
+        </field>
+        <field>
+          <aggregate>true_global_imps</aggregate>
+          <subject>nd_imps_for_sum</subject>
+          <type>SUM</type>
+          <valuefield/>
+        </field>
+        <field>
+          <aggregate>true_global_served</aggregate>
+          <subject>GlobalServed</subject>
+          <type>SUM</type>
+          <valuefield/>
+        </field>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>683</xloc>
+      <yloc>173</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Sort by placementid, chain, date 2</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <directory>&#x25;&#x25;java.io.tmpdir&#x25;&#x25;</directory>
+      <prefix>out</prefix>
+      <sort_size>1000000</sort_size>
+      <free_memory/>
+      <compress>N</compress>
+      <compress_variable/>
+      <unique_rows>N</unique_rows>
     <fields>
+      <field>
+        <name>PlacementId</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <presorted>N</presorted>
+      </field>
+      <field>
+        <name>Date</name>
+        <ascending>Y</ascending>
+        <case_sensitive>Y</case_sensitive>
+        <presorted>N</presorted>
+      </field>
+      <field>
+        <name>mobile_chain</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <presorted>N</presorted>
+      </field>
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1066</xloc>
-      <yloc>167</yloc>
+      <xloc>886</xloc>
+      <yloc>171</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
