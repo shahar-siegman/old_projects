@@ -141,8 +141,8 @@
   </connection>
   <connection>
     <name>komoona redshift</name>
-    <server>jdbc&#x3a;redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439</server>
-    <type>GENERIC</type>
+    <server>redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439&#x2f;logs</server>
+    <type>REDSHIFT</type>
     <access>Native</access>
     <database>public</database>
     <port>5439</port>
@@ -152,8 +152,7 @@
     <data_tablespace/>
     <index_tablespace/>
     <attributes>
-      <attribute><code>CUSTOM_DRIVER_CLASS</code><attribute>com.amazon.redshift.jdbc41.Driver</attribute></attribute>
-      <attribute><code>CUSTOM_URL</code><attribute>jdbc&#x3a;redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439&#x2f;logs</attribute></attribute>
+      <attribute><code>EXTRA_OPTION_REDSHIFT.tcpKeepAlive</code><attribute>true</attribute></attribute>
       <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
       <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
       <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
@@ -190,13 +189,17 @@
   <hop> <from>apply changelog next_goal</from><to>apply changelog next_date</to><enabled>Y</enabled> </hop>
   <hop> <from>apply changelog next_date</from><to>discard unneeded columns 2</to><enabled>Y</enabled> </hop>
   <hop> <from>discard unneeded columns 4</from><to>Filter rows</to><enabled>Y</enabled> </hop>
-  <hop> <from>Merge Join 4</from><to>apply changelog 5</to><enabled>Y</enabled> </hop>
   <hop> <from>Filter rows</from><to>dates to excel integer dates</to><enabled>Y</enabled> </hop>
   <hop> <from>dates to excel integer dates</from><to>Text file output 3</to><enabled>Y</enabled> </hop>
   <hop> <from>revshare changes</from><to>Merge Join 5</to><enabled>Y</enabled> </hop>
   <hop> <from>apply changelog 5</from><to>Merge Join 5</to><enabled>Y</enabled> </hop>
-  <hop> <from>Merge Join 5</from><to>apply cl revshare</to><enabled>Y</enabled> </hop>
   <hop> <from>apply cl revshare</from><to>discard unneeded columns 4</to><enabled>Y</enabled> </hop>
+  <hop> <from>revshare changes</from><to>Text file output 4</to><enabled>Y</enabled> </hop>
+  <hop> <from>Merge Join 4</from><to>get tag and date in case blank 3 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>get tag and date in case blank 3 2</from><to>apply changelog 5</to><enabled>Y</enabled> </hop>
+  <hop> <from>Merge Join 5</from><to>get tag and date in case blank 3 2 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>get tag and date in case blank 3 2 2</from><to>apply cl revshare</to><enabled>Y</enabled> </hop>
+  <hop> <from>apply cl revshare</from><to>Text file output 5</to><enabled>Y</enabled> </hop>
   </order>
   <step>
     <name>Analytic Query</name>
@@ -497,6 +500,36 @@
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>925</xloc>
       <yloc>203</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Merge Join 5</name>
+    <type>MergeJoin</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<join_type>FULL OUTER</join_type>
+<step1>apply changelog 5</step1>
+<step2>revshare changes</step2>
+    <keys_1>
+      <key>tagid</key>
+      <key>performance_date</key>
+    </keys_1>
+    <keys_2>
+      <key>tagid</key>
+      <key>new_revshare_date</key>
+    </keys_2>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1047</xloc>
+      <yloc>217</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1552,110 +1585,6 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     </step>
 
   <step>
-    <name>apply changelog 5</name>
-    <type>UserDefinedJavaClass</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-
-    <definitions>
-        <definition>
-        <class_type>TRANSFORM_CLASS</class_type>
-
-        <class_name>Processor</class_name>
-
-        <class_source><![CDATA[String valueField;
-String previousValue;
-String outValue;
-String outputField;
-String groupField;
-String previousGroupFieldValue;
-
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
-{
-    // Let's look up parameters only once for performance reason.
-    //
-    if (first) {
-      valueField = getParameter("VALUE_COLUMN");
-	  outputField = getParameter("OUTPUT_COLUMN");
-	  previousValue = getParameter("DEFAULT_VALUE");
-	  groupField = getParameter("GROUP_COLUMN");
-      first=false;
-    }
-
-    // First, get a row from the default input hop
-    //
-    Object[] r = getRow();
-
-    // If the row object is null, we are done processing.
-    //
-    if (r == null) {
-      setOutputDone();
-      return false;
-    }
-
-    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
-    // enough to handle any new fields you are creating in this step.
-    //
-    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
-
-    String currentValue = get(Fields.In, valueField).getString(r);
-	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
-
-	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
-		outValue=previousValue;
-	} else {
-		outValue=currentValue;
-		previousValue=currentValue;
-		previousGroupFieldValue=currentGroupFieldValue;
-		
-	}
-		
-    get(Fields.Out, outputField).setValue(outputRow, outValue);
-
-    // putRow will send the row on to the default output hop.
-    //
-    putRow(data.outputRowMeta, outputRow);
-
-    return true;
-}]]></class_source>
-        </definition>
-    </definitions>
-    <fields>
-        <field>
-        <field_name>risk_percent</field_name>
-
-        <field_type>String</field_type>
-
-        <field_length>-1</field_length>
-
-        <field_precision>-1</field_precision>
-
-        </field>
-    </fields><clear_result_fields>N</clear_result_fields>
-<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
-<parameter_value>new_risk_percent</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
-<parameter_value>risk_percent</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
-<parameter_value>tagid</parameter_value>
-<parameter_description/>
-</usage_parameter></usage_parameters>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>974</xloc>
-      <yloc>49</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
     <name>apply changelog 4</name>
     <type>UserDefinedJavaClass</type>
     <description/>
@@ -1756,6 +1685,110 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       <xloc>1038</xloc>
       <yloc>51</yloc>
       <draw>N</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>apply changelog 5</name>
+    <type>UserDefinedJavaClass</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+
+    <definitions>
+        <definition>
+        <class_type>TRANSFORM_CLASS</class_type>
+
+        <class_name>Processor</class_name>
+
+        <class_source><![CDATA[String valueField;
+String previousValue;
+String outValue;
+String outputField;
+String groupField;
+String previousGroupFieldValue;
+
+public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
+{
+    // Let's look up parameters only once for performance reason.
+    //
+    if (first) {
+      valueField = getParameter("VALUE_COLUMN");
+	  outputField = getParameter("OUTPUT_COLUMN");
+	  previousValue = getParameter("DEFAULT_VALUE");
+	  groupField = getParameter("GROUP_COLUMN");
+      first=false;
+    }
+
+    // First, get a row from the default input hop
+    //
+    Object[] r = getRow();
+
+    // If the row object is null, we are done processing.
+    //
+    if (r == null) {
+      setOutputDone();
+      return false;
+    }
+
+    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
+    // enough to handle any new fields you are creating in this step.
+    //
+    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
+
+    String currentValue = get(Fields.In, valueField).getString(r);
+	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
+
+	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
+		outValue=previousValue;
+	} else {
+		outValue=currentValue;
+		previousValue=currentValue;
+		previousGroupFieldValue=currentGroupFieldValue;
+		
+	}
+		
+    get(Fields.Out, outputField).setValue(outputRow, outValue);
+
+    // putRow will send the row on to the default output hop.
+    //
+    putRow(data.outputRowMeta, outputRow);
+
+    return true;
+}]]></class_source>
+        </definition>
+    </definitions>
+    <fields>
+        <field>
+        <field_name>risk_percent</field_name>
+
+        <field_type>String</field_type>
+
+        <field_length>-1</field_length>
+
+        <field_precision>-1</field_precision>
+
+        </field>
+    </fields><clear_result_fields>N</clear_result_fields>
+<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
+<parameter_value>new_risk_percent</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
+<parameter_value>risk_percent</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
+<parameter_value>tagid</parameter_value>
+<parameter_description/>
+</usage_parameter></usage_parameters>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>974</xloc>
+      <yloc>49</yloc>
+      <draw>Y</draw>
       </GUI>
     </step>
 
@@ -2280,6 +2313,110 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     </step>
 
   <step>
+    <name>apply cl revshare</name>
+    <type>UserDefinedJavaClass</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+
+    <definitions>
+        <definition>
+        <class_type>TRANSFORM_CLASS</class_type>
+
+        <class_name>Processor</class_name>
+
+        <class_source><![CDATA[String valueField;
+String previousValue;
+String outValue;
+String outputField;
+String groupField;
+String previousGroupFieldValue;
+
+public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
+{
+    // Let's look up parameters only once for performance reason.
+    //
+    if (first) {
+      valueField = getParameter("VALUE_COLUMN");
+	  outputField = getParameter("OUTPUT_COLUMN");
+	  previousValue = getParameter("DEFAULT_VALUE");
+	  groupField = getParameter("GROUP_COLUMN");
+      first=false;
+    }
+
+    // First, get a row from the default input hop
+    //
+    Object[] r = getRow();
+
+    // If the row object is null, we are done processing.
+    //
+    if (r == null) {
+      setOutputDone();
+      return false;
+    }
+
+    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
+    // enough to handle any new fields you are creating in this step.
+    //
+    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
+
+    String currentValue = get(Fields.In, valueField).getString(r);
+	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
+
+	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
+		outValue=previousValue;
+	} else {
+		outValue=currentValue;
+		previousValue=currentValue;
+		previousGroupFieldValue=currentGroupFieldValue;
+		
+	}
+		
+    get(Fields.Out, outputField).setValue(outputRow, outValue);
+
+    // putRow will send the row on to the default output hop.
+    //
+    putRow(data.outputRowMeta, outputRow);
+
+    return true;
+}]]></class_source>
+        </definition>
+    </definitions>
+    <fields>
+        <field>
+        <field_name>revshare</field_name>
+
+        <field_type>String</field_type>
+
+        <field_length>-1</field_length>
+
+        <field_precision>-1</field_precision>
+
+        </field>
+    </fields><clear_result_fields>N</clear_result_fields>
+<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
+<parameter_value>new_revshare</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
+<parameter_value>revshare</parameter_value>
+<parameter_description/>
+</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
+<parameter_value>tagid</parameter_value>
+<parameter_description/>
+</usage_parameter></usage_parameters>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1119</xloc>
+      <yloc>48</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
     <name>dates to excel integer dates</name>
     <type>Calculator</type>
     <description/>
@@ -2629,7 +2766,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 </formula>
        <formula><field_name>performance_date</field_name>
 <formula_string>if&#x28;isblank&#x28;&#x5b;performance_date&#x5d;&#x29;&#x3b;&#x5b;floor_change_date&#x5d;&#x3b;&#x5b;performance_date&#x5d;&#x29;</formula_string>
-<value_type>Date</value_type>
+<value_type>Integer</value_type>
 <value_length>-1</value_length>
 <value_precision>-1</value_precision>
 <replace_field>performance_date</replace_field>
@@ -2695,7 +2832,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 </formula>
        <formula><field_name>performance_date</field_name>
 <formula_string>if&#x28;isblank&#x28;&#x5b;performance_date&#x5d;&#x29;&#x3b;&#x5b;in_out_date&#x5d;&#x3b;&#x5b;performance_date&#x5d;&#x29;</formula_string>
-<value_type>Date</value_type>
+<value_type>Integer</value_type>
 <value_length>-1</value_length>
 <value_precision>-1</value_precision>
 <replace_field>performance_date</replace_field>
@@ -2904,6 +3041,32 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     </step>
 
   <step>
+    <name>revshare changes</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>komoona dev</connection>
+    <sql>select r.tagid&#xd;&#xa;	, datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; new_revshare_date&#xd;&#xa; 	, substring_index&#x28;group_concat&#x28;revshare order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29;  as new_revshare &#xd;&#xa;from kmn_revshare r &#xd;&#xa;where date&#x3e;&#x3d;&#x27;2015-01-01&#x27;&#xd;&#xa;group by tagid, date&#x3b;&#xd;&#xa;</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>Y</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1046</xloc>
+      <yloc>307</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
     <name>risk changes</name>
     <type>TableInput</type>
     <description/>
@@ -2956,64 +3119,8 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     </step>
 
   <step>
-    <name>revshare changes</name>
-    <type>TableInput</type>
-    <description/>
-    <distribute>N</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <connection>komoona dev</connection>
-    <sql>select r.tagid&#xd;&#xa;	, datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; new_revshare_date&#xd;&#xa; 	, substring_index&#x28;group_concat&#x28;revshare order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29;  as new_revshare &#xd;&#xa;from kmn_revshare r &#xd;&#xa;where date&#x3e;&#x3d;&#x27;2015-01-01&#x27;&#xd;&#xa;group by tagid, date&#x3b;&#xd;&#xa;</sql>
-    <limit>0</limit>
-    <lookup/>
-    <execute_each_row>N</execute_each_row>
-    <variables_active>Y</variables_active>
-    <lazy_conversion_active>N</lazy_conversion_active>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1048</xloc>
-      <yloc>313</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Merge Join 5</name>
-    <type>MergeJoin</type>
-    <description/>
-    <distribute>N</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-<join_type>FULL OUTER</join_type>
-<step1>apply changelog 5</step1>
-<step2>revshare changes</step2>
-    <keys_1>
-      <key>tagid</key>
-      <key>performance_date</key>
-    </keys_1>
-    <keys_2>
-      <key>tagid</key>
-      <key>new_revshare_date</key>
-    </keys_2>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1047</xloc>
-      <yloc>217</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>apply cl revshare</name>
-    <type>UserDefinedJavaClass</type>
+    <name>Text file output 4</name>
+    <type>TextFileOutput</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -3022,95 +3129,161 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <method>none</method>
            <schema_name/>
            </partitioning>
-
-    <definitions>
-        <definition>
-        <class_type>TRANSFORM_CLASS</class_type>
-
-        <class_name>Processor</class_name>
-
-        <class_source><![CDATA[String valueField;
-String previousValue;
-String outValue;
-String outputField;
-String groupField;
-String previousGroupFieldValue;
-
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
-{
-    // Let's look up parameters only once for performance reason.
-    //
-    if (first) {
-      valueField = getParameter("VALUE_COLUMN");
-	  outputField = getParameter("OUTPUT_COLUMN");
-	  previousValue = getParameter("DEFAULT_VALUE");
-	  groupField = getParameter("GROUP_COLUMN");
-      first=false;
-    }
-
-    // First, get a row from the default input hop
-    //
-    Object[] r = getRow();
-
-    // If the row object is null, we are done processing.
-    //
-    if (r == null) {
-      setOutputDone();
-      return false;
-    }
-
-    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
-    // enough to handle any new fields you are creating in this step.
-    //
-    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
-
-    String currentValue = get(Fields.In, valueField).getString(r);
-	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
-
-	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
-		outValue=previousValue;
-	} else {
-		outValue=currentValue;
-		previousValue=currentValue;
-		previousGroupFieldValue=currentGroupFieldValue;
-		
-	}
-		
-    get(Fields.Out, outputField).setValue(outputRow, outValue);
-
-    // putRow will send the row on to the default output hop.
-    //
-    putRow(data.outputRowMeta, outputRow);
-
-    return true;
-}]]></class_source>
-        </definition>
-    </definitions>
+    <separator>,</separator>
+    <enclosure>&#x22;</enclosure>
+    <enclosure_forced>N</enclosure_forced>
+    <enclosure_fix_disabled>N</enclosure_fix_disabled>
+    <header>Y</header>
+    <footer>N</footer>
+    <format>DOS</format>
+    <compression>None</compression>
+    <encoding/>
+    <endedLine/>
+    <fileNameInField>N</fileNameInField>
+    <fileNameField/>
+    <create_parent_folder>Y</create_parent_folder>
+    <file>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;ImproveMargin&#x5c;kettle_out2</name>
+      <is_command>N</is_command>
+      <servlet_output>N</servlet_output>
+      <do_not_open_new_file_init>N</do_not_open_new_file_init>
+      <extention>csv</extention>
+      <append>N</append>
+      <split>N</split>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <pad>N</pad>
+      <fast_dump>N</fast_dump>
+      <splitevery>0</splitevery>
+    </file>
     <fields>
-        <field>
-        <field_name>revshare</field_name>
-
-        <field_type>String</field_type>
-
-        <field_length>-1</field_length>
-
-        <field_precision>-1</field_precision>
-
-        </field>
-    </fields><clear_result_fields>N</clear_result_fields>
-<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
-<parameter_value>new_revshare</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
-<parameter_value>revshare</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
-<parameter_value>tagid</parameter_value>
-<parameter_description/>
-</usage_parameter></usage_parameters>     <cluster_schema/>
+    </fields>
+     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1126</xloc>
-      <yloc>196</yloc>
+      <xloc>1110</xloc>
+      <yloc>406</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>get tag and date in case blank 3 2</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <formula><field_name>tagid</field_name>
+<formula_string>if&#x28;isblank&#x28;&#x5b;tagid&#x5d;&#x29;&#x3b;&#x5b;tagid_1&#x5d;&#x3b;&#x5b;tagid&#x5d;&#x29;</formula_string>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>tagid</replace_field>
+</formula>
+       <formula><field_name>performance_date</field_name>
+<formula_string>if&#x28;isblank&#x28;&#x5b;performance_date&#x5d;&#x29;&#x3b;&#x5b;risk_change_date&#x5d;&#x3b;&#x5b;performance_date&#x5d;&#x29;</formula_string>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>performance_date</replace_field>
+</formula>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>952</xloc>
+      <yloc>132</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>get tag and date in case blank 3 2 2</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <formula><field_name>tagid</field_name>
+<formula_string>if&#x28;isblank&#x28;&#x5b;tagid&#x5d;&#x29;&#x3b;&#x5b;tagid_2&#x5d;&#x3b;&#x5b;tagid&#x5d;&#x29;</formula_string>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>tagid</replace_field>
+</formula>
+       <formula><field_name>performance_date</field_name>
+<formula_string>if&#x28;isblank&#x28;&#x5b;performance_date&#x5d;&#x29;&#x3b;&#x5b;new_revshare_date&#x5d;&#x3b;&#x5b;performance_date&#x5d;&#x29;</formula_string>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>performance_date</replace_field>
+</formula>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1086</xloc>
+      <yloc>136</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Text file output 5</name>
+    <type>TextFileOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <separator>,</separator>
+    <enclosure>&#x22;</enclosure>
+    <enclosure_forced>N</enclosure_forced>
+    <enclosure_fix_disabled>N</enclosure_fix_disabled>
+    <header>Y</header>
+    <footer>N</footer>
+    <format>DOS</format>
+    <compression>None</compression>
+    <encoding/>
+    <endedLine/>
+    <fileNameInField>N</fileNameInField>
+    <fileNameField/>
+    <create_parent_folder>Y</create_parent_folder>
+    <file>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;ImproveMargin&#x5c;kettle_out3</name>
+      <is_command>N</is_command>
+      <servlet_output>N</servlet_output>
+      <do_not_open_new_file_init>N</do_not_open_new_file_init>
+      <extention>csv</extention>
+      <append>N</append>
+      <split>N</split>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <pad>N</pad>
+      <fast_dump>N</fast_dump>
+      <splitevery>0</splitevery>
+    </file>
+    <fields>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1251</xloc>
+      <yloc>58</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
