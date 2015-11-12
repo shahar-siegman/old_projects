@@ -103,7 +103,7 @@
   </connection>
   <connection>
     <name>komoona redshift</name>
-    <server>jdbc&#x3a;redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439</server>
+    <server>redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439&#x2f;logs</server>
     <type>GENERIC</type>
     <access>Native</access>
     <database>public</database>
@@ -141,7 +141,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona redshift</connection>
-    <sql>SELECT &#x3c;values&#x3e; FROM &#x3c;table name&#x3e; WHERE &#x3c;conditions&#x3e;</sql>
+    <sql>SELECT &#x2a; from mobile_experiment_11_11&#xd;&#xa;limit 10</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>

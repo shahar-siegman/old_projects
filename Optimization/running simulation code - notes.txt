@@ -1,0 +1,15 @@
+simulationReallocation.cs 20: Main()
+simulationReallocation.cs 44: Run() --> 65 
+PlacementConfigurationProcess.cs 207:  RunReallocation(DateTime targetDate, string requestedBy) -->
+	221
+ReallocationManager.cs 45: CalculateNewConfiguration(ITagChangesFilter , IStatsDataAccessor )
+
+ReallocationManager.cs 48: var adNetworks = dataProviders.Placements.GetAdNetworks(placement.LayoutId);
+is this all tags in placement?
+
+ReallocationManager.cs 57:  var allData = tagChangesFilter == null ? dataProviders.MultiDayData.GetFilteredMultiDayDataPerTag
+this line of code takes more than a minute already.
+
+ReallocationManager.cs 66: var context = ContextGenerator.CreateContext(placement, dataProviders, targetDate, false, false);
+ContextGenerator 33: var lastFinalDate = dataProviders.Optimization.GetLastFinalDateData();
+this throws an exception: NPE
