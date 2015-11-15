@@ -16,10 +16,7 @@ session8Plots <- function(DF) {
   DF <- learnHistoricalRateAllPlacements(DF, key = "placement_id", series=c("nd_kimpressions","nd_kserved","komoona_fill"))
   DF$komoona_fill_factor <- DF$smooth_fill/DF$smooth_komoona_fill
 
-  p1 <- ggplot(DF) +
-    geom_line(aes(x=date,y=smooth_fill, group=placement_id, color=placement_id)) +
-    geom_line(aes(x=date,y=smooth_komoona_fill, group=placement_id, color=placement_id)) +
-    geom_point(aes(x=date,y=smooth_komoona_fill, group=placement_id, color=placement_id))
+  p1 <- session8Plot1(DF)
   # indeed, moving averages vary rather slowly and the ratios seem to behave. to capture the point, let's
   # plot the daily ratio and the smoothed ratio
 
@@ -54,6 +51,23 @@ session8Plots <- function(DF) {
   # this shows that the mobile factor is not the same as the global one. also the mobile factors seem to be more noisy.
   # the next step is to check if the mobile share of the placements, at the daily level or aggregated over the period,
   # explains the factor factor.
-  print(p4)
+
+  DF$total_imps <- DF$true_global_imps + DF$true_mobile_imps
+  DF$factor_factor <- DF$mobile_komoona_fill_factor / DF$komoona_fill_factor_smooth
+
+  DF <- learnHistoricalRateAllPlacements(DF,key="placement_id", series = c("true_mobile_imps","total_imps","mobile_impshare"))
+
+  p5 <- ggplot(DF)+ geom_point(aes(x=smooth_mobile_impshare,y=factor_factor,color=placement_id))
+  p6 <- ggplot(DF)+ geom_point(aes(x=smooth_mobile_impshare,y=factor_factor,color=placement_id))
+
+  # whoops! that's not really the impshare we're looking for. need mobile share of each chain.
+  # 2015-11-12 ok, now I have this data available. on to session9!
   return(DF)
+}
+
+session8Plot1 <- function(DF) {
+  return(ggplot(DF) +
+    geom_line(aes(x=date,y=smooth_fill, group=placement_id, color=placement_id)) +
+    geom_line(aes(x=date,y=smooth_komoona_fill, group=placement_id, color=placement_id)) +
+    geom_point(aes(x=date,y=smooth_komoona_fill, group=placement_id, color=placement_id)))
 }

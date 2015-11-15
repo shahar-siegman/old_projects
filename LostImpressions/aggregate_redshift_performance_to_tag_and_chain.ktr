@@ -128,20 +128,20 @@
     </attributes>
   </connection>
   <order>
-  <hop> <from>Sort rows</from><to>unique pl, initial_tag, served_chain</to><enabled>Y</enabled> </hop>
   <hop> <from>is_house_only</from><to>Group by placement_id, initial_tag, served_chain</to><enabled>Y</enabled> </hop>
   <hop> <from>Group by placement_id, initial_tag, served_chain</from><to>Sort imps decending</to><enabled>Y</enabled> </hop>
   <hop> <from>Sort imps decending</from><to>guess full chain</to><enabled>Y</enabled> </hop>
   <hop> <from>guess full chain</from><to>Merge Join</to><enabled>Y</enabled> </hop>
   <hop> <from>Sort rows</from><to>Merge Join</to><enabled>Y</enabled> </hop>
-  <hop> <from>unique pl, initial_tag, served_chain</from><to>is_house_only</to><enabled>Y</enabled> </hop>
   <hop> <from>CSV file input</from><to>is_house</to><enabled>Y</enabled> </hop>
   <hop> <from>is_house</from><to>Sort rows</to><enabled>Y</enabled> </hop>
   <hop> <from>served column</from><to>pl, date, chain, device</to><enabled>Y</enabled> </hop>
-  <hop> <from>pl, date, chain, device</from><to>chain performance</to><enabled>Y</enabled> </hop>
   <hop> <from>Merge Join</from><to>remove duplicate cols</to><enabled>Y</enabled> </hop>
   <hop> <from>remove duplicate cols</from><to>served column</to><enabled>Y</enabled> </hop>
   <hop> <from>remove duplicate cols</from><to>redshift_performance_tag</to><enabled>Y</enabled> </hop>
+  <hop> <from>pl, date, chain, device</from><to>chain metrics</to><enabled>Y</enabled> </hop>
+  <hop> <from>chain metrics</from><to>chain performance</to><enabled>Y</enabled> </hop>
+  <hop> <from>Sort rows</from><to>is_house_only</to><enabled>Y</enabled> </hop>
   </order>
   <step>
     <name>CSV file input</name>
@@ -294,8 +294,8 @@
       </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>71</xloc>
-      <yloc>516</yloc>
+      <xloc>74</xloc>
+      <yloc>399</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -311,7 +311,7 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-<join_type>INNER</join_type>
+<join_type>LEFT OUTER</join_type>
 <step1>Sort rows</step1>
 <step2>guess full chain</step2>
     <keys_1>
@@ -370,8 +370,8 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>201</xloc>
-      <yloc>593</yloc>
+      <xloc>202</xloc>
+      <yloc>469</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -461,7 +461,7 @@
           <name>day_date</name>
         </field>
         <field>
-          <name>guessed_chain</name>
+          <name>full_chain</name>
         </field>
         <field>
           <name>ua_device_type</name>
@@ -483,9 +483,9 @@
       </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>658</xloc>
-      <yloc>196</yloc>
-      <draw>N</draw>
+      <xloc>671</xloc>
+      <yloc>223</yloc>
+      <draw>Y</draw>
       </GUI>
     </step>
 
@@ -579,7 +579,7 @@
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>204</xloc>
-      <yloc>365</yloc>
+      <yloc>319</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -641,7 +641,7 @@
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>73</xloc>
-      <yloc>427</yloc>
+      <yloc>295</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -751,6 +751,29 @@
     </step>
 
   <step>
+    <name>remove duplicate cols</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>        <select_unspecified>N</select_unspecified>
+      <remove>        <name>clean_chain</name>
+      </remove>      <remove>        <name>placement_id_1</name>
+      </remove>      <remove>        <name>initial_tag_1</name>
+      </remove>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>326</xloc>
+      <yloc>199</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
     <name>served column</name>
     <type>Formula</type>
     <description/>
@@ -799,32 +822,9 @@
         <case_insensitive>N</case_insensitive>
         </field>      </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>77</xloc>
-      <yloc>309</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>remove duplicate cols</name>
-    <type>SelectValues</type>
-    <description/>
-    <distribute>N</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <fields>        <select_unspecified>N</select_unspecified>
-      <remove>        <name>clean_chain</name>
-      </remove>      <remove>        <name>placement_id_1</name>
-      </remove>      <remove>        <name>initial_tag_1</name>
-      </remove>    </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>326</xloc>
-      <yloc>199</yloc>
-      <draw>Y</draw>
+      <xloc>324</xloc>
+      <yloc>282</yloc>
+      <draw>N</draw>
       </GUI>
     </step>
 
