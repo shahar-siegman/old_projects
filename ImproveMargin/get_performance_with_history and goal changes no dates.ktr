@@ -11,12 +11,12 @@
     <parameters>
         <parameter>
             <name>end_date</name>
-            <default_value>&#x27;2015-11-12&#x27;</default_value>
+            <default_value>&#x27;2015-11-13&#x27;</default_value>
             <description/>
         </parameter>
         <parameter>
             <name>start_date</name>
-            <default_value>2015-11-06</default_value>
+            <default_value>2015-11-07</default_value>
             <description/>
         </parameter>
     </parameters>
@@ -189,17 +189,19 @@
   <hop> <from>apply changelog next_goal</from><to>apply changelog next_date</to><enabled>Y</enabled> </hop>
   <hop> <from>apply changelog next_date</from><to>discard unneeded columns 2</to><enabled>Y</enabled> </hop>
   <hop> <from>discard unneeded columns 4</from><to>Filter rows</to><enabled>Y</enabled> </hop>
-  <hop> <from>Filter rows</from><to>dates to excel integer dates</to><enabled>Y</enabled> </hop>
   <hop> <from>dates to excel integer dates</from><to>Text file output 3</to><enabled>Y</enabled> </hop>
   <hop> <from>revshare changes</from><to>Merge Join 5</to><enabled>Y</enabled> </hop>
   <hop> <from>apply changelog 5</from><to>Merge Join 5</to><enabled>Y</enabled> </hop>
-  <hop> <from>apply cl revshare</from><to>discard unneeded columns 4</to><enabled>Y</enabled> </hop>
   <hop> <from>revshare changes</from><to>Text file output 4</to><enabled>Y</enabled> </hop>
   <hop> <from>Merge Join 4</from><to>get tag and date in case blank 3 2</to><enabled>Y</enabled> </hop>
   <hop> <from>get tag and date in case blank 3 2</from><to>apply changelog 5</to><enabled>Y</enabled> </hop>
   <hop> <from>Merge Join 5</from><to>get tag and date in case blank 3 2 2</to><enabled>Y</enabled> </hop>
   <hop> <from>get tag and date in case blank 3 2 2</from><to>apply cl revshare</to><enabled>Y</enabled> </hop>
   <hop> <from>apply cl revshare</from><to>Text file output 5</to><enabled>Y</enabled> </hop>
+  <hop> <from>latest attributes</from><to>join attributes</to><enabled>Y</enabled> </hop>
+  <hop> <from>Filter rows</from><to>dates to excel integer dates</to><enabled>Y</enabled> </hop>
+  <hop> <from>apply cl revshare</from><to>join attributes</to><enabled>Y</enabled> </hop>
+  <hop> <from>join attributes</from><to>discard unneeded columns 4</to><enabled>Y</enabled> </hop>
   </order>
   <step>
     <name>Analytic Query</name>
@@ -252,86 +254,6 @@
     </step>
 
   <step>
-    <name>Calculator</name>
-    <type>Calculator</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-       <calculation><field_name>date1</field_name>
-<calc_type>NVL</calc_type>
-<field_a>performance_date</field_a>
-<field_b>risk_change_date</field_b>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1180</xloc>
-      <yloc>137</yloc>
-      <draw>N</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Calculator 2</name>
-    <type>Calculator</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-       <calculation><field_name>start_date_string</field_name>
-<calc_type>CONSTANT</calc_type>
-<field_a>&#x24;&#x7b;start_date&#x7d;</field_a>
-<field_b/>
-<field_c/>
-<value_type>String</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>start_date</field_name>
-<calc_type>SUBSTITUTE_VARIABLE</calc_type>
-<field_a>start_date_string</field_a>
-<field_b/>
-<field_c/>
-<value_type>Date</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask>yyyy-MM-dd</conversion_mask>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1372</xloc>
-      <yloc>187</yloc>
-      <draw>N</draw>
-      </GUI>
-    </step>
-
-  <step>
     <name>Filter rows</name>
     <type>FilterRows</type>
     <description/>
@@ -354,8 +276,8 @@
     </compare>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1291</xloc>
-      <yloc>198</yloc>
+      <xloc>1361</xloc>
+      <yloc>121</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -413,34 +335,6 @@
       <xloc>458</xloc>
       <yloc>204</yloc>
       <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Merge Join 2</name>
-    <type>MergeJoin</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-<join_type>INNER</join_type>
-<step1>Merge Join</step1>
-<step2>optimization goal changes</step2>
-    <keys_1>
-      <key>tagid</key>
-    </keys_1>
-    <keys_2>
-      <key>tagid</key>
-    </keys_2>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>740</xloc>
-      <yloc>201</yloc>
-      <draw>N</draw>
       </GUI>
     </step>
 
@@ -531,429 +425,6 @@
       <xloc>1047</xloc>
       <yloc>217</yloc>
       <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Microsoft Excel Writer</name>
-    <type>TypeExitExcelWriterStep</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <header>Y</header>
-    <footer>N</footer>
-    <makeSheetActive>Y</makeSheetActive>
-    <rowWritingMethod>overwrite</rowWritingMethod>
-    <startingCell>A1</startingCell>
-    <appendOmitHeader>N</appendOmitHeader>
-    <appendOffset>0</appendOffset>
-    <appendEmpty>0</appendEmpty>
-    <rowWritingMethod>overwrite</rowWritingMethod>
-    <forceFormulaRecalculation>N</forceFormulaRecalculation>
-    <leaveExistingStylesUnchanged>N</leaveExistingStylesUnchanged>
-    <appendLines>N</appendLines>
-    <add_to_result_filenames>N</add_to_result_filenames>
-    <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;ImproveMargin&#x5c;data1.xlsx</name>
-      <extention>xlsx</extention>
-      <do_not_open_newfile_init>N</do_not_open_newfile_init>
-      <split>N</split>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <SpecifyFormat>N</SpecifyFormat>
-      <date_time_format/>
-      <sheetname>data1</sheetname>
-      <autosizecolums>Y</autosizecolums>
-      <stream_data>N</stream_data>
-      <protect_sheet>N</protect_sheet>
-      <password>Encrypted </password>
-      <protected_by/>
-      <splitevery>0</splitevery>
-      <if_file_exists>reuse</if_file_exists>
-      <if_sheet_exists>reuse</if_sheet_exists>
-      </file>
-    <template>
-      <enabled>N</enabled>
-      <sheet_enabled>N</sheet_enabled>
-      <filename>template.xls</filename>
-      <sheetname/>
-    </template>
-    <fields>
-      <field>
-        <name>tagid</name>
-        <type>String</type>
-        <format/>
-        <title>tagid</title>
-        <titleStyleCell/>
-        <styleCell/>
-        <commentField/>
-        <commentAuthorField/>
-        <formula>N</formula>
-        <hyperlinkField/>
-      </field>
-      <field>
-        <name>performance_date</name>
-        <type>Date</type>
-        <format/>
-        <title>performance_date</title>
-        <titleStyleCell/>
-        <styleCell/>
-        <commentField/>
-        <commentAuthorField/>
-        <formula>N</formula>
-        <hyperlinkField/>
-      </field>
-      <field>
-        <name>impressions</name>
-        <type>Integer</type>
-        <format>0</format>
-        <title>impressions</title>
-        <titleStyleCell/>
-        <styleCell/>
-        <commentField/>
-        <commentAuthorField/>
-        <formula>N</formula>
-        <hyperlinkField/>
-      </field>
-      <field>
-        <name>fill</name>
-        <type>BigNumber</type>
-        <format/>
-        <title>fill</title>
-        <titleStyleCell/>
-        <styleCell/>
-        <commentField/>
-        <commentAuthorField/>
-        <formula>N</formula>
-        <hyperlinkField/>
-      </field>
-      <field>
-        <name>cost</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <title>cost</title>
-        <titleStyleCell/>
-        <styleCell/>
-        <commentField/>
-        <commentAuthorField/>
-        <formula>N</formula>
-        <hyperlinkField/>
-      </field>
-      <field>
-        <name>profit</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <title>profit</title>
-        <titleStyleCell/>
-        <styleCell/>
-        <commentField/>
-        <commentAuthorField/>
-        <formula>N</formula>
-        <hyperlinkField/>
-      </field>
-      <field>
-        <name>client_ecpm</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <title>client_ecpm</title>
-        <titleStyleCell/>
-        <styleCell/>
-        <commentField/>
-        <commentAuthorField/>
-        <formula>N</formula>
-        <hyperlinkField/>
-      </field>
-      <field>
-        <name>total_ecpm</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <title>total_ecpm</title>
-        <titleStyleCell/>
-        <styleCell/>
-        <commentField/>
-        <commentAuthorField/>
-        <formula>N</formula>
-        <hyperlinkField/>
-      </field>
-      <field>
-        <name>floor_price</name>
-        <type>String</type>
-        <format/>
-        <title>floor_price</title>
-        <titleStyleCell/>
-        <styleCell/>
-        <commentField/>
-        <commentAuthorField/>
-        <formula>N</formula>
-        <hyperlinkField/>
-      </field>
-      <field>
-        <name>optimization_goal</name>
-        <type>String</type>
-        <format/>
-        <title>optimization_goal</title>
-        <titleStyleCell/>
-        <styleCell/>
-        <commentField/>
-        <commentAuthorField/>
-        <formula>N</formula>
-        <hyperlinkField/>
-      </field>
-      <field>
-        <name>optimization_on</name>
-        <type>String</type>
-        <format/>
-        <title>optimization_on</title>
-        <titleStyleCell/>
-        <styleCell/>
-        <commentField/>
-        <commentAuthorField/>
-        <formula>N</formula>
-        <hyperlinkField/>
-      </field>
-      <field>
-        <name>risk_percent</name>
-        <type>String</type>
-        <format/>
-        <title>risk_percent</title>
-        <titleStyleCell/>
-        <styleCell/>
-        <commentField/>
-        <commentAuthorField/>
-        <formula>N</formula>
-        <hyperlinkField/>
-      </field>
-    </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1363</xloc>
-      <yloc>282</yloc>
-      <draw>N</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Text file output</name>
-    <type>TextFileOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <separator>&#x3b;</separator>
-    <enclosure>&#x22;</enclosure>
-    <enclosure_forced>N</enclosure_forced>
-    <enclosure_fix_disabled>N</enclosure_fix_disabled>
-    <header>Y</header>
-    <footer>N</footer>
-    <format>DOS</format>
-    <compression>None</compression>
-    <encoding>windows-1252</encoding>
-    <endedLine/>
-    <fileNameInField>N</fileNameInField>
-    <fileNameField/>
-    <create_parent_folder>N</create_parent_folder>
-    <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;eCpmTooHigh&#x5c;performance_with_fp_oct.out</name>
-      <is_command>N</is_command>
-      <servlet_output>N</servlet_output>
-      <do_not_open_new_file_init>N</do_not_open_new_file_init>
-      <extention>csv</extention>
-      <append>N</append>
-      <split>N</split>
-      <haspartno>N</haspartno>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <SpecifyFormat>N</SpecifyFormat>
-      <date_time_format/>
-      <add_to_result_filenames>Y</add_to_result_filenames>
-      <pad>N</pad>
-      <fast_dump>N</fast_dump>
-      <splitevery>0</splitevery>
-    </file>
-    <fields>
-      <field>
-        <name>tagid</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>floor_prices</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>floor_change_dates</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>performance_date</name>
-        <type>Date</type>
-        <format>yyyy-MM-dd</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>impressions</name>
-        <type>Integer</type>
-        <format>0</format>
-        <currency/>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>fill</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <currency/>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>ecpm</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <currency/>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>cost</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>optimization_in_out</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>in_out_date</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>optimization_goal</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>goal_change_date</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>risk_change_date</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>risk_percent</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-    </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>967</xloc>
-      <yloc>206</yloc>
-      <draw>N</draw>
       </GUI>
     </step>
 
@@ -1136,239 +607,11 @@
       <splitevery>0</splitevery>
     </file>
     <fields>
-      <field>
-        <name>tagid</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>username</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>sitename</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>performance_date_xls</name>
-        <type>Integer</type>
-        <format>0</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>impressions</name>
-        <type>Integer</type>
-        <format>0</format>
-        <currency/>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>fill</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <currency/>
-        <decimal>.</decimal>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>cost</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <currency/>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>profit</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <currency/>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>client_ecpm</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <currency/>
-        <decimal>.</decimal>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>total_ecpm</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <currency/>
-        <decimal>.</decimal>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>floor_price</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>optimization_goal</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>prev_goal</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>prev_goal_date_xls</name>
-        <type>Integer</type>
-        <format>0</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>next_goal</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>next_goal_date_xls</name>
-        <type>Integer</type>
-        <format>0</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>optimization_on</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>revshare</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>none</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>risk_percent</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1463</xloc>
-      <yloc>213</yloc>
+      <xloc>1338</xloc>
+      <yloc>341</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1472,7 +715,7 @@
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>1251</xloc>
-      <yloc>58</yloc>
+      <yloc>29</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1685,110 +928,6 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       <xloc>775</xloc>
       <yloc>44</yloc>
       <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>apply changelog 4</name>
-    <type>UserDefinedJavaClass</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-
-    <definitions>
-        <definition>
-        <class_type>TRANSFORM_CLASS</class_type>
-
-        <class_name>Processor</class_name>
-
-        <class_source><![CDATA[String valueField;
-String previousValue;
-String outValue;
-String outputField;
-String groupField;
-String previousGroupFieldValue;
-
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
-{
-    // Let's look up parameters only once for performance reason.
-    //
-    if (first) {
-      valueField = getParameter("VALUE_COLUMN");
-	  outputField = getParameter("OUTPUT_COLUMN");
-	  previousValue = getParameter("DEFAULT_VALUE");
-	  groupField = getParameter("GROUP_COLUMN");
-      first=false;
-    }
-
-    // First, get a row from the default input hop
-    //
-    Object[] r = getRow();
-
-    // If the row object is null, we are done processing.
-    //
-    if (r == null) {
-      setOutputDone();
-      return false;
-    }
-
-    // It is always safest to call createOutputRow() to ensure that your output row's Object[] is large
-    // enough to handle any new fields you are creating in this step.
-    //
-    Object[] outputRow = createOutputRow(r, data.outputRowMeta.size());
-
-    String currentValue = get(Fields.In, valueField).getString(r);
-	String currentGroupFieldValue = get(Fields.In, groupField).getString(r);
-
-	if (currentValue==null && currentGroupFieldValue!=null && currentGroupFieldValue.equals(previousGroupFieldValue)) {
-		outValue=previousValue;
-	} else {
-		outValue=currentValue;
-		previousValue=currentValue;
-		previousGroupFieldValue=currentGroupFieldValue;
-		
-	}
-		
-    get(Fields.Out, outputField).setValue(outputRow, outValue);
-
-    // putRow will send the row on to the default output hop.
-    //
-    putRow(data.outputRowMeta, outputRow);
-
-    return true;
-}]]></class_source>
-        </definition>
-    </definitions>
-    <fields>
-        <field>
-        <field_name>risk_percent</field_name>
-
-        <field_type>String</field_type>
-
-        <field_length>-1</field_length>
-
-        <field_precision>-1</field_precision>
-
-        </field>
-    </fields><clear_result_fields>N</clear_result_fields>
-<info_steps></info_steps><target_steps></target_steps><usage_parameters><usage_parameter><parameter_tag>VALUE_COLUMN</parameter_tag>
-<parameter_value>new_risk_percent</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>OUTPUT_COLUMN</parameter_tag>
-<parameter_value>risk_percent</parameter_value>
-<parameter_description/>
-</usage_parameter><usage_parameter><parameter_tag>GROUP_COLUMN</parameter_tag>
-<parameter_value>tagid</parameter_value>
-<parameter_description/>
-</usage_parameter></usage_parameters>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1038</xloc>
-      <yloc>51</yloc>
-      <draw>N</draw>
       </GUI>
     </step>
 
@@ -2624,35 +1763,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 <value_length>-1</value_length>
 <value_precision>-1</value_precision>
 <remove>Y</remove>
-<conversion_mask>0</conversion_mask>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>prev_goal_date_int</field_name>
-<calc_type>COPY_FIELD</calc_type>
-<field_a>prev_goal_date</field_a>
-<field_b/>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>Y</remove>
-<conversion_mask>0</conversion_mask>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>next_goal_int</field_name>
-<calc_type>COPY_FIELD</calc_type>
-<field_a>next_goal_date</field_a>
-<field_b/>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>Y</remove>
-<conversion_mask>0</conversion_mask>
+<conversion_mask/>
 <decimal_symbol/>
 <grouping_symbol/>
 <currency_symbol/>
@@ -2671,38 +1782,10 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 <grouping_symbol/>
 <currency_symbol/>
 </calculation>
-       <calculation><field_name>prev_goal_date_xls</field_name>
-<calc_type>ADD</calc_type>
-<field_a>prev_goal_date_int</field_a>
-<field_b>dates_offset</field_b>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>next_goal_date_xls</field_name>
-<calc_type>ADD</calc_type>
-<field_a>next_goal_int</field_a>
-<field_b>dates_offset</field_b>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1383</xloc>
-      <yloc>208</yloc>
+      <xloc>1349</xloc>
+      <yloc>234</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2796,8 +1879,8 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       </remove>      <remove>        <name>next_goal_event</name>
       </remove>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>709</xloc>
-      <yloc>358</yloc>
+      <xloc>731</xloc>
+      <yloc>412</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -2842,10 +1925,75 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       </remove>      <remove>        <name>new_risk_percent</name>
       </remove>      <remove>        <name>tagid_2</name>
       </remove>      <remove>        <name>new_revshare_date</name>
-      </remove>    </fields>     <cluster_schema/>
+      </remove>      <remove>        <name>next_goal_date</name>
+      </remove>      <remove>        <name>next_goal</name>
+      </remove>      <remove>        <name>prev_goal</name>
+      </remove>      <remove>        <name>prev_goal_date</name>
+      </remove>      <remove>        <name>layoutid</name>
+      </remove>      <meta>        <name>latest_floor_price</name>
+        <rename>latest_floor_price</rename>
+        <type>Number</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>0.&#x23;&#x23;</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>      <meta>        <name>cost</name>
+        <rename>cost</rename>
+        <type>Number</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>0.&#x23;&#x23;&#x23;&#x23;</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>      <meta>        <name>profit</name>
+        <rename>profit</rename>
+        <type>Number</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>0.&#x23;&#x23;&#x23;&#x23;</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>      <meta>        <name>revenue</name>
+        <rename>revenue</rename>
+        <type>Number</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>0.&#x23;&#x23;&#x23;&#x23;</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1201</xloc>
-      <yloc>208</yloc>
+      <xloc>1225</xloc>
+      <yloc>129</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -3016,39 +2164,6 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     </step>
 
   <step>
-    <name>get tag and date in case blank 4</name>
-    <type>Formula</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-       <formula><field_name>tagid</field_name>
-<formula_string>if&#x28;isblank&#x28;&#x5b;tagid&#x5d;&#x29;&#x3b;&#x5b;tagid_1&#x5d;&#x3b;&#x5b;tagid&#x5d;&#x29;</formula_string>
-<value_type>String</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<replace_field>tagid</replace_field>
-</formula>
-       <formula><field_name>performance_date</field_name>
-<formula_string>if&#x28;isblank&#x28;&#x5b;tagid&#x5d;&#x29;&#x3b;	if&#x28;isblank&#x28;&#x5b;risk_change_date&#x5d;&#x29;&#x3b;&#x22;2015-01-01&#x22;&#x3b;&#x5b;risk_change_date&#x5d;&#x29;&#x3b; &#x5b;performance_date&#x5d;&#x29;</formula_string>
-<value_type>Date</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<replace_field>performance_date</replace_field>
-</formula>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1016</xloc>
-      <yloc>397</yloc>
-      <draw>N</draw>
-      </GUI>
-    </step>
-
-  <step>
     <name>join by tagid</name>
     <type>MergeJoin</type>
     <description/>
@@ -3075,34 +2190,6 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       <xloc>247</xloc>
       <yloc>178</yloc>
       <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>left join risk</name>
-    <type>MergeJoin</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-<join_type>INNER</join_type>
-<step1>Merge Join 2</step1>
-<step2>risk changes</step2>
-    <keys_1>
-      <key>tagid</key>
-    </keys_1>
-    <keys_2>
-      <key>placement_id</key>
-    </keys_2>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>868</xloc>
-      <yloc>183</yloc>
-      <draw>N</draw>
       </GUI>
     </step>
 
@@ -3196,7 +2283,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT tagid&#xd;&#xa;    , s.sitename&#xd;&#xa;	, s.username&#xd;&#xa;	, datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; performance_date&#xd;&#xa;	, r.impressions&#xd;&#xa;	, 100&#x2a;served&#x2f;r.impressions fill&#xd;&#xa;	, cost&#xd;&#xa;	, profit&#xd;&#xa;	, 1000&#x2a;cost&#x2f;served client_ecpm&#xd;&#xa;	, 1000&#x2a;&#x28;cost&#x2b;profit&#x29;&#x2f;served total_ecpm&#xd;&#xa;&#xd;&#xa;FROM kmn_tag_report r&#xd;&#xa;inner join kmn_layouts l on &#x28;l.layoutid &#x3d; r.tagid&#x29;&#xd;&#xa;inner join kmn_sites s using &#x28;siteid&#x29;&#xd;&#xa;&#xd;&#xa;WHERE &#xd;&#xa;	date between &#x27;&#x24;&#x7b;start_date&#x7d;&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;	and r.impressions &#x3e; 0&#xd;&#xa;	and served &#x3e; 10&#xd;&#xa;order by tagid,performance_date</sql>
+    <sql>SELECT tagid&#xd;&#xa;    , s.sitename&#xd;&#xa;	, s.username&#xd;&#xa;	, datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; performance_date&#xd;&#xa;	, r.impressions&#xd;&#xa;	, served&#xd;&#xa;	, 100&#x2a;served&#x2f;r.impressions fill&#xd;&#xa;	, cost&#xd;&#xa;	, profit&#xd;&#xa;	, cost &#x2b; profit revenue&#xd;&#xa;	, 1000&#x2a;cost&#x2f;served client_ecpm&#xd;&#xa;	, 1000&#x2a;&#x28;cost&#x2b;profit&#x29;&#x2f;served total_ecpm&#xd;&#xa;&#xd;&#xa;FROM kmn_tag_report r&#xd;&#xa;inner join kmn_layouts l on &#x28;l.layoutid &#x3d; r.tagid&#x29;&#xd;&#xa;inner join kmn_sites s using &#x28;siteid&#x29;&#xd;&#xa;&#xd;&#xa;WHERE &#xd;&#xa;	date between &#x27;&#x24;&#x7b;start_date&#x7d;&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;	and r.impressions &#x3e; 0&#xd;&#xa;	and served &#x3e; 10&#xd;&#xa;order by tagid,performance_date</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -3285,6 +2372,247 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       <xloc>924</xloc>
       <yloc>302</yloc>
       <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>latest attributes</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>komoona dev</connection>
+    <sql>SELECT layoutid &#xd;&#xa;	, floor_price latest_floor_price&#xd;&#xa;    , optimization&#x3e;&#x3d;3 latest_optimization_on&#xd;&#xa;	, case optimization_goal_id&#xd;&#xa;		when 1 then &#x27;A&#x27; &#xd;&#xa;		when 2 then &#x27;B&#x27; &#xd;&#xa;		when 3 then &#x27;C&#x27; &#xd;&#xa;		when 4 then &#x27;A&#x2b;&#x27; &#xd;&#xa;		when 5 then &#x27;C-&#x27; &#xd;&#xa;	else &#x27;U&#x27; end  latest_optimization_goal&#xd;&#xa;    &#xd;&#xa;from kmn_layouts&#xd;&#xa;</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1174</xloc>
+      <yloc>496</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>join attributes</name>
+    <type>MergeJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<join_type>LEFT OUTER</join_type>
+<step1>apply cl revshare</step1>
+<step2>latest attributes</step2>
+    <keys_1>
+      <key>tagid</key>
+    </keys_1>
+    <keys_2>
+      <key>layoutid</key>
+    </keys_2>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1172</xloc>
+      <yloc>285</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>dates to excel integer dates 2</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <calculation><field_name>excel_ref_date</field_name>
+<calc_type>CONSTANT</calc_type>
+<field_a>2010-01-01</field_a>
+<field_b/>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask>yyyy-MM-dd</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>excel_ref_number</field_name>
+<calc_type>CONSTANT</calc_type>
+<field_a>40179</field_a>
+<field_b/>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask>0</conversion_mask>
+<decimal_symbol>.</decimal_symbol>
+<grouping_symbol>,</grouping_symbol>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>start_date_string</field_name>
+<calc_type>CONSTANT</calc_type>
+<field_a>&#x24;&#x7b;start_date&#x7d;</field_a>
+<field_b/>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>start_date_date</field_name>
+<calc_type>SUBSTITUTE_VARIABLE</calc_type>
+<field_a>start_date_string</field_a>
+<field_b/>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask>yyyy-MM-dd</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>start_date_offset</field_name>
+<calc_type>DATE_DIFF</calc_type>
+<field_a>start_date_date</field_a>
+<field_b>excel_ref_date</field_b>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>dates_offset</field_name>
+<calc_type>ADD</calc_type>
+<field_a>start_date_offset</field_a>
+<field_b>excel_ref_number</field_b>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>performance_date_int</field_name>
+<calc_type>COPY_FIELD</calc_type>
+<field_a>performance_date</field_a>
+<field_b/>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask>0</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>prev_goal_date_int</field_name>
+<calc_type>COPY_FIELD</calc_type>
+<field_a>prev_goal_date</field_a>
+<field_b/>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask>0</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>next_goal_int</field_name>
+<calc_type>COPY_FIELD</calc_type>
+<field_a>next_goal_date</field_a>
+<field_b/>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>Y</remove>
+<conversion_mask>0</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>performance_date_xls</field_name>
+<calc_type>ADD</calc_type>
+<field_a>performance_date_int</field_a>
+<field_b>dates_offset</field_b>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>prev_goal_date_xls</field_name>
+<calc_type>ADD</calc_type>
+<field_a>prev_goal_date_int</field_a>
+<field_b>dates_offset</field_b>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>next_goal_date_xls</field_name>
+<calc_type>ADD</calc_type>
+<field_a>next_goal_int</field_a>
+<field_b>dates_offset</field_b>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>169</xloc>
+      <yloc>376</yloc>
+      <draw>N</draw>
       </GUI>
     </step>
 
