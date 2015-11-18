@@ -1,0 +1,27 @@
+Risk code notes
+
+RiskAllocator.cs 72: ReallocateRisk(CandidateType, List<ChainAllocation, hasServingSuggestion, removeIfZero) 
+106: foreach risky chain (except best chain) in list
+allowed risk per chain = allowed placement risk * chain allocation
+112: the risk allowed for this change equals the total risk times this chain's allocation
+113: max impressions allowed per risky chain:
+	RiskUtilities 18: Max(0, (riskAmount * 1000 / (double)(clientFloorPrice - komoonaFloorPriceAfterCommission)));
+	= $ total risk amount allowed for this chain / $ risk per impression = risk impressions allowed
+114: max allocation = max impressions per risky chain / placement avg daily impressions
+115: if chain allocation exceeds max allocation {
+116: 	if max is less than type's minimum 
+			remove chain
+		else
+			reduce allocation to max
+			remainder = accumulation of the freed percents
+139: end foreach
+
+141: if remainder >0 and there are non-risky chains
+154: take all non-risky chains with serving suggestion (best chain that wasn't chosen doesn't have an s.s.)
+162: calculate a serving suggestion (by goal) on a copy set of original chains 
+168-174: add to the original suggestion the amount that was calculated on the copy.
+
+if remainder was distributed, return 0, if not, return remainder
+
+
+
