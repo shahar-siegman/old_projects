@@ -59,7 +59,16 @@ session9ChainAnalysis <- function(DF, includeProblemNetworks = T) {
   if (!includeProblemNetworks)
     DF <- DF %>% filter(chain_no_z_j=="Y")
 
-  DF <- learnHistoricalRateAllPlacements(DF, key = c("placement_id","chain_no_fps"), series=c("komoona_imps","mobile_served","mobile_impshare"))
+  uniqueChains <- DF %>%
+    ungroup() %>%
+    select(placement_id, chain_no_fps) %>%
+    unique() %>%
+    mutate(one=1) %>%
+    group_by(placement_id) %>%
+    mutate(chain_ordinal=cumsum(one))
+  DF <- inner_join(DF,uniqueChains)
+
+  DF <- learnHistoricalRateAllPlacements(DF, key = c("placement_id","chain_no_fps"), series=c("komoona_imps","mobile_imps","mobile_impshare"))
   DF <- learnHistoricalRateAllPlacements(DF, key = c("placement_id","chain_no_fps"), series=c("komoona_imps","komoona_served","komoona_fill"))
   DF <- learnHistoricalRateAllPlacements(DF, key = c("placement_id","chain_no_fps"), series=c("imps","served","fill"))
   DF$fill_factor <- DF$smooth_komoona_fill / DF$smooth_fill
@@ -67,15 +76,23 @@ session9ChainAnalysis <- function(DF, includeProblemNetworks = T) {
   # filter low-volume chains
   lowVolChains <- DF %>%
     group_by(placement_id,chain_no_fps) %>%
-    summarise(imps=sum(komoona_imps),served=sum(komoona_served)) %>%
-    filter(imps < 300, served<40) %>%
+    summarise(imps=sum(komoona_imps),kserved=sum(komoona_served),served=sum(served)) %>%
+    filter(imps < 300, kserved<40, served<40) %>%
     select(placement_id, chain_no_fps) %>% mutate(vol="low")
 
   DF <- left_join(DF, lowVolChains) %>% filter(is.na(vol)) %>% select(-vol)
 
 
-  p1 <- ggplot(DF) + geom_point(aes(x=smooth_mobile_impshare,y=fill_factor,color=chain_no_fps)) + facet_wrap(~placement_id) +
-    coord_cartesian(ylim=c(0,3))
-  print(p1)
-  return(DF)
+  p1 <- ggplot(DF) + geom_point(aes(x=smooth_mobile_impshare,y=fill_factor,color=as.factor(chain_ordinal))) + facet_wrap(~placement_id) +
+    coord_cartesian(ylim=c(0,3)) +  scale_color_discrete(breaks=as.character(seq(1,10)))
+  #print(p1)
+
+  p2 <- ggplot(DF %>% filter(is_mobile_chain=="mobile")) +
+    geom_line(aes(x=date,y=fill_factor,group=as.factor(chain_ordinal),color=as.factor(chain_ordinal))) +
+    #geom_line(aes(x=date,y=smooth_komoona_fill,group=chain_no_fps,color="red")) +
+    facet_wrap(~placement_id) +
+    coord_cartesian(ylim=c(0,2))
+  print(p2)
+
+  return(list(DF,p1,p2,lowVolChains,uniqueChains))
 }

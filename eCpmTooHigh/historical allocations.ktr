@@ -101,6 +101,31 @@
       <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
     </attributes>
   </connection>
+  <connection>
+    <name>komoona redshift</name>
+    <server>redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439&#x2f;logs</server>
+    <type>REDSHIFT</type>
+    <access>Native</access>
+    <database>public</database>
+    <port>5439</port>
+    <username>leopold</username>
+    <password>Encrypted 2be98afc86aa79990be09bb5bcdc1fc8c</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>EXTRA_OPTION_REDSHIFT.tcpKeepAlive</code><attribute>true</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>5439</attribute></attribute>
+      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
   <order>
   <hop> <from>get current chain allocation</from><to>Json Input</to><enabled>Y</enabled> </hop>
   <hop> <from>Json Input</from><to>remove &#x5b;&#x5b;&#x5d;&#x5d;</to><enabled>Y</enabled> </hop>
@@ -114,6 +139,41 @@
   <hop> <from>Select values</from><to>join summed weights</to><enabled>Y</enabled> </hop>
   <hop> <from>join summed weights</from><to>Text file output</to><enabled>Y</enabled> </hop>
   </order>
+  <step>
+    <name>Data Grid</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>
+      <field>
+        <name>value</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>500</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+      </field>
+    </fields>
+    <data>
+      <line> <item>&#x7b;&#x22;chains&#x22;&#x3a;&#x5b;&#x5b;&#x22;j9&#x22;,&#x22;p31&#x22;,&#x22;t10&#x22;,&#x22;j10&#x22;&#x5d;,&#x5b;&#x22;p4&#x22;&#x5d;,&#x5b;&#x22;t1&#x22;&#x5d;,&#x5b;&#x22;j1&#x22;&#x5d;,&#x5b;&#x22;p5&#x22;&#x5d;,&#x5b;&#x22;t2&#x22;&#x5d;,&#x5b;&#x22;j2&#x22;&#x5d;,&#x5b;&#x22;p9&#x22;,&#x22;p7&#x22;&#x5d;,&#x5b;&#x22;t3&#x22;,&#x22;t5&#x22;&#x5d;,&#x5b;&#x22;j6&#x22;,&#x22;j5&#x22;&#x5d;,&#x5b;&#x22;p24&#x22;&#x5d;,&#x5b;&#x22;t42&#x22;&#x5d;,&#x5b;&#x22;j4&#x22;&#x5d;,&#x5b;&#x22;p10&#x22;,&#x22;p6&#x22;&#x5d;,&#x5b;&#x22;t7&#x22;,&#x22;t6&#x22;&#x5d;,&#x5b;&#x22;j7&#x22;,&#x22;j3&#x22;&#x5d;,&#x5b;&#x22;p14&#x22;&#x5d;,&#x5b;&#x22;t8&#x22;&#x5d;,&#x5b;&#x22;j8&#x22;&#x5d;&#x5d;,&#x22;weights&#x22;&#x3a;&#x5b;10,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5&#x5d;&#x7d;</item> </line>
+    </data>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>163</xloc>
+      <yloc>202</yloc>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
   <step>
     <name>Json Input</name>
     <type>JsonInput</type>
@@ -216,204 +276,6 @@
     </step>
 
   <step>
-    <name>get current chain allocation</name>
-    <type>TableInput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <connection>komoona dev</connection>
-    <sql>SELECT tagid, value &#xd;&#xa;FROM komoona_db.kmn_tag_configuration&#xd;&#xa;where tagid in &#x28;&#x27;cbfd0f7b2f0c9a88093862f041c72407&#x27;,&#xd;&#xa;&#x27;cd78514b72055715be33a8812d38def6&#x27;,&#xd;&#xa;&#x27;91f27e5e07f3b8c0f824bb476cac2169&#x27;,&#xd;&#xa;&#x27;23d5b316d20d174c195ac34b655c9b1d&#x27;,&#xd;&#xa;&#x27;5b51ba18a5400094665c83330830c5d9&#x27;,&#xd;&#xa;&#x27;5af6afe59f7bbb77b82fff5d388f8073&#x27;,&#xd;&#xa;&#x27;8840fe7e1463f84b96938b2c0ddbf2d6&#x27;,&#xd;&#xa;&#x27;1c8834441f20e22a0aef009c095a6cab&#x27;,&#xd;&#xa;&#x27;c58d4f9a96be20887e4142731e5fb85b&#x27;,&#xd;&#xa;&#x27;702cf021b8ace6f8cc306ecb0c5c8ff3&#x27;,&#xd;&#xa;&#x27;f58cd7bdce5f48cd50eceabcc07fc188&#x27;,&#xd;&#xa;&#x27;203047dd1929e08684f45771d064466c&#x27;,&#xd;&#xa;&#x27;de5d1317b63528fa12454589a916b50c&#x27;,&#xd;&#xa;&#x27;0e42430f825c80036fd1b0a06f6425b9&#x27;,&#xd;&#xa;&#x27;766272b9ff3d3a776869d12b78a051bc&#x27;&#x29;&#xd;&#xa;order by tagid&#x3b;</sql>
-    <limit>0</limit>
-    <lookup/>
-    <execute_each_row>N</execute_each_row>
-    <variables_active>N</variables_active>
-    <lazy_conversion_active>N</lazy_conversion_active>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>255</xloc>
-      <yloc>161</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Text file output</name>
-    <type>TextFileOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <separator>,</separator>
-    <enclosure>&#x22;</enclosure>
-    <enclosure_forced>N</enclosure_forced>
-    <enclosure_fix_disabled>N</enclosure_fix_disabled>
-    <header>Y</header>
-    <footer>N</footer>
-    <format>DOS</format>
-    <compression>None</compression>
-    <encoding/>
-    <endedLine/>
-    <fileNameInField>N</fileNameInField>
-    <fileNameField/>
-    <create_parent_folder>Y</create_parent_folder>
-    <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;eCpmTooHigh&#x5c;kettle_out</name>
-      <is_command>N</is_command>
-      <servlet_output>N</servlet_output>
-      <do_not_open_new_file_init>N</do_not_open_new_file_init>
-      <extention>csv</extention>
-      <append>N</append>
-      <split>N</split>
-      <haspartno>N</haspartno>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <SpecifyFormat>N</SpecifyFormat>
-      <date_time_format/>
-      <add_to_result_filenames>Y</add_to_result_filenames>
-      <pad>N</pad>
-      <fast_dump>N</fast_dump>
-      <splitevery>0</splitevery>
-    </file>
-    <fields>
-    </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1084</xloc>
-      <yloc>175</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Data Grid</name>
-    <type>DataGrid</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <fields>
-      <field>
-        <name>value</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>500</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-      </field>
-    </fields>
-    <data>
-      <line> <item>&#x7b;&#x22;chains&#x22;&#x3a;&#x5b;&#x5b;&#x22;j9&#x22;,&#x22;p31&#x22;,&#x22;t10&#x22;,&#x22;j10&#x22;&#x5d;,&#x5b;&#x22;p4&#x22;&#x5d;,&#x5b;&#x22;t1&#x22;&#x5d;,&#x5b;&#x22;j1&#x22;&#x5d;,&#x5b;&#x22;p5&#x22;&#x5d;,&#x5b;&#x22;t2&#x22;&#x5d;,&#x5b;&#x22;j2&#x22;&#x5d;,&#x5b;&#x22;p9&#x22;,&#x22;p7&#x22;&#x5d;,&#x5b;&#x22;t3&#x22;,&#x22;t5&#x22;&#x5d;,&#x5b;&#x22;j6&#x22;,&#x22;j5&#x22;&#x5d;,&#x5b;&#x22;p24&#x22;&#x5d;,&#x5b;&#x22;t42&#x22;&#x5d;,&#x5b;&#x22;j4&#x22;&#x5d;,&#x5b;&#x22;p10&#x22;,&#x22;p6&#x22;&#x5d;,&#x5b;&#x22;t7&#x22;,&#x22;t6&#x22;&#x5d;,&#x5b;&#x22;j7&#x22;,&#x22;j3&#x22;&#x5d;,&#x5b;&#x22;p14&#x22;&#x5d;,&#x5b;&#x22;t8&#x22;&#x5d;,&#x5b;&#x22;j8&#x22;&#x5d;&#x5d;,&#x22;weights&#x22;&#x3a;&#x5b;10,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5&#x5d;&#x7d;</item> </line>
-    </data>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>163</xloc>
-      <yloc>202</yloc>
-      <draw>N</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>remove &#x5b;&#x5b;&#x5d;&#x5d;</name>
-    <type>Formula</type>
-    <description/>
-    <distribute>N</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-       <formula><field_name>chains_clean</field_name>
-<formula_string>substitute&#x28;substitute&#x28;&#x5b;chains&#x5d;&#x3b;&#x22;&#x5b;&#x5b;&#x22;&#x3b;&#x22;&#x22;&#x29;&#x3b;&#x22;&#x5d;&#x5d;&#x22;&#x3b;&#x22;&#x22;&#x29;&#xd;&#xa;&#xd;&#xa;</formula_string>
-<value_type>String</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<replace_field/>
-</formula>
-       <formula><field_name>weights_clean</field_name>
-<formula_string>substitute&#x28;substitute&#x28;&#x5b;weights&#x5d;&#x3b;&#x22;&#x5b;&#x22;&#x3b;&#x22;&#x22;&#x29;&#x3b;&#x22;&#x5d;&#x22;&#x3b;&#x22;&#x22;&#x29;</formula_string>
-<value_type>String</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<replace_field/>
-</formula>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>491</xloc>
-      <yloc>165</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>individual_chains</name>
-    <type>SplitFieldToRows3</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-   <splitfield>chains_clean</splitfield>
-   <delimiter>&#x5d;,&#x5b;</delimiter>
-   <newfield>single_chain</newfield>
-   <rownum>Y</rownum>
-   <rownum_field>chain_ordinal</rownum_field>
-   <resetrownumber>Y</resetrownumber>
-   <delimiter_is_regex>N</delimiter_is_regex>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>603</xloc>
-      <yloc>125</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>individual_weights</name>
-    <type>SplitFieldToRows3</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-   <splitfield>weights_clean</splitfield>
-   <delimiter>,</delimiter>
-   <newfield>single_weight</newfield>
-   <rownum>Y</rownum>
-   <rownum_field>weight_ordinal</rownum_field>
-   <resetrownumber>Y</resetrownumber>
-   <delimiter_is_regex>N</delimiter_is_regex>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>600</xloc>
-      <yloc>208</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
     <name>Merge Join</name>
     <type>MergeJoin</type>
     <description/>
@@ -498,25 +360,201 @@
         <grouping_symbol/>
         <currency_symbol/>
         <storage_type/>
-      </meta>      <meta>        <name>chains_clean_1</name>
-        <rename>chains_clean_1</rename>
-        <type>Number</type>
-        <length>-2</length>
-        <precision>-2</precision>
-        <conversion_mask/>
-        <date_format_lenient>false</date_format_lenient>
-        <date_format_locale/>
-        <date_format_timezone/>
-        <lenient_string_to_number>false</lenient_string_to_number>
-        <encoding/>
-        <decimal_symbol/>
-        <grouping_symbol/>
-        <currency_symbol/>
-        <storage_type/>
       </meta>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>817</xloc>
       <yloc>171</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Text file output</name>
+    <type>TextFileOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <separator>,</separator>
+    <enclosure>&#x22;</enclosure>
+    <enclosure_forced>N</enclosure_forced>
+    <enclosure_fix_disabled>N</enclosure_fix_disabled>
+    <header>Y</header>
+    <footer>N</footer>
+    <format>DOS</format>
+    <compression>None</compression>
+    <encoding/>
+    <endedLine/>
+    <fileNameInField>N</fileNameInField>
+    <fileNameField/>
+    <create_parent_folder>Y</create_parent_folder>
+    <file>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;eCpmTooHigh&#x5c;kettle_out</name>
+      <is_command>N</is_command>
+      <servlet_output>N</servlet_output>
+      <do_not_open_new_file_init>N</do_not_open_new_file_init>
+      <extention>csv</extention>
+      <append>N</append>
+      <split>N</split>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <pad>N</pad>
+      <fast_dump>N</fast_dump>
+      <splitevery>0</splitevery>
+    </file>
+    <fields>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1084</xloc>
+      <yloc>175</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>get current chain allocation</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>komoona dev</connection>
+    <sql>SELECT tagid, value &#xd;&#xa;FROM komoona_db.kmn_tag_configuration&#xd;&#xa;where tagid in &#x28;&#x27;0e42430f825c80036fd1b0a06f6425b9&#x27;&#x29;&#xd;&#xa;order by tagid&#x3b;&#xd;&#xa;&#xd;&#xa;&#xd;&#xa;&#xd;&#xa;</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>255</xloc>
+      <yloc>161</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>individual_chains</name>
+    <type>SplitFieldToRows3</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+   <splitfield>chains_clean</splitfield>
+   <delimiter>&#x5d;,&#x5b;</delimiter>
+   <newfield>single_chain</newfield>
+   <rownum>Y</rownum>
+   <rownum_field>chain_ordinal</rownum_field>
+   <resetrownumber>Y</resetrownumber>
+   <delimiter_is_regex>N</delimiter_is_regex>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>603</xloc>
+      <yloc>125</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>individual_weights</name>
+    <type>SplitFieldToRows3</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+   <splitfield>weights_clean</splitfield>
+   <delimiter>,</delimiter>
+   <newfield>single_weight</newfield>
+   <rownum>Y</rownum>
+   <rownum_field>weight_ordinal</rownum_field>
+   <resetrownumber>Y</resetrownumber>
+   <delimiter_is_regex>N</delimiter_is_regex>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>600</xloc>
+      <yloc>208</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>join summed weights</name>
+    <type>MergeJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<join_type>INNER</join_type>
+<step1>Select values</step1>
+<step2>sum placement weights</step2>
+    <keys_1>
+      <key>tagid</key>
+    </keys_1>
+    <keys_2>
+      <key>tagid</key>
+    </keys_2>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>962</xloc>
+      <yloc>171</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>remove &#x5b;&#x5b;&#x5d;&#x5d;</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <formula><field_name>chains_clean</field_name>
+<formula_string>substitute&#x28;substitute&#x28;&#x5b;chains&#x5d;&#x3b;&#x22;&#x5b;&#x5b;&#x22;&#x3b;&#x22;&#x22;&#x29;&#x3b;&#x22;&#x5d;&#x5d;&#x22;&#x3b;&#x22;&#x22;&#x29;&#xd;&#xa;&#xd;&#xa;</formula_string>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field/>
+</formula>
+       <formula><field_name>weights_clean</field_name>
+<formula_string>substitute&#x28;substitute&#x28;&#x5b;weights&#x5d;&#x3b;&#x22;&#x5b;&#x22;&#x3b;&#x22;&#x22;&#x29;&#x3b;&#x22;&#x5d;&#x22;&#x3b;&#x22;&#x22;&#x29;</formula_string>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field/>
+</formula>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>491</xloc>
+      <yloc>165</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -562,8 +600,8 @@
     </step>
 
   <step>
-    <name>join summed weights</name>
-    <type>MergeJoin</type>
+    <name>Script</name>
+    <type>Script</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -572,19 +610,13 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-<join_type>INNER</join_type>
-<step1>Select values</step1>
-<step2>sum placement weights</step2>
-    <keys_1>
-      <key>tagid</key>
-    </keys_1>
-    <keys_2>
-      <key>tagid</key>
-    </keys_2>
-     <cluster_schema/>
+    <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>&#x2f;&#x2f; Script here&#xd;&#xa;&#xd;&#xa;&#x28;&#x27;cbfd0f7b2f0c9a88093862f041c72407&#x27;,&#xd;&#xa;&#x27;cd78514b72055715be33a8812d38def6&#x27;,&#xd;&#xa;&#x27;91f27e5e07f3b8c0f824bb476cac2169&#x27;,&#xd;&#xa;&#x27;23d5b316d20d174c195ac34b655c9b1d&#x27;,&#xd;&#xa;&#x27;5b51ba18a5400094665c83330830c5d9&#x27;,&#xd;&#xa;&#x27;5af6afe59f7bbb77b82fff5d388f8073&#x27;,&#xd;&#xa;&#x27;8840fe7e1463f84b96938b2c0ddbf2d6&#x27;,&#xd;&#xa;&#x27;1c8834441f20e22a0aef009c095a6cab&#x27;,&#xd;&#xa;&#x27;c58d4f9a96be20887e4142731e5fb85b&#x27;,&#xd;&#xa;&#x27;702cf021b8ace6f8cc306ecb0c5c8ff3&#x27;,&#xd;&#xa;&#x27;f58cd7bdce5f48cd50eceabcc07fc188&#x27;,&#xd;&#xa;&#x27;203047dd1929e08684f45771d064466c&#x27;,&#xd;&#xa;&#x27;de5d1317b63528fa12454589a916b50c&#x27;,&#xd;&#xa;&#x27;766272b9ff3d3a776869d12b78a051bc&#x27;&#x29;</jsScript_script>
+      </jsScript>    </jsScripts>    <fields>    </fields>     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>962</xloc>
-      <yloc>171</yloc>
+      <xloc>168</xloc>
+      <yloc>91</yloc>
       <draw>Y</draw>
       </GUI>
     </step>

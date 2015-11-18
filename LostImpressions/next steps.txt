@@ -1,0 +1,4 @@
+next stpes:
+1. use experimentChains.csv to extract the komoona_served data at the chain level
+2. join this data with experiment_fill_benchmark_data.csv so that we have komoona_served data for mobile chains.
+3. we can then use the mobile komoona fill rates with the general fill rates to produce a model that is calibrated by the komoona fill rates for general chains
