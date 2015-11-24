@@ -11,6 +11,17 @@ runSession2 <- function() {
 }
 
 session2 <- function(r1, r2) {
+ cf <- calcProblemCoeffs()
+
+  z <- s3Range(cf["E"],
+                 cf["W"],
+                 r1,
+                 r2)
+  return(z)
+}
+
+calcProblemCoeffs <- function() {
+
   y <- t(matrix(weights)) /sum(weights)
 
   w1 <- (y*isRisk1) %*% matrix(ecpmRisk)
@@ -22,17 +33,12 @@ session2 <- function(r1, r2) {
   e1 <- sum(y*isRisk1)
   e2 <- sum(y*isRisk2)
   e3 <- sum(y*isRisk12)
-
-
-  z <- s3Range(c(e0=e0,e1=e1,e2=e2,e3=e3),
-                 c(w1=w1,w2=w2,w13=w13,w23=w23),
-                 r1,
-                 r2)
-  return(c(z,y[which.max(isRisk12)]))
+  return(list(E=c(e0=e0,e1=e1,e2=e2,e3=e3),
+              W=c(w1=w1,w2=w2,w13=w13,w23=w23)))
 }
 
 s3Range <- function(E, W, r1, r2) {
-  maxes <- unname(c(r1/W["w13"], r2/W["w23"]))
+  maxes <- c(r1=unname(r1/W["w13"]), r2=unname(r2/W["w23"]))
   denom <- unname(W["w13"]*E["e1"]/W["w1"] + W["w23"]*E["e2"]/W["w2"] - E["e3"])
   num <-  unname(E["e1"]*r1/W["w1"] + E["e2"]*r2/W["w2"] -1)
   mins <- 0
