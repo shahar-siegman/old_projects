@@ -13,7 +13,7 @@ smartSolver <- function (r1, r2) {
   s3r <- s3Range(a$E, a$W, r1, r2)
   s3Min <- max(s3r$mins)
   s3Max <- min(s3r$maxes)
-  print(paste0("s3Min=",s3Min,", s3Max=",s3Max))
+  #print(paste0("s3Min=",s3Min,", s3Max=",s3Max))
   if (s3Min <= s3Max) {
     eqn <- rbind(eqn, v$S3 + (s3Min+s3Max)/2*v$rhs) #eqn <- rbind(eqn, v$S3 - v$S2)
     eqn <- rbind(eqn, v$r1 + r1*v$rhs)
@@ -46,6 +46,21 @@ smartSolver <- function (r1, r2) {
     }
   }
   x <- solve(eqn[,1:(ncol-1)],eqn[,ncol])
+  return(x)
+}
+
+iterativeSmartSolver <- function(r1, r2) {
+  i <- 1
+  nr1 <- r1
+  nr2 <- r2
+  x <- smartSolver(nr1, nr2)
+  while (any(x < -0.001) && i<10) {
+    print(paste0("i=",i,", x=", paste0(x,collapse = ", ")))
+    nr1 <- nr1 /2
+    nr2 <- nr2 /2
+    x <- smartSolver(nr1, nr2)
+    i <- i+1
+  }
   return(x)
 }
 
