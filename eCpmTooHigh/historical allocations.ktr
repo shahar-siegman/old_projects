@@ -126,6 +126,58 @@
       <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
     </attributes>
   </connection>
+  <connection>
+    <name>redshift1</name>
+    <server/>
+    <type>GENERIC</type>
+    <access>Native</access>
+    <database/>
+    <port>1521</port>
+    <username>leopold</username>
+    <password>Encrypted 2be98afc86aa79990be09bb5bcdc1fc8c</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>CUSTOM_DRIVER_CLASS</code><attribute>com.amazon.redshift.jdbc41.Driver</attribute></attribute>
+      <attribute><code>CUSTOM_URL</code><attribute>jdbc&#x3a;redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439&#x2f;logs</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>1521</attribute></attribute>
+      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+  <connection>
+    <name>redshift2</name>
+    <server/>
+    <type>GENERIC</type>
+    <access>Native</access>
+    <database/>
+    <port>1521</port>
+    <username>master</username>
+    <password>Encrypted 2be98afc804d38a9db937ba68c780f98c</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>CUSTOM_DRIVER_CLASS</code><attribute>com.amazon.redshift.jdbc41.Driver</attribute></attribute>
+      <attribute><code>CUSTOM_URL</code><attribute>jdbc&#x3a;redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439&#x2f;logs</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>1521</attribute></attribute>
+      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
   <order>
   <hop> <from>get current chain allocation</from><to>Json Input</to><enabled>Y</enabled> </hop>
   <hop> <from>Json Input</from><to>remove &#x5b;&#x5b;&#x5d;&#x5d;</to><enabled>Y</enabled> </hop>
@@ -306,6 +358,28 @@
     </step>
 
   <step>
+    <name>Script</name>
+    <type>Script</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>&#x2f;&#x2f; Script here&#xd;&#xa;&#xd;&#xa;&#x28;&#x27;cbfd0f7b2f0c9a88093862f041c72407&#x27;,&#xd;&#xa;&#x27;cd78514b72055715be33a8812d38def6&#x27;,&#xd;&#xa;&#x27;91f27e5e07f3b8c0f824bb476cac2169&#x27;,&#xd;&#xa;&#x27;23d5b316d20d174c195ac34b655c9b1d&#x27;,&#xd;&#xa;&#x27;5b51ba18a5400094665c83330830c5d9&#x27;,&#xd;&#xa;&#x27;5af6afe59f7bbb77b82fff5d388f8073&#x27;,&#xd;&#xa;&#x27;8840fe7e1463f84b96938b2c0ddbf2d6&#x27;,&#xd;&#xa;&#x27;1c8834441f20e22a0aef009c095a6cab&#x27;,&#xd;&#xa;&#x27;c58d4f9a96be20887e4142731e5fb85b&#x27;,&#xd;&#xa;&#x27;702cf021b8ace6f8cc306ecb0c5c8ff3&#x27;,&#xd;&#xa;&#x27;f58cd7bdce5f48cd50eceabcc07fc188&#x27;,&#xd;&#xa;&#x27;203047dd1929e08684f45771d064466c&#x27;,&#xd;&#xa;&#x27;de5d1317b63528fa12454589a916b50c&#x27;,&#xd;&#xa;&#x27;766272b9ff3d3a776869d12b78a051bc&#x27;&#x29;</jsScript_script>
+      </jsScript>    </jsScripts>    <fields>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>168</xloc>
+      <yloc>91</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
     <name>Select values</name>
     <type>SelectValues</type>
     <description/>
@@ -432,16 +506,16 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT tagid, value &#xd;&#xa;FROM komoona_db.kmn_tag_configuration&#xd;&#xa;where tagid in &#x28;&#x27;0e42430f825c80036fd1b0a06f6425b9&#x27;&#x29;&#xd;&#xa;order by tagid&#x3b;&#xd;&#xa;&#xd;&#xa;&#xd;&#xa;&#xd;&#xa;</sql>
+    <sql>SELECT tagid, value &#xd;&#xa;FROM komoona_db.kmn_tag_configuration&#xd;&#xa;where tagid &#x3d; &#x27;&#x24;&#x7b;placement_id&#x7d;&#x27;&#x3b;&#xd;&#xa;&#xd;&#xa;&#xd;&#xa;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
-    <variables_active>N</variables_active>
+    <variables_active>Y</variables_active>
     <lazy_conversion_active>N</lazy_conversion_active>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>255</xloc>
-      <yloc>161</yloc>
+      <yloc>160</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -595,28 +669,6 @@
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>899</xloc>
       <yloc>282</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Script</name>
-    <type>Script</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
-        <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>&#x2f;&#x2f; Script here&#xd;&#xa;&#xd;&#xa;&#x28;&#x27;cbfd0f7b2f0c9a88093862f041c72407&#x27;,&#xd;&#xa;&#x27;cd78514b72055715be33a8812d38def6&#x27;,&#xd;&#xa;&#x27;91f27e5e07f3b8c0f824bb476cac2169&#x27;,&#xd;&#xa;&#x27;23d5b316d20d174c195ac34b655c9b1d&#x27;,&#xd;&#xa;&#x27;5b51ba18a5400094665c83330830c5d9&#x27;,&#xd;&#xa;&#x27;5af6afe59f7bbb77b82fff5d388f8073&#x27;,&#xd;&#xa;&#x27;8840fe7e1463f84b96938b2c0ddbf2d6&#x27;,&#xd;&#xa;&#x27;1c8834441f20e22a0aef009c095a6cab&#x27;,&#xd;&#xa;&#x27;c58d4f9a96be20887e4142731e5fb85b&#x27;,&#xd;&#xa;&#x27;702cf021b8ace6f8cc306ecb0c5c8ff3&#x27;,&#xd;&#xa;&#x27;f58cd7bdce5f48cd50eceabcc07fc188&#x27;,&#xd;&#xa;&#x27;203047dd1929e08684f45771d064466c&#x27;,&#xd;&#xa;&#x27;de5d1317b63528fa12454589a916b50c&#x27;,&#xd;&#xa;&#x27;766272b9ff3d3a776869d12b78a051bc&#x27;&#x29;</jsScript_script>
-      </jsScript>    </jsScripts>    <fields>    </fields>     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>168</xloc>
-      <yloc>91</yloc>
       <draw>Y</draw>
       </GUI>
     </step>

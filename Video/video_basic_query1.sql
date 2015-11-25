@@ -1,17 +1,20 @@
 
 select placement_id
+     , chain
+     , trunc(timestamp) "date"
      , "timestamp"
-     , DATE_PART( 'hrs', "timestamp" ) hour_of_day
+	 , SPLIT_PART(served_chain, '|', -1) served_tag
+     , length(served_chain) - length(replace(served_chain,'|','')) ordinal
+     
+     , SPLIT_PART(served_chain, '|', 1) initial_tag
+     , served_chain
+     , case when ua_browser_os='unknown' then 'unknown' else ua_device_type end ua_device_type
      , geo_continent
      , geo_country
      , final_state
      , ua_browser
      , ua_browser_ver
      , ua_browser_os
-     , ua_device_type
-     , video_vast_req_sent_ts
-     , adtag_ts_list
-     , served_chain
      , case video_vast_req_sent_ts is null when 1 then null 
           else datediff ('secs',"TIMESTAMP",video_vast_req_sent_ts) END request_time
      , case video_vast_req_timeoutt_ts is null when 1 then null 
@@ -41,5 +44,3 @@ where placement_id in ('1d0bd2ec4e7928150392dee2a5d49a38',
 'c360f219e5df557764af7aa946fb2bc2',
 'c25fb5bd8b899ca4f1dda884a4c6bb8b')
 and timestamp between '2015-11-03 12:00:00' and '2015-11-04 12:00:00'
-and served_chain like 'd%'
-limit 80000
