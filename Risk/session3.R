@@ -1,16 +1,17 @@
 source('C:/Shahar/Projects/Risk/session1.R')
 source('C:/Shahar/Projects/Risk/session2.R')
 
-smartSolver <- function (r1, r2) {
+smartSolver <- function (r1, r2, pc=NULL) {
   # list of variables for easy reading
   vars <- list(S0=1, S1=2, S2=3, S3=4, r1=5, r2=6, rhs=7)
   ncol <- max(unlist(vars))
   v <- lapply(vars, function(v,n) {a <- numeric(n);  a[v] <- 1;  return(a)}, ncol)
-  a <- calcProblemCoeffs()
+  if (is.null(pc))
+    pc <- calcProblemCoeffs()
 
-  eqn <- buildEquations(a, v, r1, r2)
+  eqn <- buildEquations(pc, v, r1, r2)
 
-  s3r <- s3Range(a$E, a$W, r1, r2)
+  s3r <- s3Range(pc$E, pc$W, r1, r2)
   s3Min <- max(s3r$mins)
   s3Max <- min(s3r$maxes)
   #print(paste0("s3Min=",s3Min,", s3Max=",s3Max))
@@ -20,8 +21,8 @@ smartSolver <- function (r1, r2) {
     eqn <- rbind(eqn, v$r2 + r2*v$rhs)
   }
   else {
-    W <- as.list(a$W)
-    E <- as.list(a$E)
+    W <- as.list(pc$W)
+    E <- as.list(pc$E)
     s3min.r1 = (E$e1/W$w1)/(E$e1*W$w13/W$w1 + E$e2*W$w23/W$w2 -  E$e3)
     s3min.r2 = (E$e2/W$w2)/(E$e1*W$w13/W$w1 + E$e2*W$w23/W$w2 -  E$e3)
     s3max.r1 = 1/W$w13
@@ -49,11 +50,11 @@ smartSolver <- function (r1, r2) {
   return(x)
 }
 
-iterativeSmartSolver <- function(r1, r2) {
+iterativeSmartSolver <- function(r1, r2, cf=NULL) {
   i <- 1
   nr1 <- r1
   nr2 <- r2
-  x <- smartSolver(nr1, nr2)
+  x <- smartSolver(nr1, nr2, cf)
   while (any(x < -0.001) && i<10) {
     print(paste0("i=",i,", x=", paste0(x,collapse = ", ")))
     nr1 <- nr1 /2

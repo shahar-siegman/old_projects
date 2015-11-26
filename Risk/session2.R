@@ -20,7 +20,7 @@ session2 <- function(r1, r2) {
   return(z)
 }
 
-calcProblemCoeffs <- function() {
+calcProblemCoeffs <- function(weights=weights, isRisk0=isRisk0, isRisk1=isRisk1, ecpmRisk=ecpmRisk, isRisk2=isRisk2, adxRisk=adxRisk, isRisk12=isRisk12) {
 
   y <- t(matrix(weights)) /sum(weights)
 
