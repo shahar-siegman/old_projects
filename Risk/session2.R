@@ -39,11 +39,13 @@ calcProblemCoeffs <- function(weights=weights, isRisk0=isRisk0, isRisk1=isRisk1,
 
 s3Range <- function(E, W, r1, r2) {
   maxes <- c(r1=unname(r1/W["w13"]), r2=unname(r2/W["w23"]))
+  maxes <- pmin(maxes, 1000)
   denom <- unname(W["w13"]*E["e1"]/W["w1"] + W["w23"]*E["e2"]/W["w2"] - E["e3"])
   num <-  unname(E["e1"]*r1/W["w1"] + E["e2"]*r2/W["w2"] -1)
   mins <- 0
-  if (denom<0)
-    maxes <- c(maxes, num/denom)
+  if (!is.nan(denom))
+    if (denom<0)
+      maxes <- c(maxes, num/denom)
   else
     mins <- c(mins, num/denom)
 

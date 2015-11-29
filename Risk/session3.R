@@ -3,9 +3,27 @@ source('C:/Shahar/Projects/Risk/session2.R')
 
 smartSolver <- function (r1, r2, pc=NULL) {
   # list of variables for easy reading
-  vars <- list(S0=1, S1=2, S2=3, S3=4, r1=5, r2=6, rhs=7)
-  ncol <- max(unlist(vars))
-  v <- lapply(vars, function(v,n) {a <- numeric(n);  a[v] <- 1;  return(a)}, ncol)
+  #vars <- list(S0=1, S1=2, S2=3, S3=4, r1=5, r2=6, rhs=7)
+  vars <- c("S0", "S1", "S2", "S3", "r1", "r2", "rhs")
+
+  nonvars <- NULL
+  "%!in%" = Negate("%in%")
+  if (pc$W["w1"] ==0) {
+    vars <- vars[vars %!in% c("S1","r1")]
+    nonvars <- union(nonvars, c("S1"))
+  }
+  if (pc$W["w2"] ==0) {
+    vars <- vars[vars %!in% c("S2","r2")]
+    nonvars <- union(nonvars, c("S2"))
+  }
+
+  ncol <- length(vars)
+  v <- rep(list(numeric(ncol)),7)
+  for (i in 1:ncol)
+    v[[i]][i] <- 1
+
+  names(v) <- c(vars,nonvars)
+
   if (is.null(pc))
     pc <- calcProblemCoeffs()
 
@@ -47,6 +65,7 @@ smartSolver <- function (r1, r2, pc=NULL) {
     }
   }
   x <- solve(eqn[,1:(ncol-1)],eqn[,ncol])
+  names(x) <- vars[vars != "rhs"]
   return(x)
 }
 
@@ -75,4 +94,6 @@ buildEquations <- function(a, v, r1, r2) {
   return(mat)
 }
 
+singleRiskSolver <- function(r1, r2, pc) {
 
+}
