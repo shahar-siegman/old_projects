@@ -5,8 +5,6 @@ init <- function() {
   tag.data <- read.csv("tag_performance_top_rev_placements.csv", stringsAsFactors = F)
   current.allocation <- read.csv("allocation_top_rev_placements.csv", stringsAsFactors = F)
   all.placements <- read.csv("all_placements.csv", stringsAsFactors = F)
-  # tag.data$chain <- as.character(tag.data$chain)
-  # current.allocation$canonic_chain <- as.character(current.allocation$canonic_chain)
   return(list(placement.list=placement.list,
               tag.data=tag.data,
               current.allocation=current.allocation,
@@ -37,7 +35,7 @@ simulateRiskReallocation <- function(allData, risk.networks, r1Percent, r2Percen
     tag.performance <- tag.data %>% filter(placement_id==placementId)
     tag.performance.a <- arrangeTagPerformanceData(tag.performance)
     placement.rev <- sum(tag.performance.a$revenue)
-    placement.rcpm <- 1000*placement.rev/sum(tag.performance.a$served)
+    placement.rcpm <- 1000*placement.rev/sum(tag.performance.a$impressions)
 
     placement.floor.price <- max(placement.performance$latest_floor_price)
     rcpmAtNetworkRisk <- calculateNetworkRisk(tag.performance.a, risk.networks)
@@ -81,8 +79,10 @@ simulateRiskReallocation <- function(allData, risk.networks, r1Percent, r2Percen
                                risk2_pre = sum(original_weight*network_risk)/(placement.rcpm*sow),
                                risk1_post = sum(new_weight*ecpm_risk)/(placement.rcpm*sow),
                                risk2_post = sum(new_weight*network_risk)/(placement.rcpm*sow),
-                               rcpm = sum(rcpm)) %>%
-      mutate(placement_id=as.character(placementId), revenue = placement.rev) %>% c(S0=unname(x["S0"]),S1=unname(x["S1"]),S2=unname(x["S2"]),S3=unname(x["S3"]))
+                               rcpm = sum(rcpm),
+                               nrow = n()) %>%
+
+     mutate(placement_id=as.character(placementId), revenue = placement.rev, nrow_alloc = nrow(placement.alloc)) %>% c(S0=unname(x["S0"]),S1=unname(x["S1"]),S2=unname(x["S2"]),S3=unname(x["S3"]))
     print(placementId)
     allChainDF <- rbind(allChainDF, chainDF)
 
@@ -97,16 +97,19 @@ arrangeTagPerformanceData <- function(tag.performance) {
   # canonical chain
   tag.performance$canonic_chain <- gsub("=\\d+\\.?\\d*","",tag.performance$chain, perl=T)
   tag.performance$network <- substr(tag.performance$tag_name,1,1)
-  tag.performance.a <- tag.performance %>% mutate(revenue = income, rcpm = 1000*revenue/served) %>%
+  tag.performance.a <- tag.performance %>% rename(revenue = income) %>%
     arrange(canonic_chain, ordinal, desc(date_joined))
-  # group_by(canonic_chain, tag_name, network, date_joined) %>%  summarise(revenue=sum(income), served=sum(served),
   return(tag.performance.a)
 }
 
 calculateNetworkRisk <- function (tag.performance.a, risk.networks) {
   tag.performance.a$is_risky_network <- tag.performance.a$network %in% risk.networks
-  tag.performance.b <- tag.performance.a %>% mutate(rcpm=ifelse(is.na(rcpm),0,rcpm)) %>% group_by(canonic_chain) %>%
-    summarise(rcpmAtRisk=mean(rcpm*is_risky_network, na.rm=T)) %>% mutate(canonic_chain = as.character(canonic_chain))
+  tag.performance.b <- tag.performance.a %>% group_by(canonic_chain, tag_name, is_risky_network) %>%
+    summarize(revenue=sum(revenue),
+              impressions=sum(impressions)) %>%
+    group_by(canonic_chain) %>%
+    summarise(rcpmAtRisk=1000*sum(revenue*is_risky_network, na.rm=T)/sum(impressions)) %>%
+    mutate(rcpmAtRisk=ifelse(is.na(rcpmAtRisk),0,rcpmAtRisk))
   return(tag.performance.b)
 }
 
@@ -125,7 +128,7 @@ calculateEcpmRisk <- function(tag.performance.a, tag.floor.prices, placement.flo
     mutate(canonic_chain = as.character(canonic_chain))
   chain.risk.b <- tag.performance.a %>%
     group_by(canonic_chain) %>%
-    summarise(rcpm = mean(rcpm, na.rm=T)) %>%
+    summarise(rcpm = 1000*sum(revenue,na.rm=T)/sum(impressions,na.rm=T))  %>%
     mutate(canonic_chain = as.character(canonic_chain)) %>%
     inner_join(chain.risk.a) %>%
     mutate(rcpm=ifelse(is.na(rcpm),0,rcpm), ecpm_risk = chain_ecpm_risky * rcpm)

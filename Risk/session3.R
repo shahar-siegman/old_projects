@@ -3,7 +3,6 @@ source('C:/Shahar/Projects/Risk/session2.R')
 
 smartSolver <- function (r1, r2, pc=NULL) {
   # list of variables for easy reading
-  #vars <- list(S0=1, S1=2, S2=3, S3=4, r1=5, r2=6, rhs=7)
   vars <- c("S0", "S1", "S2", "S3", "r1", "r2", "rhs")
 
   nonvars <- NULL
@@ -78,7 +77,7 @@ iterativeSmartSolver <- function(r1, r2, cf=NULL) {
     print(paste0("i=",i,", x=", paste0(x,collapse = ", ")))
     nr1 <- nr1 /2
     nr2 <- nr2 /2
-    x <- smartSolver(nr1, nr2)
+    x <- smartSolver(nr1, nr2, cf)
     i <- i+1
   }
   return(x)
@@ -92,8 +91,4 @@ buildEquations <- function(a, v, r1, r2) {
   mat <- rbind(mat, v$S2*W$w2 + v$S3*W$w23 - 1*v$r2 + 0*v$rhs)
   mat <- rbind(mat, v$S0*E$e0 + v$S1*E$e1 + v$S2*E$e2 + v$S3*E$e3 +1*v$rhs)
   return(mat)
-}
-
-singleRiskSolver <- function(r1, r2, pc) {
-
 }
