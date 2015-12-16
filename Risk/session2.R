@@ -44,10 +44,13 @@ s3Range <- function(E, W, r1, r2) {
   num <-  unname(E["e1"]*r1/W["w1"] + E["e2"]*r2/W["w2"] -1)
   mins <- 0
   if (!is.nan(denom))
-    if (denom<0)
+    if (denom<0) {
       maxes <- c(maxes, num/denom)
-  else
+    }
+    else {
     mins <- c(mins, num/denom)
+    }
+
 
   return(list(r1=r1, r2=r2, maxes=maxes, mins=mins))
 }

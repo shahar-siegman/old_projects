@@ -23,5 +23,5 @@ allowed risk per chain = allowed placement risk * chain allocation
 
 if remainder was distributed, return 0, if not, return remainder
 
-
+riskWeightGoalDataCalculator
 
