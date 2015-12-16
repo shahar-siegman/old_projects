@@ -1,5 +1,5 @@
 echo off
-echo placment_id %1
+echo placment_id %2
 pushd C:\Pentaho\data-integration
-C:\Pentaho\data-integration\pan.bat "/param:placement_id=%1" /level:Basic /file:"C:\Shahar\Projects\tagData\tag_performance_for_parallel.ktr" 
+call C:\Pentaho\data-integration\pan.bat "/param:start_date=%1" "/param:placement_id=%2" /level:Basic /file:"C:\Shahar\Projects\tagData\tag_performance_for_parallel.ktr" 
 popd
