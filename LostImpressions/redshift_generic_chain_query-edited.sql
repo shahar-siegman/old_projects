@@ -1,13 +1,12 @@
 create table mobile_experiment_11_11 as 
 select placement_id
-     , chain
      , trunc(timestamp) "date"
      , "timestamp"
-	 , SPLIT_PART(served_chain, '|', -1) served_tag
-     , length(served_chain) - length(replace(served_chain,'|','')) ordinal
-     
-     , SPLIT_PART(served_chain, '|', 1) initial_tag
+     , chain
      , served_chain
+     , length(served_chain) - length(replace(served_chain,'|','')) ordinal
+	 , served_tag
+     , SPLIT_PART(served_chain, '|', 1) initial_tag
      ,	case when ua_browser_os='unknown' then 'unknown' else ua_device_type end ua_device_type
      , geo_continent
      , geo_country
