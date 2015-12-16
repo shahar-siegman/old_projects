@@ -69,7 +69,7 @@
   <created_date>2015&#x2f;12&#x2f;15 17&#x3a;25&#x3a;10.404</created_date>
   <modified_user>-</modified_user>
   <modified_date>2015&#x2f;12&#x2f;15 17&#x3a;25&#x3a;10.404</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA&#x3d;</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
@@ -180,9 +180,149 @@
   </connection>
   <order>
   <hop> <from>performance_with_history</from><to>Analytic Query</to><enabled>Y</enabled> </hop>
-  <hop> <from>Analytic Query</from><to>lost imps</to><enabled>Y</enabled> </hop>
-  <hop> <from>lost imps</from><to>Text file output</to><enabled>Y</enabled> </hop>
+  <hop> <from>Analytic Query</from><to>lost imps 2</to><enabled>Y</enabled> </hop>
+  <hop> <from>lost imps 2</from><to>Text file output</to><enabled>Y</enabled> </hop>
   </order>
+  <step>
+    <name>Analytic Query</name>
+    <type>AnalyticQuery</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <group>
+        <field>
+          <name>placement_id</name>
+        </field>
+        <field>
+          <name>chain</name>
+        </field>
+        <field>
+          <name>chain_num_in_day</name>
+        </field>
+        <field>
+          <name>date_joined</name>
+        </field>
+      </group>
+      <fields>
+        <field>
+          <aggregate>lead_impressions</aggregate>
+          <subject>impressions</subject>
+          <type>LEAD</type>
+          <valuefield>1</valuefield>
+        </field>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>428</xloc>
+      <yloc>173</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Text file output</name>
+    <type>TextFileOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <separator>,</separator>
+    <enclosure>&#x22;</enclosure>
+    <enclosure_forced>N</enclosure_forced>
+    <enclosure_fix_disabled>N</enclosure_fix_disabled>
+    <header>Y</header>
+    <footer>N</footer>
+    <format>DOS</format>
+    <compression>None</compression>
+    <encoding/>
+    <endedLine/>
+    <fileNameInField>N</fileNameInField>
+    <fileNameField/>
+    <create_parent_folder>Y</create_parent_folder>
+    <file>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;tagData&#x5c;performance_with_discrepancy</name>
+      <is_command>N</is_command>
+      <servlet_output>N</servlet_output>
+      <do_not_open_new_file_init>N</do_not_open_new_file_init>
+      <extention>csv</extention>
+      <append>N</append>
+      <split>N</split>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <pad>N</pad>
+      <fast_dump>N</fast_dump>
+      <splitevery>0</splitevery>
+    </file>
+    <fields>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>729</xloc>
+      <yloc>174</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>lost imps</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <calculation><field_name>remaining_imps</field_name>
+<calc_type>SUBTRACT</calc_type>
+<field_a>impressions</field_a>
+<field_b>served</field_b>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>lost_imps</field_name>
+<calc_type>SUBTRACT</calc_type>
+<field_a>remaining_imps</field_a>
+<field_b>lead_impressions</field_b>
+<field_c/>
+<value_type>Integer</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>590</xloc>
+      <yloc>181</yloc>
+      <draw>N</draw>
+      </GUI>
+    </step>
+
   <step>
     <name>performance_with_history</name>
     <type>CsvInput</type>
@@ -194,7 +334,7 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <filename>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;tagData&#x5c;performance_with_history.csv</filename>
+    <filename>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;tagData&#x5c;performance_with_history_with_stat1.csv</filename>
     <filename_field/>
     <rownum_field/>
     <include_filename>N</include_filename>
@@ -298,8 +438,8 @@
       </field>
       <field>
         <name>is_change</name>
-        <type>Integer</type>
-        <format>&#x23;</format>
+        <type>String</type>
+        <format/>
         <currency>&#x24;</currency>
         <decimal>.</decimal>
         <group>,</group>
@@ -353,7 +493,7 @@
       </field>
       <field>
         <name>candidate_type</name>
-        <type>Integer</type>
+        <type>String</type>
         <format/>
         <currency>&#x24;</currency>
         <decimal>.</decimal>
@@ -383,8 +523,8 @@
     </step>
 
   <step>
-    <name>Analytic Query</name>
-    <type>AnalyticQuery</type>
+    <name>lost imps 2</name>
+    <type>Formula</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -393,145 +533,31 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-      <group>
-        <field>
-          <name>placement_id</name>
-        </field>
-        <field>
-          <name>chain</name>
-        </field>
-        <field>
-          <name>chain_num_in_day</name>
-        </field>
-        <field>
-          <name>date_joined</name>
-        </field>
-      </group>
-      <fields>
-        <field>
-          <aggregate>lead_impressions</aggregate>
-          <subject>impressions</subject>
-          <type>LEAD</type>
-          <valuefield>1</valuefield>
-        </field>
-      </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>428</xloc>
-      <yloc>173</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>lost imps</name>
-    <type>Calculator</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-       <calculation><field_name>remaining_imps</field_name>
-<calc_type>SUBTRACT</calc_type>
-<field_a>impressions</field_a>
-<field_b>served</field_b>
-<field_c/>
-<value_type>Number</value_type>
+       <formula><field_name>remaining_imps</field_name>
+<formula_string>&#x5b;impressions&#x5d;-&#x5b;served&#x5d;</formula_string>
+<value_type>Integer</value_type>
 <value_length>-1</value_length>
 <value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>lost_imps</field_name>
-<calc_type>SUBTRACT</calc_type>
-<field_a>remaining_imps</field_a>
-<field_b>lead_impressions</field_b>
-<field_c/>
-<value_type>Number</value_type>
+<replace_field/>
+</formula>
+       <formula><field_name>lost_imps</field_name>
+<formula_string>&#x5b;impressions&#x5d;-&#x5b;served&#x5d;-&#x5b;lead_impressions&#x5d;</formula_string>
+<value_type>Integer</value_type>
 <value_length>-1</value_length>
 <value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>lost_imps_percent</field_name>
-<calc_type>DIVIDE</calc_type>
-<field_a>lost_imps</field_a>
-<field_b>impressions</field_b>
-<field_c/>
-<value_type>Number</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
+<replace_field/>
+</formula>
+       <formula><field_name>lost_imps_percent</field_name>
+<formula_string>&#x28;&#x5b;impressions&#x5d;-&#x5b;served&#x5d;-&#x5b;lead_impressions&#x5d;&#x29;&#x2f;if&#x28;&#x5b;impressions&#x5d;&#x3e;0&#x3b;&#x5b;impressions&#x5d;&#x3b;1&#x29;</formula_string>
+<value_type>BigNumber</value_type>
+<value_length>2</value_length>
+<value_precision>6</value_precision>
+<replace_field/>
+</formula>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>590</xloc>
-      <yloc>181</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>Text file output</name>
-    <type>TextFileOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <separator>,</separator>
-    <enclosure>&#x22;</enclosure>
-    <enclosure_forced>N</enclosure_forced>
-    <enclosure_fix_disabled>N</enclosure_fix_disabled>
-    <header>Y</header>
-    <footer>N</footer>
-    <format>DOS</format>
-    <compression>None</compression>
-    <encoding/>
-    <endedLine/>
-    <fileNameInField>N</fileNameInField>
-    <fileNameField/>
-    <create_parent_folder>Y</create_parent_folder>
-    <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;tagData&#x5c;performance_with_discrepancy</name>
-      <is_command>N</is_command>
-      <servlet_output>N</servlet_output>
-      <do_not_open_new_file_init>N</do_not_open_new_file_init>
-      <extention>csv</extention>
-      <append>N</append>
-      <split>N</split>
-      <haspartno>N</haspartno>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <SpecifyFormat>N</SpecifyFormat>
-      <date_time_format/>
-      <add_to_result_filenames>Y</add_to_result_filenames>
-      <pad>N</pad>
-      <fast_dump>N</fast_dump>
-      <splitevery>0</splitevery>
-    </file>
-    <fields>
-    </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>729</xloc>
-      <yloc>174</yloc>
+      <xloc>560</xloc>
+      <yloc>179</yloc>
       <draw>Y</draw>
       </GUI>
     </step>

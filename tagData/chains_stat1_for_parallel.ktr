@@ -80,7 +80,7 @@
   <created_date>2015&#x2f;12&#x2f;15 15&#x3a;00&#x3a;38.272</created_date>
   <modified_user>-</modified_user>
   <modified_date>2015&#x2f;12&#x2f;15 15&#x3a;00&#x3a;38.272</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA&#x3d;</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
@@ -204,7 +204,7 @@
            <schema_name/>
            </partitioning>
     <connection>redshift1</connection>
-    <sql>select placement_id, chain, date&#x28;timestamp&#x29; &#x22;date&#x22;, count&#x28;1&#x29; n&#xd;&#xa;from aggregated_logs_5&#xd;&#xa;where placement_id&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27;&#xd;&#xa;and date&#x28;timestamp&#x29;&#x3d; &#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#xd;&#xa;group by placement_id, chain, date&#xd;&#xa;</sql>
+    <sql>select placement_id, chain, trunc&#x28;timestamp&#x29; mydate, count&#x28;1&#x29; n&#xd;&#xa;from aggregated_logs_5&#xd;&#xa;where placement_id&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27;&#xd;&#xa;group by placement_id, chain, mydate&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
