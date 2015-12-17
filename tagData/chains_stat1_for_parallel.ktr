@@ -286,7 +286,7 @@
         <precision>-1</precision>
       </field>
       <field>
-        <name>date</name>
+        <name>mydate</name>
         <type>Date</type>
         <format>yyyy-MM-dd</format>
         <currency/>
