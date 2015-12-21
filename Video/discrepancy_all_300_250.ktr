@@ -69,115 +69,11 @@
   <created_date>2015&#x2f;12&#x2f;21 13&#x3a;58&#x3a;46.420</created_date>
   <modified_user>-</modified_user>
   <modified_date>2015&#x2f;12&#x2f;21 13&#x3a;58&#x3a;46.420</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA&#x3d;</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
-  <connection>
-    <name>komoona dev</name>
-    <server>komoonadevdb.cesnzoem9yag.us-east-1.rds.amazonaws.com</server>
-    <type>MYSQL</type>
-    <access>Native</access>
-    <database>komoona_db</database>
-    <port>3306</port>
-    <username>komoona</username>
-    <password>Encrypted 2be98afc86aa7f28abd15b87ed494b8df</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
-    <attributes>
-      <attribute><code>EXTRA_OPTION_MYSQL.defaultFetchSize</code><attribute>500</attribute></attribute>
-      <attribute><code>EXTRA_OPTION_MYSQL.useCursorFetch</code><attribute>true</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>3306</attribute></attribute>
-      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
-      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
-      <attribute><code>STREAM_RESULTS</code><attribute>Y</attribute></attribute>
-      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
-    </attributes>
-  </connection>
-  <connection>
-    <name>komoona redshift</name>
-    <server>redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439&#x2f;logs</server>
-    <type>REDSHIFT</type>
-    <access>Native</access>
-    <database>public</database>
-    <port>5439</port>
-    <username>leopold</username>
-    <password>Encrypted 2be98afc86aa79990be09bb5bcdc1fc8c</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
-    <attributes>
-      <attribute><code>EXTRA_OPTION_REDSHIFT.tcpKeepAlive</code><attribute>true</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>5439</attribute></attribute>
-      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
-      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
-      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
-    </attributes>
-  </connection>
-  <connection>
-    <name>redshift1</name>
-    <server/>
-    <type>GENERIC</type>
-    <access>Native</access>
-    <database/>
-    <port>1521</port>
-    <username>leopold</username>
-    <password>Encrypted 2be98afc86aa79990be09bb5bcdc1fc8c</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
-    <attributes>
-      <attribute><code>CUSTOM_DRIVER_CLASS</code><attribute>com.amazon.redshift.jdbc41.Driver</attribute></attribute>
-      <attribute><code>CUSTOM_URL</code><attribute>jdbc&#x3a;redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439&#x2f;logs</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>1521</attribute></attribute>
-      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
-      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
-      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
-    </attributes>
-  </connection>
-  <connection>
-    <name>redshift2</name>
-    <server/>
-    <type>GENERIC</type>
-    <access>Native</access>
-    <database/>
-    <port>1521</port>
-    <username>master</username>
-    <password>Encrypted 2be98afc804d38a9db937ba68c780f98c</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
-    <attributes>
-      <attribute><code>CUSTOM_DRIVER_CLASS</code><attribute>com.amazon.redshift.jdbc41.Driver</attribute></attribute>
-      <attribute><code>CUSTOM_URL</code><attribute>jdbc&#x3a;redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439&#x2f;logs</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>1521</attribute></attribute>
-      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
-      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
-      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
-    </attributes>
-  </connection>
   <connection>
     <name>stats</name>
     <server>komoona-stat.cesnzoem9yag.us-east-1.rds.amazonaws.com</server>
@@ -209,32 +105,6 @@
   <hop> <from>placement discrepancy</from><to>discrepancy_all_300_250.csv</to><enabled>Y</enabled> </hop>
   <hop> <from>CSV file input</from><to>placement discrepancy</to><enabled>Y</enabled> </hop>
   </order>
-  <step>
-    <name>placement discrepancy</name>
-    <type>TableInput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <connection>stats</connection>
-    <sql>select tagid placement_id&#xd;&#xa;, date&#x28;time&#x29; &#x60;date&#x60;&#xd;&#xa;, chain&#xd;&#xa;, sum&#x28;stat1&#x29; stat1&#xd;&#xa;, sum&#x28;served&#x29; served&#xd;&#xa;, sum&#x28;house&#x29; house&#xd;&#xa;, &#x28;sum&#x28;stat1&#x29; - &#x28;sum&#x28;served&#x29; &#x2b; sum&#x28;house&#x29;&#x29;&#x29;&#x2f;sum&#x28;stat1&#x29; lost_imp_percent&#xd;&#xa;from kmn_chain_hour_data&#xd;&#xa;where time &#x3e;&#x3d; &#x27;2015-12-12&#x27;&#xd;&#xa;and tagid &#x3d; &#x3f;&#xd;&#xa;group by placement_id&#x3b;</sql>
-    <limit>0</limit>
-    <lookup>Reservoir Sampling</lookup>
-    <execute_each_row>Y</execute_each_row>
-    <variables_active>N</variables_active>
-    <lazy_conversion_active>N</lazy_conversion_active>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>550</xloc>
-      <yloc>225</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
   <step>
     <name>CSV file input</name>
     <type>CsvInput</type>
@@ -328,6 +198,32 @@
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>716</xloc>
       <yloc>221</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>placement discrepancy</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>stats</connection>
+    <sql>select tagid placement_id&#xd;&#xa;, date&#x28;time&#x29; &#x60;date&#x60;&#xd;&#xa;, chain&#xd;&#xa;, sum&#x28;stat1&#x29; stat1&#xd;&#xa;, sum&#x28;served&#x29; served&#xd;&#xa;, sum&#x28;house&#x29; house&#xd;&#xa;, &#x28;sum&#x28;stat1&#x29; - &#x28;sum&#x28;served&#x29; &#x2b; sum&#x28;house&#x29;&#x29;&#x29;&#x2f;sum&#x28;stat1&#x29; lost_imp_percent&#xd;&#xa;from kmn_chain_hour_data&#xd;&#xa;where time &#x3e;&#x3d; &#x27;2015-12-12&#x27;&#xd;&#xa;and tagid &#x3d; &#x3f;&#xd;&#xa;group by placement_id&#x3b;</sql>
+    <limit>0</limit>
+    <lookup>CSV file input</lookup>
+    <execute_each_row>Y</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>550</xloc>
+      <yloc>225</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
