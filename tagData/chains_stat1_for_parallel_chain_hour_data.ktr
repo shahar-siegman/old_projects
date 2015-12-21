@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>history_calc_tag_discrepancy</name>
+    <name>chains_stat1_for_parallel</name>
     <description/>
     <extended_description/>
     <trans_version/>
     <trans_type>Normal</trans_type>
+    <trans_status>0</trans_status>
     <directory>&#x2f;</directory>
     <parameters>
+        <parameter>
+            <name>placement_id</name>
+            <default_value/>
+            <description/>
+        </parameter>
+        <parameter>
+            <name>start_date</name>
+            <default_value/>
+            <description/>
+        </parameter>
     </parameters>
     <log>
 <trans-log-table><connection/>
@@ -66,9 +77,9 @@
     <clusterschemas>
     </clusterschemas>
   <created_user>-</created_user>
-  <created_date>2015&#x2f;12&#x2f;15 17&#x3a;25&#x3a;10.404</created_date>
+  <created_date>2015&#x2f;12&#x2f;15 15&#x3a;00&#x3a;38.272</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2015&#x2f;12&#x2f;15 17&#x3a;25&#x3a;10.404</modified_date>
+  <modified_date>2015&#x2f;12&#x2f;15 15&#x3a;00&#x3a;38.272</modified_date>
     <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA&#x3d;</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
@@ -179,13 +190,11 @@
     </attributes>
   </connection>
   <order>
-  <hop> <from>performance_with_history</from><to>Analytic Query</to><enabled>Y</enabled> </hop>
-  <hop> <from>Analytic Query</from><to>lost imps 2</to><enabled>Y</enabled> </hop>
-  <hop> <from>lost imps 2</from><to>Text file output</to><enabled>Y</enabled> </hop>
+  <hop> <from>count by chain</from><to>kettle_stat1_</to><enabled>Y</enabled> </hop>
   </order>
   <step>
-    <name>Analytic Query</name>
-    <type>AnalyticQuery</type>
+    <name>count by chain</name>
+    <type>TableInput</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -194,38 +203,23 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-      <group>
-        <field>
-          <name>placement_id</name>
-        </field>
-        <field>
-          <name>chain</name>
-        </field>
-        <field>
-          <name>chain_num_in_day</name>
-        </field>
-        <field>
-          <name>date_joined</name>
-        </field>
-      </group>
-      <fields>
-        <field>
-          <aggregate>lead_impressions</aggregate>
-          <subject>impressions</subject>
-          <type>LEAD</type>
-          <valuefield>1</valuefield>
-        </field>
-      </fields>
+    <connection>redshift1</connection>
+    <sql>select placement_id, chain, trunc&#x28;timestamp&#x29; mydate, count&#x28;1&#x29; n&#xd;&#xa;from aggregated_logs_5&#xd;&#xa;where placement_id&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27;&#xd;&#xa;group by placement_id, chain, mydate&#xd;&#xa;</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>Y</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>428</xloc>
-      <yloc>173</yloc>
+      <xloc>291</xloc>
+      <yloc>147</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
 
   <step>
-    <name>Text file output</name>
+    <name>kettle_stat1_</name>
     <type>TextFileOutput</type>
     <description/>
     <distribute>Y</distribute>
@@ -249,7 +243,7 @@
     <fileNameField/>
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;tagData&#x5c;performance_with_chain_with_discrepancy</name>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;tagData&#x5c;kettle_out&#x5c;kettle_stat1_&#x24;&#x7b;placement_id&#x7d;</name>
       <is_command>N</is_command>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
@@ -280,18 +274,6 @@
         <precision>-1</precision>
       </field>
       <field>
-        <name>ad_network_id</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
         <name>chain</name>
         <type>String</type>
         <format/>
@@ -304,43 +286,7 @@
         <precision>-1</precision>
       </field>
       <field>
-        <name>tag_name</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>chain_num_in_day</name>
-        <type>Integer</type>
-        <format>0</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>ordinal</name>
-        <type>Integer</type>
-        <format>0</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>date_joined</name>
+        <name>mydate</name>
         <type>Date</type>
         <format>yyyy-MM-dd</format>
         <currency/>
@@ -352,143 +298,11 @@
         <precision>-1</precision>
       </field>
       <field>
-        <name>floor_price</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>is_change</name>
-        <type>String</type>
-        <format/>
+        <name>n</name>
+        <type>Integer</type>
+        <format>0</format>
         <currency/>
         <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>impressions</name>
-        <type>Integer</type>
-        <format>0</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>served</name>
-        <type>Integer</type>
-        <format>0</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>income</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>publisher_income</name>
-        <type>Number</type>
-        <format>0.&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>candidate_type</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>startdate</name>
-        <type>Date</type>
-        <format>yyyy&#x2f;MM&#x2f;dd HH&#x3a;mm&#x3a;ss.SSS</format>
-        <currency/>
-        <decimal/>
-        <group/>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>lead_impressions</name>
-        <type>Integer</type>
-        <format>0</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>remaining_imps</name>
-        <type>Integer</type>
-        <format>0</format>
-        <currency/>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>lost_imps</name>
-        <type>Integer</type>
-        <format>0</format>
-        <currency/>
-        <decimal>.</decimal>
-        <group>,</group>
-        <nullif/>
-        <trim_type>both</trim_type>
-        <length>-1</length>
-        <precision>-1</precision>
-      </field>
-      <field>
-        <name>lost_imps_percent</name>
-        <type>BigNumber</type>
-        <format>&#x23;.&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x3b;-&#x23;.&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;&#x23;</format>
-        <currency/>
-        <decimal>.</decimal>
         <group/>
         <nullif/>
         <trim_type>both</trim_type>
@@ -498,294 +312,8 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>729</xloc>
-      <yloc>174</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>lost imps</name>
-    <type>Calculator</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-       <calculation><field_name>remaining_imps</field_name>
-<calc_type>SUBTRACT</calc_type>
-<field_a>impressions</field_a>
-<field_b>served</field_b>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-       <calculation><field_name>lost_imps</field_name>
-<calc_type>SUBTRACT</calc_type>
-<field_a>remaining_imps</field_a>
-<field_b>lead_impressions</field_b>
-<field_c/>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<remove>N</remove>
-<conversion_mask/>
-<decimal_symbol/>
-<grouping_symbol/>
-<currency_symbol/>
-</calculation>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>590</xloc>
-      <yloc>181</yloc>
-      <draw>N</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>lost imps 2</name>
-    <type>Formula</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-       <formula><field_name>remaining_imps</field_name>
-<formula_string>&#x5b;impressions&#x5d;-&#x5b;served&#x5d;</formula_string>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<replace_field/>
-</formula>
-       <formula><field_name>lost_imps</field_name>
-<formula_string>&#x5b;impressions&#x5d;-&#x5b;served&#x5d;-&#x5b;lead_impressions&#x5d;</formula_string>
-<value_type>Integer</value_type>
-<value_length>-1</value_length>
-<value_precision>-1</value_precision>
-<replace_field/>
-</formula>
-       <formula><field_name>lost_imps_percent</field_name>
-<formula_string>&#x28;&#x5b;impressions&#x5d;-&#x5b;served&#x5d;-&#x5b;lead_impressions&#x5d;&#x29;&#x2f;if&#x28;&#x5b;impressions&#x5d;&#x3e;0&#x3b;&#x5b;impressions&#x5d;&#x3b;1&#x29;</formula_string>
-<value_type>BigNumber</value_type>
-<value_length>2</value_length>
-<value_precision>6</value_precision>
-<replace_field/>
-</formula>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>560</xloc>
-      <yloc>179</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
-  <step>
-    <name>performance_with_history</name>
-    <type>CsvInput</type>
-    <description/>
-    <distribute>N</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <filename>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;tagData&#x5c;performance_with_history_with_chain_imps.csv</filename>
-    <filename_field/>
-    <rownum_field/>
-    <include_filename>N</include_filename>
-    <separator>,</separator>
-    <enclosure>&#x22;</enclosure>
-    <header>Y</header>
-    <buffer_size>50000</buffer_size>
-    <lazy_conversion>Y</lazy_conversion>
-    <add_filename_result>N</add_filename_result>
-    <parallel>N</parallel>
-    <newline_possible>N</newline_possible>
-    <encoding/>
-    <fields>
-      <field>
-        <name>placement_id</name>
-        <type>String</type>
-        <format/>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>ad_network_id</name>
-        <type>String</type>
-        <format/>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>chain</name>
-        <type>String</type>
-        <format/>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>tag_name</name>
-        <type>String</type>
-        <format/>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>chain_num_in_day</name>
-        <type>Integer</type>
-        <format>&#x23;</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>0</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>ordinal</name>
-        <type>Integer</type>
-        <format>&#x23;</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>0</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>date_joined</name>
-        <type>Date</type>
-        <format>yyyy-MM-dd</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>floor_price</name>
-        <type>Number</type>
-        <format>&#x23;.&#x23;&#x23;</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>2</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>is_change</name>
-        <type>String</type>
-        <format/>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>impressions</name>
-        <type>Integer</type>
-        <format>&#x23;</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>0</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>served</name>
-        <type>Integer</type>
-        <format>&#x23;</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>0</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>income</name>
-        <type>Number</type>
-        <format>&#x23;.&#x23;&#x23;&#x23;&#x23;</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>4</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>publisher_income</name>
-        <type>Number</type>
-        <format>&#x23;.&#x23;&#x23;&#x23;&#x23;</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>4</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>candidate_type</name>
-        <type>String</type>
-        <format/>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>startdate</name>
-        <type>Date</type>
-        <format>yyyy&#x2f;MM&#x2f;dd HH&#x3a;mm&#x3a;ss.SSS</format>
-        <currency>&#x24;</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-    </fields>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>248</xloc>
-      <yloc>176</yloc>
+      <xloc>433</xloc>
+      <yloc>148</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
