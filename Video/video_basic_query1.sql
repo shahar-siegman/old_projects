@@ -43,10 +43,10 @@ where placement_id in ('1d0bd2ec4e7928150392dee2a5d49a38',
 'a24a4ba2c6d5bcb1c7cb23970f542e9a',
 'c360f219e5df557764af7aa946fb2bc2',
 'c25fb5bd8b899ca4f1dda884a4c6bb8b')
-and timestamp between '2015-11-03 12:00:00' and '2015-11-04 12:00:00'
+and timestamp between '2015-11-03 12:00:00' and '2015-11-04 12:00:00';
 
 
-
+/*
 9ae742991f451fb21c6369f45ac34829
 c25fb5bd8b899ca4f1dda884a4c6bb8b
 c360f219e5df557764af7aa946fb2bc2
@@ -59,4 +59,21 @@ cbfd0f7b2f0c9a88093862f041c72407
 e51fbb15ca36fb9146659979a6153f69
 094b3589d9abde638cc8704400b65e12
 f6694d8cfe48a96cde7404e91315440c
-bab3a2b6c97481906df2ff0051906382
+bab3a2b6c97481906df2ff0051906382*/
+
+select placement_id
+  , sum(1) total_rows
+  ,  sum( case when final_state='placement' then 1 else 0 end) final_is_placement
+  ,  sum( case when final_state='js-err' then 1 else 0 end) final_is_jserr
+  ,  sum( case when final_state='placement' then 0 when final_state='js-err' then 0 else 1 end) final_is_other
+  ,  sum( case when served_chain='' then 0 else 1 end) served_chain_nonblank
+  ,  sum( case when chain='' then 0 else 1 end) chain_nonblank
+  ,  sum( case when served_tag='' then 0 else 1 end) served_tag_nonblank
+  ,  sum( case when served_tag='h' then 1 else 0 end) served_tag_is_house
+  ,  sum( least(convert(bigint,case when adtag_ts_list not similar to 't:[0-9]+\\|%' then '0' else split_part(adtag_ts_list,':',length(adtag_ts_list)-length(replace(adtag_ts_list,':',''))+1)  
+      end),50000)) sum_last_tag_st
+   , sum( case when adtag_ts_list not similar to 't:[0-9]+\\|%' then 0 else 1 end) weight_last_tag_ts
+
+from aggregated_logs_5 
+where  timestamp >= '2015-11-23' and timestamp <= '2015-11-23 02:00:00'
+group by placement_id
