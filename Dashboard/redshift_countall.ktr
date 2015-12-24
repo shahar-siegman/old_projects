@@ -69,63 +69,11 @@
   <created_date>2015&#x2f;12&#x2f;22 16&#x3a;09&#x3a;26.550</created_date>
   <modified_user>-</modified_user>
   <modified_date>2015&#x2f;12&#x2f;22 16&#x3a;09&#x3a;26.550</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA&#x3d;</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
-  <connection>
-    <name>komoona dev</name>
-    <server>komoonadevdb.cesnzoem9yag.us-east-1.rds.amazonaws.com</server>
-    <type>MYSQL</type>
-    <access>Native</access>
-    <database>komoona_db</database>
-    <port>3306</port>
-    <username>komoona</username>
-    <password>Encrypted 2be98afc86aa7f28abd15b87ed494b8df</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
-    <attributes>
-      <attribute><code>EXTRA_OPTION_MYSQL.defaultFetchSize</code><attribute>500</attribute></attribute>
-      <attribute><code>EXTRA_OPTION_MYSQL.useCursorFetch</code><attribute>true</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>3306</attribute></attribute>
-      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
-      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
-      <attribute><code>STREAM_RESULTS</code><attribute>Y</attribute></attribute>
-      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
-    </attributes>
-  </connection>
-  <connection>
-    <name>komoona redshift</name>
-    <server>redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439&#x2f;logs</server>
-    <type>REDSHIFT</type>
-    <access>Native</access>
-    <database>public</database>
-    <port>5439</port>
-    <username>leopold</username>
-    <password>Encrypted 2be98afc86aa79990be09bb5bcdc1fc8c</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
-    <attributes>
-      <attribute><code>EXTRA_OPTION_REDSHIFT.tcpKeepAlive</code><attribute>true</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>5439</attribute></attribute>
-      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
-      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
-      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
-    </attributes>
-  </connection>
   <connection>
     <name>redshift1</name>
     <server/>
@@ -152,88 +100,9 @@
       <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
     </attributes>
   </connection>
-  <connection>
-    <name>redshift2</name>
-    <server/>
-    <type>GENERIC</type>
-    <access>Native</access>
-    <database/>
-    <port>1521</port>
-    <username>master</username>
-    <password>Encrypted 2be98afc804d38a9db937ba68c780f98c</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
-    <attributes>
-      <attribute><code>CUSTOM_DRIVER_CLASS</code><attribute>com.amazon.redshift.jdbc41.Driver</attribute></attribute>
-      <attribute><code>CUSTOM_URL</code><attribute>jdbc&#x3a;redshift&#x3a;&#x2f;&#x2f;teststorage.crc6oizgxxw8.us-east-1.redshift.amazonaws.com&#x3a;5439&#x2f;logs</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>1521</attribute></attribute>
-      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
-      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
-      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
-    </attributes>
-  </connection>
-  <connection>
-    <name>stats</name>
-    <server>komoona-stat.cesnzoem9yag.us-east-1.rds.amazonaws.com</server>
-    <type>MYSQL</type>
-    <access>Native</access>
-    <database>komoona_stat</database>
-    <port>3306</port>
-    <username>komoona</username>
-    <password>Encrypted 2be98afc86aa79791a50cac668cc2fe8a</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
-    <attributes>
-      <attribute><code>EXTRA_OPTION_MYSQL.defaultFetchSize</code><attribute>500</attribute></attribute>
-      <attribute><code>EXTRA_OPTION_MYSQL.useCursorFetch</code><attribute>true</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>3306</attribute></attribute>
-      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
-      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
-      <attribute><code>STREAM_RESULTS</code><attribute>Y</attribute></attribute>
-      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
-    </attributes>
-  </connection>
   <order>
   <hop> <from>redshift countall query</from><to>Text file output</to><enabled>Y</enabled> </hop>
   </order>
-  <step>
-    <name>redshift countall query</name>
-    <type>TableInput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-         <partitioning>
-           <method>none</method>
-           <schema_name/>
-           </partitioning>
-    <connection>redshift1</connection>
-    <sql>select trunc&#x28;timestamp&#x29; mydate&#xd;&#xa;  , case &#xd;&#xa;    when replace&#x28;chain,&#x27;&#x7c;&#x27;,&#x27;&#x3a;&#x27;&#x29; &#x7e; &#x27;&#x5e;&#x28;&#x5b;A-Za-z&#x5d;&#x5b;0-9&#x5d;&#x7b;1,3&#x7d;&#x3a;&#x3f;&#x29;&#x2b;h&#x3f;&#x24;&#x27; then &#x27;valid&#x27;&#xd;&#xa;    when chain&#x3d;&#x27;h&#x27; then &#x27;h&#x27;&#xd;&#xa;    when chain&#x3d;&#x27;&#x27; then &#x27;null&#x27;&#xd;&#xa;    else &#x27;invalid&#x27;&#xd;&#xa;   end chain_valid&#xd;&#xa;  , ua_device_type device&#xd;&#xa;  , case&#xd;&#xa;    when lower&#x28;ua_browser&#x29; in &#x28;&#x27;icecat&#x27;,&#x27;iceweasel&#x27;&#x29; then &#x27;FireFox&#x27;&#xd;&#xa;    when lower&#x28;ua_browser&#x29; in &#x28;&#x27;msn browser&#x27;,&#x27;pocket internet explorer&#x27;&#x29; then &#x27;Internet Explorer&#x27;&#xd;&#xa;    when lower&#x28;left&#x28;ua_browser,5&#x29;&#x29;&#x3d;&#x27;nokia&#x27; then &#x27;Nokia Browser&#x27;&#xd;&#xa;    when lower&#x28;left&#x28;ua_browser,5&#x29;&#x29;&#x3d;&#x27;opera&#x27; then &#x27;Opera&#x27;&#xd;&#xa;    when lower&#x28;ua_browser&#x29; in &#x28;&#x27;amaya&#x27;,&#x27;firebird&#x27;,&#x27;icab&#x27;,&#x27;konqueror&#x27;,&#x27;lynx&#x27;,&#x27;netpositive&#x27;,&#x27;netscape navigator&#x27;,&#x27;omniweb&#x27;,&#x27;phoenix&#x27;,&#x27;shiretoko&#x27;,&#x27;uc browser&#x27;,&#x27;yahoo&#x21; slurp&#x27;&#x29; then &#x27;small&#x27;&#xd;&#xa;    when ua_browser&#x3d;&#x27;&#x27; then &#x27;blank&#x27;&#xd;&#xa;    else ua_browser &#xd;&#xa;    end browser&#xd;&#xa;  , case &#xd;&#xa;    when lower&#x28;geo_country&#x29;&#x3d;&#x27;us&#x27; then &#x27;us&#x27;&#xd;&#xa;    when lower&#x28;geo_country&#x29; in &#x28;&#x27;no&#x27;,&#x27;au&#x27;,&#x27;nl&#x27;,&#x27;de&#x27;,&#x27;ie&#x27;,&#x27;se&#x27;,&#x27;ch&#x27;,&#x27;nz&#x27;,&#x27;is&#x27;,&#x27;ca&#x27;,&#x27;dk&#x27;,&#x27;sg&#x27;,&#x27;be&#x27;,&#x27;at&#x27;,&#x27;fr&#x27;,&#x27;fi&#x27;,&#x27;si&#x27;,&#x27;hk&#x27;,&#x27;kr&#x27;,&#x27;jp&#x27;,&#x27;il&#x27;,&#x27;es&#x27;,&#x27;li&#x27;,&#x27;it&#x27;,&#x27;gb&#x27;,&#x27;lu&#x27;,&#x27;cz&#x27;,&#x27;gr&#x27;&#x29; then &#x27;tier1&#x27;&#xd;&#xa;    when lower&#x28;geo_country&#x29; in &#x28;&#x27;bn&#x27;,&#x27;qa&#x27;,&#x27;cy&#x27;,&#x27;mt&#x27;,&#x27;ad&#x27;,&#x27;ee&#x27;,&#x27;sk&#x27;,&#x27;sa&#x27;,&#x27;hu&#x27;,&#x27;ae&#x27;,&#x27;cl&#x27;,&#x27;pl&#x27;,&#x27;pt&#x27;,&#x27;bh&#x27;,&#x27;cu&#x27;,&#x27;kw&#x27;,&#x27;lt&#x27;,&#x27;lv&#x27;,&#x27;ar&#x27;,&#x27;hr&#x27;,&#x27;by&#x27;,&#x27;me&#x27;,&#x27;uy&#x27;,&#x27;bs&#x27;,&#x27;ru&#x27;,&#x27;ro&#x27;,&#x27;ly&#x27;,&#x27;om&#x27;,&#x27;bg&#x27;,&#xd;&#xa;              &#x27;bb&#x27;,&#x27;pw&#x27;,&#x27;ab&#x27;,&#x27;my&#x27;,&#x27;mu&#x27;,&#x27;rs&#x27;,&#x27;tt&#x27;,&#x27;lb&#x27;,&#x27;pa&#x27;,&#x27;ve&#x27;,&#x27;cr&#x27;,&#x27;kz&#x27;,&#x27;mx&#x27;,&#x27;sc&#x27;,&#x27;kz&#x27;,&#x27;al&#x27;,&#x27;ir&#x27;,&#x27;ge&#x27;,&#x27;jo&#x27;,&#x27;br&#x27;,&#x27;mk&#x27;,&#x27;ua&#x27;,&#x27;pe&#x27;,&#x27;ba&#x27;,&#x27;az&#x27;,&#x27;am&#x27;,&#x27;fj&#x27;,&#x27;th&#x27;,&#x27;tr&#x27;,&#x27;tn&#x27;,&#x27;cn&#x27;,&#x27;sv&#x27;,&#x27;dm&#x27;,&#xd;&#xa;              &#x27;dz&#x27;,&#x27;jm&#x27;,&#x27;sl&#x27;,&#x27;co&#x27;,&#x27;ec&#x27;,&#x27;to&#x27;,&#x27;dr&#x27;, &#x27;pr&#x27;&#x29; then &#x27;tier2&#x27;&#xd;&#xa;    when lower&#x28;geo_country&#x29; in &#x28;&#x27;sr&#x27;,&#x27;mn&#x27;,&#x27;mv&#x27;,&#x27;tm&#x27;,&#x27;ws&#x27;,&#x27;pl&#x27;,&#x27;id&#x27;,&#x27;bw&#x27;,&#x27;eg&#x27;,&#x27;py&#x27;,&#x27;ga&#x27;,&#x27;bo&#x27;,&#x27;sv&#x27;,&#x27;uz&#x27;,&#x27;md&#x27;,&#x27;ph&#x27;,&#x27;sy&#x27;,&#x27;za&#x27;,&#x27;iq&#x27;,&#x27;gy&#x27;,&#x27;vn&#x27;,&#x27;cv&#x27;,&#x27;gt&#x27;,&#x27;kg&#x27;,&#x27;na&#x27;,&#x27;hn&#x27;,&#x27;ma&#x27;,&#x27;vu&#x27;,&#x27;ni&#x27;,&#xd;&#xa;          &#x27;ki&#x27;,&#x27;tj&#x27;,&#x27;in&#x27;,&#x27;bt&#x27;,&#x27;kh&#x27;,&#x27;gh&#x27;,&#x27;la&#x27;,&#x27;cg&#x27;,&#x27;zm&#x27;,&#x27;bd&#x27;,&#x27;st&#x27;,&#x27;pk&#x27;,&#x27;ke&#x27;,&#x27;sz&#x27;,&#x27;ao&#x27;,&#x27;mm&#x27;,&#x27;rw&#x27;,&#x27;cm&#x27;,&#x27;ng&#x27;,&#x27;ye&#x27;,&#x27;mg&#x27;,&#x27;zw&#x27;,&#x27;pa&#x27;,&#x27;km&#x27;,&#x27;tz&#x27;,&#x27;mr&#x27;,&#x27;ls&#x27;,&#x27;sn&#x27;,&#x27;ug&#x27;,&#x27;bj&#x27;,&#x27;sd&#x27;,&#x27;tg&#x27;,&#x27;ht&#x27;,&#xd;&#xa;          &#x27;af&#x27;,&#x27;dj&#x27;,&#x27;ci&#x27;,&#x27;gm&#x27;,&#x27;et&#x27;,&#x27;mw&#x27;,&#x27;lr&#x27;,&#x27;ml&#x27;,&#x27;gw&#x27;,&#x27;mz&#x27;,&#x27;gn&#x27;,&#x27;bi&#x27;,&#x27;bf&#x27;,&#x27;er&#x27;,&#x27;sl&#x27;,&#x27;td&#x27;,&#x27;cf&#x27;,&#x27;ne&#x27; &#x29; then &#x27;tier3&#x27;&#xd;&#xa;    else &#x27;unknown&#x27;&#xd;&#xa;    end country_tier&#xd;&#xa;  , count&#x28;1&#x29; n&#xd;&#xa;from aggregated_logs_5&#xd;&#xa;where trunc&#x28;timestamp&#x29;&#x3d;&#x27;&#x24;&#x7b;yesterday&#x7d;&#x27;&#x29;&#xd;&#xa;group by mydate, chain_valid, device, browser, country_tier&#xd;&#xa;</sql>
-    <limit>0</limit>
-    <lookup/>
-    <execute_each_row>N</execute_each_row>
-    <variables_active>Y</variables_active>
-    <lazy_conversion_active>N</lazy_conversion_active>
-     <cluster_schema/>
- <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>530</xloc>
-      <yloc>270</yloc>
-      <draw>Y</draw>
-      </GUI>
-    </step>
-
   <step>
     <name>Text file output</name>
     <type>TextFileOutput</type>
@@ -277,11 +146,109 @@
       <splitevery>0</splitevery>
     </file>
     <fields>
+      <field>
+        <name>mydate</name>
+        <type>Date</type>
+        <format>yyyy-MM-dd</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>chain_valid</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>device</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>browser</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>country_tier</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>n</name>
+        <type>Integer</type>
+        <format>0</format>
+        <currency/>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif/>
+        <trim_type>both</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>671</xloc>
       <yloc>271</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>redshift countall query</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>redshift1</connection>
+    <sql>select trunc&#x28;timestamp&#x29; mydate&#xd;&#xa;  , case &#xd;&#xa;    when replace&#x28;chain,&#x27;&#x7c;&#x27;,&#x27;&#x3a;&#x27;&#x29; &#x7e; &#x27;&#x5e;&#x28;&#x5b;A-Za-z&#x5d;&#x5b;0-9&#x5d;&#x7b;1,3&#x7d;&#x3a;&#x3f;&#x29;&#x2b;h&#x3f;&#x24;&#x27; then &#x27;valid&#x27;&#xd;&#xa;    when chain&#x3d;&#x27;h&#x27; then &#x27;h&#x27;&#xd;&#xa;    when chain&#x3d;&#x27;&#x27; then &#x27;null&#x27;&#xd;&#xa;    else &#x27;invalid&#x27;&#xd;&#xa;   end chain_valid&#xd;&#xa;  , case ua_device_type when &#x27;&#x27; then &#x27;blank&#x27; else ua_device_type end device&#xd;&#xa;  , case&#xd;&#xa;    when lower&#x28;ua_browser&#x29; in &#x28;&#x27;icecat&#x27;,&#x27;iceweasel&#x27;&#x29; then &#x27;FireFox&#x27;&#xd;&#xa;    when lower&#x28;ua_browser&#x29; in &#x28;&#x27;msn browser&#x27;,&#x27;pocket internet explorer&#x27;&#x29; then &#x27;Internet Explorer&#x27;&#xd;&#xa;    when lower&#x28;left&#x28;ua_browser,5&#x29;&#x29;&#x3d;&#x27;nokia&#x27; then &#x27;Nokia Browser&#x27;&#xd;&#xa;    when lower&#x28;left&#x28;ua_browser,5&#x29;&#x29;&#x3d;&#x27;opera&#x27; then &#x27;Opera&#x27;&#xd;&#xa;    when lower&#x28;ua_browser&#x29; in &#x28;&#x27;amaya&#x27;,&#x27;firebird&#x27;, &#x27;galeon&#x27;, &#x27;icab&#x27;,&#x27;konqueror&#x27;,&#x27;lynx&#x27;,&#x27;netpositive&#x27;,&#x27;netscape navigator&#x27;,&#x27;omniweb&#x27;,&#x27;phoenix&#x27;,&#x27;shiretoko&#x27;,&#x27;uc browser&#x27;,&#x27;yahoo&#x21; slurp&#x27;&#x29; then &#x27;small&#x27;&#xd;&#xa;    when ua_browser&#x3d;&#x27;&#x27; then &#x27;blank&#x27;&#xd;&#xa;    else ua_browser &#xd;&#xa;    end browser&#xd;&#xa;  , case &#xd;&#xa;    when lower&#x28;geo_country&#x29;&#x3d;&#x27;us&#x27; then &#x27;us&#x27;&#xd;&#xa;    when lower&#x28;geo_country&#x29; in &#x28;&#x27;no&#x27;,&#x27;au&#x27;,&#x27;nl&#x27;,&#x27;de&#x27;,&#x27;ie&#x27;,&#x27;se&#x27;,&#x27;ch&#x27;,&#x27;nz&#x27;,&#x27;is&#x27;,&#x27;ca&#x27;,&#x27;dk&#x27;,&#x27;sg&#x27;,&#x27;be&#x27;,&#x27;at&#x27;,&#x27;fr&#x27;,&#x27;fi&#x27;,&#x27;si&#x27;,&#x27;hk&#x27;,&#x27;kr&#x27;,&#x27;jp&#x27;,&#x27;il&#x27;,&#x27;es&#x27;,&#x27;li&#x27;,&#x27;it&#x27;,&#x27;gb&#x27;,&#x27;lu&#x27;,&#x27;cz&#x27;,&#x27;gr&#x27;&#x29; then &#x27;tier1&#x27;&#xd;&#xa;    when lower&#x28;geo_country&#x29; in &#x28;&#x27;bn&#x27;,&#x27;qa&#x27;,&#x27;cy&#x27;,&#x27;mt&#x27;,&#x27;ad&#x27;,&#x27;ee&#x27;,&#x27;sk&#x27;,&#x27;sa&#x27;,&#x27;hu&#x27;,&#x27;ae&#x27;,&#x27;cl&#x27;,&#x27;pl&#x27;,&#x27;pt&#x27;,&#x27;bh&#x27;,&#x27;cu&#x27;,&#x27;kw&#x27;,&#x27;lt&#x27;,&#x27;lv&#x27;,&#x27;ar&#x27;,&#x27;hr&#x27;,&#x27;by&#x27;,&#x27;me&#x27;,&#x27;uy&#x27;,&#x27;bs&#x27;,&#x27;ru&#x27;,&#x27;ro&#x27;,&#x27;ly&#x27;,&#x27;om&#x27;,&#x27;bg&#x27;,&#xd;&#xa;              &#x27;bb&#x27;,&#x27;pw&#x27;,&#x27;ab&#x27;,&#x27;my&#x27;,&#x27;mu&#x27;,&#x27;rs&#x27;,&#x27;tt&#x27;,&#x27;lb&#x27;,&#x27;pa&#x27;,&#x27;ve&#x27;,&#x27;cr&#x27;,&#x27;kz&#x27;,&#x27;mx&#x27;,&#x27;sc&#x27;,&#x27;kz&#x27;,&#x27;al&#x27;,&#x27;ir&#x27;,&#x27;ge&#x27;,&#x27;jo&#x27;,&#x27;br&#x27;,&#x27;mk&#x27;,&#x27;ua&#x27;,&#x27;pe&#x27;,&#x27;ba&#x27;,&#x27;az&#x27;,&#x27;am&#x27;,&#x27;fj&#x27;,&#x27;th&#x27;,&#x27;tr&#x27;,&#x27;tn&#x27;,&#x27;cn&#x27;,&#x27;sv&#x27;,&#x27;dm&#x27;,&#xd;&#xa;              &#x27;dz&#x27;,&#x27;jm&#x27;,&#x27;sl&#x27;,&#x27;co&#x27;,&#x27;ec&#x27;,&#x27;to&#x27;,&#x27;dr&#x27;, &#x27;pr&#x27;&#x29; then &#x27;tier2&#x27;&#xd;&#xa;    when lower&#x28;geo_country&#x29; in &#x28;&#x27;sr&#x27;,&#x27;mn&#x27;,&#x27;mv&#x27;,&#x27;tm&#x27;,&#x27;ws&#x27;,&#x27;pl&#x27;,&#x27;id&#x27;,&#x27;bw&#x27;,&#x27;eg&#x27;,&#x27;py&#x27;,&#x27;ga&#x27;,&#x27;bo&#x27;,&#x27;sv&#x27;,&#x27;uz&#x27;,&#x27;md&#x27;,&#x27;ph&#x27;,&#x27;sy&#x27;,&#x27;za&#x27;,&#x27;iq&#x27;,&#x27;gy&#x27;,&#x27;vn&#x27;,&#x27;cv&#x27;,&#x27;gt&#x27;,&#x27;kg&#x27;,&#x27;na&#x27;,&#x27;hn&#x27;,&#x27;ma&#x27;,&#x27;vu&#x27;,&#x27;ni&#x27;,&#xd;&#xa;          &#x27;ki&#x27;,&#x27;tj&#x27;,&#x27;in&#x27;,&#x27;bt&#x27;,&#x27;kh&#x27;,&#x27;gh&#x27;,&#x27;la&#x27;,&#x27;cg&#x27;,&#x27;zm&#x27;,&#x27;bd&#x27;,&#x27;st&#x27;,&#x27;pk&#x27;,&#x27;ke&#x27;,&#x27;sz&#x27;,&#x27;ao&#x27;,&#x27;mm&#x27;,&#x27;rw&#x27;,&#x27;cm&#x27;,&#x27;ng&#x27;,&#x27;ye&#x27;,&#x27;mg&#x27;,&#x27;zw&#x27;,&#x27;pa&#x27;,&#x27;km&#x27;,&#x27;tz&#x27;,&#x27;mr&#x27;,&#x27;ls&#x27;,&#x27;sn&#x27;,&#x27;ug&#x27;,&#x27;bj&#x27;,&#x27;sd&#x27;,&#x27;tg&#x27;,&#x27;ht&#x27;,&#xd;&#xa;          &#x27;af&#x27;,&#x27;dj&#x27;,&#x27;ci&#x27;,&#x27;gm&#x27;,&#x27;et&#x27;,&#x27;mw&#x27;,&#x27;lr&#x27;,&#x27;ml&#x27;,&#x27;gw&#x27;,&#x27;mz&#x27;,&#x27;gn&#x27;,&#x27;bi&#x27;,&#x27;bf&#x27;,&#x27;er&#x27;,&#x27;sl&#x27;,&#x27;td&#x27;,&#x27;cf&#x27;,&#x27;ne&#x27; &#x29; then &#x27;tier3&#x27;&#xd;&#xa;    else &#x27;unknown&#x27;&#xd;&#xa;    end country_tier&#xd;&#xa;  , count&#x28;1&#x29; n&#xd;&#xa;from aggregated_logs_5&#xd;&#xa;where trunc&#x28;timestamp&#x29;&#x3d;&#x27;&#x24;&#x7b;yesterday&#x7d;&#x27;&#xd;&#xa;group by mydate, chain_valid, device, browser, country_tier&#xd;&#xa;</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>Y</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>530</xloc>
+      <yloc>270</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
