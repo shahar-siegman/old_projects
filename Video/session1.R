@@ -8,16 +8,37 @@ loadDF1 <- function() {
 }
 
 loadDF2 <- function () {
-  DF <- read.csv(paste0(currdir,'10-12_agg.csv'))
+  DF <- read.csv(paste0(currdir,'10-12_agg.csv'),strip.white=T)
 }
 
-regularizeEvents <- function(df) {
+addAttribute_Events <- function(df) {
   s2s <- !is.na(df$s2sCall)
   df$resp1 <- s2s & df$kvidLoaded>0 # !is.na(df$videoLoaded)
   df$resp2 <- df$resp1 & (df$vastResponse > 0 | df$vast_false > 0 | df$vastTimeout > 0)
   df$resp3 <- df$resp1 & df$tvpaidloaded > 0
   df$resp4 <- df$resp1 & df$tvadStart > 0
   df$resp5 <- df$tpb > 0
+  df$resp_vast <- ifelse(df$resp1,
+                         ifelse(df$vastResponse > 0, "vast_rsp",
+                                ifelse(df$vast_false > 0, "vast_F",
+                                       ifelse(df$vastTimeout > 0, "vast_timeout", "vast_none"))),NA)
+  df$vpaidl <- ifelse(df$resp1, df$tvpaidloaded > 0, NA)
+  df$final <- ifelse(df$resp1,ifelse(df$tvadStart > 0, "serve", ifelse(df$tpb > 0, "passback", "discrep")),NA)
+  df <- df %>% mutate(last_response_time =
+                        ifelse(resp5, tpb,
+                               ifelse(resp4, tvadStart,
+                                      ifelse(resp3,vpaidloaded,
+                                             ifelse(resp2,max(vastResponse, vast_false, vastTimeout, na.rm=T),
+                                                    s2sCall))))) %>%
+    mutate(last_response_type =
+             ifelse(resp5, "6. passback",
+                    ifelse(resp4, "5. adStart",
+                           ifelse(resp3,"4. vpaidloaded",
+                                  ifelse(resp2,"3. vast",
+                                         ifelse(resp1,"2. videoloaded",
+                                                ifelse(s2s, "1. s2sCall", NA)))))))
+
+
   return(df)
 }
 
@@ -74,6 +95,7 @@ analyzeTimeDiffs <- function (df, verbose=F) {
 }
 
 analyzeS2s <- function(df) {
+  # explore the missing s2s response. Not a good direction as most missing responses pop up in later events
   df$isresponse <- ifelse(is.na(df$s2sCall),NA,!is.na(df$s2sResponse))
   fit <- rpart(isresponse ~ geo_continent + ua_browser + ua_browser_os, method="class", data=df, control=list(cp=0.001))
   plot(fit, uniform=TRUE,  main="Classification Tree ")
@@ -81,27 +103,8 @@ analyzeS2s <- function(df) {
 }
 
 analyzeServeAndDiscrepancy <- function(df) {
-  # df <- df %>% mutate(response=ifelse(s2s, resp1 | resp2 | resp3 | resp4 | resp5 ,NA))
-  df <- regularizeEvents(df)
-
-  df <- df %>% mutate(last_response_time =
-                  ifelse(resp5, tpb,
-                         ifelse(resp4, tvadStart,
-                                ifelse(resp3,vpaidloaded,
-                                       ifelse(resp2,max(vastResponse, vast_false, vastTimeout, na.rm=T),
-                                              s2sCall))))) %>%
-    mutate(last_response_type =
-             ifelse(resp5, "6. passback",
-                    ifelse(resp4, "5. adStart",
-                           ifelse(resp3,"4. vpaidloaded",
-                                  ifelse(resp2,"3. vast",
-                                         ifelse(resp1,"2. videoloaded",
-                                                ifelse(s2s, "1. s2sCall", NA)))))))
-
-
-  #ggplot(df) + geom_density(aes(x=last_response_time, fill=as.factor(last_response_type), y=..scaled..),alpha=0.5)
-  # p <- ggplot(df) + geom_bar(aes(x=last_response_type), na.rm=T)
-
+# the basic density in time
+  df <- addAttribute_Events(df)
   p <- ggplot() +
     geom_density(data= df %>% filter (resp4), aes(x=tvadStart), fill="blue") +
     geom_density(data= df %>% filter(resp1 & !resp4 & !resp5 & lastHb>0), aes(x=lastHb),fill="red", alpha=0.25) +
@@ -111,6 +114,7 @@ analyzeServeAndDiscrepancy <- function(df) {
 }
 
 serveDiscrepancyHistogram <- function(dff) {
+  # generate the data used for the cumulative density plots
   p <- dff %>% filter(resp4)
   d1 <- hist.df(p$tvadStart, breaks=seq(0,800000,1000), "serve_count")
 
@@ -122,10 +126,10 @@ serveDiscrepancyHistogram <- function(dff) {
 }
 
 plotServeDiscrepancyHistogram <- function(d,factorColumn) {
+  # the cumulative density plot
   d <- d %>% group_by_(factorColumn) %>%
     mutate(serve_cum_percent = cumsum(serve_count)/sum(serve_count),
            discrep_cum_percent = cumsum(discrep_count)/sum(discrep_count))
-
   p <- ggplot(d) +
     geom_path(aes_string(x="serve_cum_percent",
                          y="discrep_cum_percent",
@@ -134,7 +138,6 @@ plotServeDiscrepancyHistogram <- function(d,factorColumn) {
                          y="discrep_cum_percent",
                          color=factorColumn,
                          shape=factorColumn))
-
   plot(p)
 }
 
@@ -161,3 +164,6 @@ hist.df <- function(x, breaks, count_column_name) {
   return(d)
 }
 
+stat1EventsByPlacement <- function(df) {
+  df %>% filter()
+}
