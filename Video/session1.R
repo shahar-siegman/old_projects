@@ -3,12 +3,12 @@ library(rpart)
 currdir <- 'C:/Shahar/Projects/Video/'
 
 loadDF1 <- function() {
-  DF <- read.csv(paste0(currdir,'video_placement_data_redshift.csv'),sep="\t")
+  DF <- read.csv(paste0(currdir,'video_placement_data_redshift.csv'),sep="\t",na.strings="--")
   ggplot(DF)+geom_density(aes(x=ad_start_time-tag_start_time,fill=ua_browser), alpha=0.5) + facet_wrap(~placement_id)
 }
 
 loadDF2 <- function () {
-  DF <- read.csv(paste0(currdir,'10-12_agg.csv'),strip.white=T)
+  DF <- read.csv(paste0(currdir,'10-12_agg.csv'),strip.white=T,na.strings="--")
 }
 
 addAttribute_Events <- function(df) {
@@ -113,7 +113,7 @@ analyzeServeAndDiscrepancy <- function(df) {
   return(df)
 }
 
-serveDiscrepancyHistogram <- function(dff) {
+TimeHistogramSingleLevel <- function(dff) {
   # generate the data used for the cumulative density plots
   p <- dff %>% filter(resp4)
   d1 <- hist.df(p$tvadStart, breaks=seq(0,800000,1000), "serve_count")
@@ -125,11 +125,20 @@ serveDiscrepancyHistogram <- function(dff) {
   return(d)
 }
 
-plotServeDiscrepancyHistogram <- function(d,factorColumn) {
+plotServeDiscrepancyHistogram <- function(d,factorColumn,absolute=T) {
   # the cumulative density plot
+  # input is not normalized - the "absolute" input determines if normalization should go to 100% or out of stat1's
   d <- d %>% group_by_(factorColumn) %>%
-    mutate(serve_cum_percent = cumsum(serve_count)/sum(serve_count),
-           discrep_cum_percent = cumsum(discrep_count)/sum(discrep_count))
+    mutate(serve_cum_percent = cumsum(serve_count),
+           discrep_cum_percent = cumsum(discrep_count))
+  if(absolute) {
+    d <- d %>% mutate(serve_cum_percent = serve_cum_percent/sum(serve_count),
+                      discrep_cum_percent = discrep_cum_percent/sum(discrep_count))
+  }
+  else {
+    d <- d %>% mutate(serve_cum_percent = cumsum(serve_count)/level_stat1,
+                      discrep_cum_percent = cumsum(discrep_count)/level_stat1)
+  }
   p <- ggplot(d) +
     geom_path(aes_string(x="serve_cum_percent",
                          y="discrep_cum_percent",
@@ -138,7 +147,6 @@ plotServeDiscrepancyHistogram <- function(d,factorColumn) {
                          y="discrep_cum_percent",
                          color=factorColumn,
                          shape=factorColumn))
-  plot(p)
 }
 
 serveDiscrepancyHistogramByFactor <- function(df, factorColumn) {
@@ -149,13 +157,17 @@ serveDiscrepancyHistogramByFactor <- function(df, factorColumn) {
     levelData <- df[!is.na(df[factorColumn]) & df[factorColumn]==currentLevel,]
     print(paste0("level ", currentLevel, " nrows: ", nrow(levelData)))
     if (nrow(levelData)>1000) {
-      d <- serveDiscrepancyHistogram(levelData)
+      d <- TimeHistogramSingleLevel(levelData)
       d[factorColumn] <- currentLevel
+      d$level_stat1 <- sum(nchar(as.character(levelData$chain))>1, na.rm=T)  # sum a logical
       m <- rbind(m,d)
+    } else {
+      print(paste0("skipping level ", currentLevel, " with ", nrow(levelData), " rows, at least 1000 required"))
     }
   }
   return(m)
 }
+
 
 hist.df <- function(x, breaks, count_column_name) {
   h <- hist(x, breaks, plot=F)
@@ -164,6 +176,4 @@ hist.df <- function(x, breaks, count_column_name) {
   return(d)
 }
 
-stat1EventsByPlacement <- function(df) {
-  df %>% filter()
-}
+
