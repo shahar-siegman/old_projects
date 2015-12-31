@@ -1,8 +1,22 @@
 source('session1.R')
 
+loadDF3 <- function () {
+  DF <- read.csv(paste0(currdir,'30_12_agg.csv'),strip.white=T,na.strings="--")
+
+  s2sColumnNames = c("s2sCall","start")
+  i <- 1
+  while (!s2sColumnNames[i] %in% names(DF))
+    i <- i+1
+  if (i>1)
+    DF$s2sCall <- DF[[s2sColumnNames[i]]]
+
+  return(DF)
+}
+
+
 session5 <- function(reload=F, full=F, draw=T) {
   if (reload) {
-    df <- loadDF2() # in session1
+    df <- loadDF3() # in session1
   } else {
     df <- dff # dff is defined in the global environment
   }

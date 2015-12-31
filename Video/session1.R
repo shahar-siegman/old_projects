@@ -10,9 +10,9 @@ loadDF1 <- function() {
 loadDF2 <- function () {
   DF <- read.csv(paste0(currdir,'10-12_agg.csv'),strip.white=T,na.strings="--")
 }
-
+# df$resp1 & !df$resp4 & !df$resp5 & df$lastHb>0,
 addAttribute_Events <- function(df) {
-  s2s <- !is.na(df$s2sCall)
+  s2s <- !is.na(df$s2sCall) & df$s2sCall > 0
   df$resp1 <- s2s & df$kvidLoaded>0 # !is.na(df$videoLoaded)
   df$resp2 <- df$resp1 & (df$vastResponse > 0 | df$vast_false > 0 | df$vastTimeout > 0)
   df$resp3 <- df$resp1 & df$tvpaidloaded > 0
