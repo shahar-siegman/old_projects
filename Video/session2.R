@@ -8,6 +8,8 @@ loadHDITable <- function() {
 
 addAttribute_ContinentAndHdiLevel <- function(df, country.hdi) {
   if (! "hdi_level" %in% names(df)) {
+    if (missing(country.hdi))
+      country.hdi <- loadHDITable()
     country.hdi$code = toupper(country.hdi$code)
     df <- left_join(df,country.hdi, by=c(geo_country = "code"))
     df <- df %>% mutate(continent_level = as.factor(paste(geo_continent,hdi_level)))

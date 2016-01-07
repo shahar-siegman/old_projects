@@ -1,8 +1,19 @@
-source('session1.R')
+source('session2.R')
 
 loadDF3 <- function () {
   DF <- read.csv(paste0(currdir,'30_12_agg.csv'),strip.white=T,na.strings="--")
+  DF <- fixS2sColumnNames(DF)
+  return(DF)
+}
 
+loadDF4 <- function () {
+  DF <- read.csv(paste0(currdir,'21_23-12_agg.csv'),strip.white=T,na.strings="--")
+  DF <- fixS2sColumnNames(DF)
+  return(DF)
+}
+
+
+fixS2sColumnNames <- function(DF) {
   s2sColumnNames = c("s2sCall","start")
   i <- 1
   while (!s2sColumnNames[i] %in% names(DF))
@@ -20,6 +31,9 @@ session5 <- function(reload=F, full=F, draw=T) {
   } else {
     df <- dff # dff is defined in the global environment
   }
+  if (!exists("country.hdi"))
+    country.hdi <<- loadHDITable()
+
   df <- addAttribute_ContinentAndHdiLevel(df, country.hdi)
   if (!"browser_old_new" %in% names(df) || full)
     df <- addAttribute_BrowserOldNew(df)
@@ -44,7 +58,8 @@ session5 <- function(reload=F, full=F, draw=T) {
                       tvadStart,
                       lastHb,
                       browser_old_new,
-                      chain)
+                      chain,
+                      placement_id)
 
   m2 <- serveDiscrepancyHistogramByFactor(df,"continent_level")
 
@@ -56,6 +71,7 @@ session5 <- function(reload=F, full=F, draw=T) {
     plotDurationByServedAndTwoAttributes(df %>% filter(geo_continent=="EU" ),                 "continent_level","browser_old_new"),
     plotDurationByServedAndTwoAttributes(df %>% filter(!geo_continent %in% c("EU","SA","NA")),"continent_level","ua_browser_os"),
     plotDurationByServedAndTwoAttributes(df %>% filter(geo_continent %in% c("EU","SA","NA")), "continent_level","browser_old_new"),
+    plotDurationByServedAndTwoAttributes(df %>% filter(geo_continent %in% c("EU","SA","NA")), "","placement_id"),
     # this summarises the important attribute - continent_level
     plotServeDiscrepancyHistogram(m2,"continent_level")
   )
@@ -123,3 +139,24 @@ plotDurationByServedAndTwoAttributes <- function (df, attribute1, attribute2) {
   return(p)
 }
 
+outputByAttribute <- function(df,attribute) {
+  df <- df %>%
+    group_by_(attribute) %>%
+    filter(n() > 300) %>%
+    ungroup() %>%
+    filter(ifelse(is.na(tvadStartP),T,tvadStartP<60000) & ifelse(is.na(lastHbP), T, lastHbP <60000))
+
+  df[[attribute]] <- as.factor(df[[attribute]])
+  lev <- levels(df[[attribute]])
+  nlev <- length(lev)
+  r <- data.frame()
+  for (i in 1:nlev) {
+    y <- df[df[[attribute]]==lev[i],]
+    y1 <- hist.df(y$tvadStartP, seq(0,60000,2000), "tvadStartP")
+    y2 <- hist.df(y$lastHbP, seq(0,60000,2000), "lastHbP")
+    y3 <- full_join(y1,y2)
+    y3[[attribute]]=lev[i]
+    r <- rbind(r,y3)
+  }
+  return(r)
+}
