@@ -32,7 +32,6 @@ plotGrid <- function(y) {
     geom_path(data= y %>% filter(major==T), aes(x=x, y=y, group=as.factor(ecpm)),color="grey") +
     geom_point(data= y %>% filter(major==T), aes(x=x, y=y),color="grey") +
     geom_path(data= y %>% filter(major==T), aes(x=x, y=y, group=as.factor(fill)),color="grey") +
-    geom_path(data= y %>% filter(major==F), aes(x=x, y=y, group=as.factor(fill)),color="grey", linetype="dashed") +
-    coord_fixed()
+    geom_path(data= y %>% filter(major==F), aes(x=x, y=y, group=as.factor(fill)),color="grey", linetype="dashed")
 }
 
