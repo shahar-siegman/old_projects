@@ -11,12 +11,12 @@
     <parameters>
         <parameter>
             <name>end_date</name>
-            <default_value>&#x27;2015-11-20&#x27;</default_value>
+            <default_value>&#x27;2016-01-09&#x27;</default_value>
             <description/>
         </parameter>
         <parameter>
             <name>start_date</name>
-            <default_value>2015-10-14</default_value>
+            <default_value>2016-01-01</default_value>
             <description/>
         </parameter>
     </parameters>
@@ -113,7 +113,7 @@
     </attributes>
   </connection>
   <connection>
-    <name>komoona production&#x21;&#x21;&#x21;</name>
+    <name>komoona stat</name>
     <server>komoona-stat.cesnzoem9yag.us-east-1.rds.amazonaws.com</server>
     <type>MYSQL</type>
     <access>Native</access>
@@ -211,6 +211,33 @@
       <attribute><code>PORT_NUMBER</code><attribute>1521</attribute></attribute>
       <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
       <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+  <connection>
+    <name>stats</name>
+    <server>komoona-stat.cesnzoem9yag.us-east-1.rds.amazonaws.com</server>
+    <type>MYSQL</type>
+    <access>Native</access>
+    <database>komoona_stat</database>
+    <port>3306</port>
+    <username>komoona</username>
+    <password>Encrypted 2be98afc86aa79791a50cac668cc2fe8a</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>EXTRA_OPTION_MYSQL.defaultFetchSize</code><attribute>500</attribute></attribute>
+      <attribute><code>EXTRA_OPTION_MYSQL.useCursorFetch</code><attribute>true</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>3306</attribute></attribute>
+      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>STREAM_RESULTS</code><attribute>Y</attribute></attribute>
       <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
       <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
       <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>

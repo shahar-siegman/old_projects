@@ -1,3 +1,5 @@
-**/.RData
+**/.RData*
 *.csv
 **/\~*
+sandbox/gitest/
+Optimization/placement_attributes/production graphs/
