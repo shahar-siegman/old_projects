@@ -106,4 +106,5 @@ sameNetworkOrdinal <- function(df) {
   return(df)
 }
 
-subsetByPlacement <- function(df, num) df %>% filter(placement_id==levels(df$placement_id)[num]) %>% preprocess()
+subsetByPlacement <- function(df, num)
+  df %>% filter(placement_id==levels(df$placement_id)[num]) %>% preprocess()
