@@ -79,7 +79,7 @@ clusterM <- function(m,n_cluster) {
   return (m1)
 }
 
-analysis <- function(m) {
+analysis <- function(m3) {
    ggplot(m %>% clusterM(4)) + geom_path(aes(x=date_joined,y=fill,group=tag,color=as.factor(cluster))) + facet_wrap(~cluster)
    #ggplot(m %>% clusterK(4)$
 
