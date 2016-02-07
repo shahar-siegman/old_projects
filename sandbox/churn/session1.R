@@ -5,8 +5,11 @@ loadDF <- function() {
 }
 
 preprocess <- function(df, cost_threshold=1000, initial_cost_threshold=0) {
-  df <- df %>% filter(cost>initial_cost_threshold) %>% group_by(site) %>% mutate(scaled_imps = (imps - mean(imps))/sd(imps),
-                                         scaled_cost = (cost - mean(cost))/sd(cost))
+  df <- df %>% filter(cost>initial_cost_threshold) %>% group_by(site) %>%
+    mutate(scaled_imps = (imps - mean(imps))/sd(imps),
+           scaled_cost = (cost - mean(cost))/sd(cost),
+           rcpm = 1000*income/imps,
+           scaled_rcpm = (rcpm - mean(rcpm) / sd(rcpm)))
   df$date <- as.Date(paste0(as.character(df$date),"-01"))
   df <- df %>% group_by(site) %>% mutate(last_month=max(date))
   df <- df %>% mutate(month = as.numeric(-floor(difftime(last_month,date,units="days")/28)))
@@ -16,8 +19,16 @@ preprocess <- function(df, cost_threshold=1000, initial_cost_threshold=0) {
                                          period =ifelse(-month == duration, "start partial",
                                                         ifelse(-month >= duration-3, "first full 3",
                                                                ifelse(- month <= 3 & -month >0, "last full 3",
-                                                                      ifelse(month == 0, "end partial", "middle")))))
+                                                                      ifelse(month == 0, "end partial", "middle"))))
+                                         )
   return(df)
+}
+
+filterBlockedUsers <- function(df) {
+  bl <- loadBlockedUsers()
+  bl$blocked = T
+  df <- left_join(df,bl,"user")
+  df <- df %>% filter(is.na(blocked)) %>% select(-blocked)
 }
 
 analysis1 <- function(df, analysis_column="imps") {
@@ -26,18 +37,22 @@ analysis1 <- function(df, analysis_column="imps") {
   print(df %>%  group_by(site,churn) %>% summarize() %>% group_by(churn) %>% summarize(nsites=n()))
   dfa18 <- df %>%
     group_by(month, churn) %>%
-    summarise(scaled_cost=mean(scaled_cost, na.rm=T), scaled_imps=mean(scaled_imps, na.rm=T))
+    summarise(scaled_cost=mean(scaled_cost, na.rm=T), scaled_imps=mean(scaled_imps, na.rm=T), scaled_rcpm=mean(scaled_rcpm, na.rm=T))
   if (analysis_column =="imps")
   {
     ggplot(dfa18 %>% filter(!is.na(churn))) + geom_path(aes(x = month, y = scaled_imps, group = churn, color=!churn),size=2)
   }
-  else # cost
+  else if (analysis_column =="cost")
   {
       ggplot(dfa18 %>% filter(!is.na(churn))) + geom_path(aes(x = month, y = scaled_cost, group = churn, color=!churn),size=2)
   }
+  else # rcpm
+  {
+    ggplot(dfa18 %>% filter(!is.na(churn))) + geom_path(aes(x = month, y = scaled_rcpm, group = churn, color=!churn),size=2)
+  }
 }
 
-analysis2 <- function(df) {
+analysis2 <- function(df, analysis_column="cost") {
   # df %>% group_by(site) %>% filter(high_cost) %>% summarise(cost=sum(cost)) %>% `[[`("cost") %>% quantile(seq(0,1,0.1))
 #   0%         10%         20%         30%         40%         50%         60%         70%         80%
 #   1005.615    1573.197    2444.892    3869.107    6175.935    9859.394   15764.811   26630.324   52671.230
@@ -45,7 +60,7 @@ analysis2 <- function(df) {
 #   115435.070 2033629.724
   df <- preprocess(df,500,50)
   df <- filter(df,high_cost)
-  analysis1(df, "cost")
+  analysis1(df, analysis_column)
 }
 
 
@@ -60,6 +75,6 @@ analysis3 <- function(df) {
               imps_1st  = sum(ifelse(period == "first full 3",imps, 0)),
               imps_last = sum(ifelse(period == "last full 3" ,imps, 0))) %>%
     mutate(cost_ratio = cost_last/cost_1st, imps_ratio = imps_last/ imps_1st)
-
-
 }
+
+
