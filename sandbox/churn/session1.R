@@ -6,10 +6,7 @@ loadDF <- function() {
 
 preprocess <- function(df, cost_threshold=1000, initial_cost_threshold=0) {
   df <- df %>% filter(cost>initial_cost_threshold) %>% group_by(site) %>%
-    mutate(scaled_imps = (imps - mean(imps))/sd(imps),
-           scaled_cost = (cost - mean(cost))/sd(cost),
-           rcpm = 1000*income/imps,
-           scaled_rcpm = (rcpm - mean(rcpm) / sd(rcpm)))
+    mutate(rcpm = 1000*income/imps)
   df$date <- as.Date(paste0(as.character(df$date),"-01"))
   df <- df %>% group_by(site) %>% mutate(last_month=max(date))
   df <- df %>% mutate(month = as.numeric(-floor(difftime(last_month,date,units="days")/28)))
@@ -31,9 +28,13 @@ filterBlockedUsers <- function(df) {
   df <- df %>% filter(is.na(blocked)) %>% select(-blocked)
 }
 
-analysis1 <- function(df, analysis_column="imps") {
+analysis1 <- function(df, analysis_column="imps", min.duration=12) {
   df <- df %>%
-    filter(duration <= 18, duration>=6, high_cost)
+    filter(duration>=min.duration, high_cost, month>=-min.duration)  %>%
+    mutate(scaled_imps = (imps - mean(imps))/sd(imps),
+           scaled_cost = (cost - mean(cost))/sd(cost),
+           scaled_rcpm = (rcpm - mean(rcpm))/sd(rcpm))
+
   print(df %>%  group_by(site,churn) %>% summarize() %>% group_by(churn) %>% summarize(nsites=n()))
   dfa18 <- df %>%
     group_by(month, churn) %>%
