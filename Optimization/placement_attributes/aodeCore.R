@@ -1,6 +1,7 @@
 # prepareSuperFactorTable (calls GroupByWithRollup) - summarise the data by
 # attributes pairs, one designated as primary, the others cycle as secondary
 # the primary is referred to as the super factor
+source("../../libraries.R")
 
 prepareSuperFactorTable <- function(df, superFactorName, otherFactorNames)
 {
@@ -121,28 +122,25 @@ Pxj_served <- function(refTable, factorJName, factorJLevel, selfServed = 0) {
 }
 
 # Pxj_xi = P(Xj=v | Xi =t) = count(Xj = v, Xi = t) / count(Xi=t)
-Pxj_xi <- function(refTable, factorILevel,factorJName,factorJLevel, selfImps = 0) {
+Pxj_xi <- function(refTable, factorILevel,factorJName,factorJLevel, selfImps = 0, pWeightParam=NULL) {
   row1 <- retrieve.ref.t(refTable, factorILevel, factorJName, factorJLevel)
   row2 <- retrieve.ref.t(refTable, factorILevel, "_","_")
-  if (row1$impressions - selfImps == 0)
-    XjGivenXi <- Pxj(refTable, factorJName,factorJLevel)
-  else
-    XjGivenXi <- (row1$impressions - selfImps)  / (row2$impressions - selfImps)
-
+  prior <- Pxj(refTable, factorJName,factorJLevel)
+  pWeight <- getPriorWeight(pWeightParam)
+  XjGivenXi <- (row1$impressions - selfImps + prior*pWeight)  / (row2$impressions - selfImps + pWeight)
   return(XjGivenXi)
 }
 
 # Pxj_served.xi = P(xj=v | xi=t, served) = count(xj=v, xi=t, served) / count(xi=t,served)
-Pxj_served.xi <- function(refTable, factorILevel,factorJName,factorJLevel, selfServed = 0) {
+Pxj_served.xi <- function(refTable, factorILevel,factorJName,factorJLevel, selfServed = 0, pWeightParam=NULL) {
   row1 <- retrieve.ref.t(refTable, factorILevel, factorJName, factorJLevel)
   row2 <- retrieve.ref.t(refTable, factorILevel, "_","_")
-  if (row1$served - selfServed == 0) {
-    XjGivenServedAndXi <- Pxj_served(refTable, factorJName,factorJLevel, selfServed)
-  }
-  else
-  {
-    XjGivenServedAndXi <- (row1$served - selfServed)  / (row2$served - selfServed)
-  }
+  prior <- Pxj_served(refTable, factorJName,factorJLevel, selfServed)
+  pWeight <- getPriorWeight(pWeightParam)
+  XjGivenServedAndXi <- (row1$served - selfServed + prior*pWeight)  / (row2$served - selfServed + pWeight)
   return(XjGivenServedAndXi)
 }
 
+getPriorWeight <- function(pWeightParam) {
+  return (10)
+}

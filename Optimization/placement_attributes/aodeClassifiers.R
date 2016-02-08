@@ -1,3 +1,4 @@
+source("aodeCore.R")
 
 ClassifySingleCaseLeaveOneOut <- function(refTable, df, case) {
   # produces a probability of success estimate for a a single case

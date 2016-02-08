@@ -95,14 +95,21 @@ sameNetworkOrdinal <- function(df) {
   ordinal = as.numeric(as.character(df$ordinal))
   #ordinal = df$ordinal
   same_network_ordinal=numeric(n)
+  prev_network = character(n)
+  prev_fp = numeric(n)
+  prev_fp[1:n]=NA
   for (i in 1:n)
     if (ordinal[i] > 0) {
     splitChain = unlist(strsplit(as.character(df$chain[i]), ":", fixed=T))
     splitChain = splitChain[1: ordinal[i]]
     network = as.character(df$network[i])
     same_network_ordinal[i] <- sum(substr(splitChain,1,1)==network)
+    prev_network[i] <- substr(splitChain[ordinal[i]],1,1)
+    prev_fp[i] <- as.numeric(unlist(strsplit(splitChain[ordinal[i]], "=", fixed=T))[2])
   }
   df$same_network_ordinal <- same_network_ordinal
+  df$prev_network <- prev_network
+  df$prev_fp <- prev_fp
   return(df)
 }
 
