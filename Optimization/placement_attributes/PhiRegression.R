@@ -26,6 +26,7 @@ preprocess2 <- function(df) {
   df <- left_join(df, fp_clusters, by = "prev_fp")
   df$prev_network_cluster <- paste0(df$prev_network,df$prev_fp_cluster)
   df$network_cluster <- paste0(df$network, df$fp_cluster)
+  df$prev_same_network <- df$network == df$prev_network
   return(df)
 }
 
@@ -33,7 +34,7 @@ preparePhiData <- function(df) {
 df <- preprocess2(df)
 df <- df %>%
   filter(as.Date(date_joined)>="2015-09-30", as.numeric(as.character(ordinal)) <= 1) %>%
-  group_by(network_cluster,prev_network_cluster,ordinal) %>%
+  group_by(network_cluster,prev_network_cluster,ordinal,prev_same_network) %>%
   summarise(impressions=sum(impressions),served=sum(served)) %>%
   mutate(fill = served/impressions)
 df <- left_join(df,
@@ -53,6 +54,7 @@ df <- df %>% mutate(x=root_fill*(1 - prev_fill))
 
 plotPhiData <- function(df) {
   df <- preparePhiData(df)
-  ggplot(df,aes(x=x, y=fill)) + geom_point() + geom_smooth(method=lm)
+  print(ggplot(df,aes(x=x, y=fill, color=prev_same_network)) + geom_point() + geom_smooth(method=lm, formula = y ~ x + 0))
+
 }
 

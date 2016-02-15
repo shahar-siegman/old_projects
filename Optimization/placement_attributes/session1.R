@@ -77,7 +77,8 @@ preprocess <- function(df) {
                 fp_10cent_increment = floor(floor_price*20)/20,
                 ordinal_network = paste0(ordinal, network),
                 network_ordinal_network= paste0(same_network_ordinal, network)) %>%
-    filter(served>0  & impressions > 300 & is.na(is_change))
+    group_by(placement_id, chain, date_joined) %>%
+    filter(sum(served)>0  & sum(impressions) > 300 & is.na(is_change)) %>% ungroup()
   return(df)
 }
 
