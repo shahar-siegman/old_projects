@@ -20,6 +20,7 @@ checkClusterFloorPrice <- function(df) {
 }
 
 preprocess2 <- function(df) {
+  df <- preprocess(df)
   fp_clusters <- clusterFloorPrices(df)
   df <- left_join(df, fp_clusters, by = "floor_price")
   fp_clusters <- fp_clusters %>% rename(prev_fp=floor_price, prev_fp_cluster=fp_cluster)
