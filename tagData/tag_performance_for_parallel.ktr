@@ -11,12 +11,12 @@
     <parameters>
         <parameter>
             <name>placement_id</name>
-            <default_value>1d0bd2ec4e7928150392dee2a5d49a38</default_value>
+            <default_value>368e0fcccc64b410342fa97219042791</default_value>
             <description/>
         </parameter>
         <parameter>
             <name>start_date</name>
-            <default_value>2015-11-12</default_value>
+            <default_value>2016-01-16</default_value>
             <description/>
         </parameter>
     </parameters>
@@ -87,13 +87,13 @@
   </notepads>
   <connection>
     <name>komoona dev</name>
-    <server>komoonadevdb.cesnzoem9yag.us-east-1.rds.amazonaws.com</server>
+    <server>devdb.komoona.com</server>
     <type>MYSQL</type>
     <access>Native</access>
     <database>komoona_db</database>
     <port>3306</port>
     <username>komoona</username>
-    <password>Encrypted 2be98afc86aa7f28abd15b87ed494b8df</password>
+    <password>Encrypted 2be98afc86aa79791a50cac668cc2fe8a</password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
@@ -714,7 +714,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>select 	ad_network_id&#xd;&#xa;	, cast&#x28;startdate as char&#x29; startdate&#xd;&#xa;	, chain_name&#xd;&#xa;	, chain_id&#xd;&#xa;    , substring_index&#x28;substring_index&#x28;substring_index&#x28;chain_name,&#x22;&#x3a;&#x22;,ordinal&#x2b;1&#x29;,&#x22;&#x3a;&#x22;,-1&#x29;,&#x22;&#x3d;&#x22;,1&#x29; tag_name&#xd;&#xa;	, ordinal&#xd;&#xa;	, floor_price&#xd;&#xa;	, candidate_type&#xd;&#xa;from kmn_chain_history chain&#xd;&#xa;inner join kmn_ads_network ads on &#x28;ads.id&#x3d; chain.ad_network_id&#x29;&#xd;&#xa;where startdate &#x3e; &#x27;2015-08-01&#x27;&#xd;&#xa;and ads.layoutid&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27;&#x3b;</sql>
+    <sql>select 	ad_network_id&#xd;&#xa;	, cast&#x28;startdate as char&#x29; startdate&#xd;&#xa;	, chain_name&#xd;&#xa;	, chain_id&#xd;&#xa;    , substring_index&#x28;substring_index&#x28;substring_index&#x28;chain_name,&#x22;&#x3a;&#x22;,ordinal&#x2b;1&#x29;,&#x22;&#x3a;&#x22;,-1&#x29;,&#x22;&#x3d;&#x22;,1&#x29; tag_name&#xd;&#xa;	, ordinal&#xd;&#xa;	, floor_price&#xd;&#xa;	, entity_type&#xd;&#xa;from kmn_chain_history chain&#xd;&#xa;inner join kmn_ads_network ads on &#x28;ads.id&#x3d; chain.ad_network_id&#x29;&#xd;&#xa;where startdate &#x3e; &#x27;2015-08-01&#x27;&#xd;&#xa;and ads.layoutid&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27;&#x3b;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -798,7 +798,7 @@
       <displayHeader>N</displayHeader>
       <limitRows>N</limitRows>
       <limitRowsNumber>0</limitRowsNumber>
-      <logmessage>placement &#x24;&#x7b;placement_id&#x7d;&#x3a;performance nr. of rows</logmessage>
+      <logmessage>placement &#x24;&#x7b;placement_id&#x7d; start date &#x24;&#x7b;start_date&#x7d;&#x3a; performance nr. of rows</logmessage>
     <fields>
       <field>
         <name>row_count</name>
@@ -824,7 +824,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>select 	ad_network_id&#xd;&#xa;	, cast&#x28;startdate as char&#x29; startdate&#xd;&#xa;	, chain_name&#xd;&#xa;	, chain_id&#xd;&#xa;    , substring_index&#x28;substring_index&#x28;substring_index&#x28;chain_name,&#x22;&#x3a;&#x22;,ordinal&#x2b;1&#x29;,&#x22;&#x3a;&#x22;,-1&#x29;,&#x22;&#x3d;&#x22;,1&#x29; tag_name&#xd;&#xa;	, ordinal&#xd;&#xa;	, floor_price&#xd;&#xa;	, 90 candidate_type&#xd;&#xa;from kmn_main_chain_history chain&#xd;&#xa;inner join kmn_ads_network ads on ads.id&#x3d; chain.ad_network_id&#xd;&#xa;where startdate &#x3e; &#x27;2015-08-01&#x27;&#xd;&#xa;and ads.layoutid&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27;&#x3b;</sql>
+    <sql>select 	ad_network_id&#xd;&#xa;	, cast&#x28;startdate as char&#x29; startdate&#xd;&#xa;	, chain_name&#xd;&#xa;	, chain_id&#xd;&#xa;    , substring_index&#x28;substring_index&#x28;substring_index&#x28;chain_name,&#x22;&#x3a;&#x22;,ordinal&#x2b;1&#x29;,&#x22;&#x3a;&#x22;,-1&#x29;,&#x22;&#x3d;&#x22;,1&#x29; tag_name&#xd;&#xa;	, ordinal&#xd;&#xa;	, floor_price&#xd;&#xa;	, entity_type&#xd;&#xa;from kmn_main_chain_history chain&#xd;&#xa;inner join kmn_ads_network ads on ads.id&#x3d; chain.ad_network_id&#xd;&#xa;where startdate &#x3e; &#x27;2015-08-01&#x27;&#xd;&#xa;and ads.layoutid&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27;&#x3b;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
