@@ -2,6 +2,8 @@
 *.csv
 **/\~*
 sandbox/gitest/
+sandbox/churn/
+sandbox/mark_yessin/
 Optimization/placement_attributes/production graphs/
 .Rproj.user
 ImproveMargin/margin_calibration_jan(1)(1)(1).xlsx
@@ -9,3 +11,4 @@ ImproveMargin/margin_calibration_jan(1)(1).xlsx
 ImproveMargin/margin_calibration_jan.xlsx
 ImproveMargin/placement_report_Jan1-9.xlsx
 *.pdf
+all_placements_*
