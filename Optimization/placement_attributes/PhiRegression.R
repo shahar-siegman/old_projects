@@ -15,7 +15,7 @@ clusterFloorPrices <- function(df) {
 }
 
 checkClusterFloorPrice <- function(df) {
-  cl <- clusterFloorPrices(df2) %>% arrange(floor_price)
+  cl <- clusterFloorPrices(df) %>% arrange(floor_price)
   ggplot(cl) + geom_histogram(aes(x=floor_price,fill=as.factor(fp_cluster)),binwidth=0.1)
 }
 
@@ -32,25 +32,25 @@ preprocess2 <- function(df) {
 }
 
 preparePhiData <- function(df) {
-df <- preprocess2(df)
-df <- df %>%
-  filter(as.Date(date_joined)>="2015-09-30", as.numeric(as.character(ordinal)) <= 1) %>%
-  group_by(network_cluster,prev_network_cluster,ordinal,prev_same_network) %>%
-  summarise(impressions=sum(impressions),served=sum(served)) %>%
-  mutate(fill = served/impressions)
-df <- left_join(df,
-                df %>% ungroup() %>%
-                  filter(ordinal==0) %>%
-                  select(network_cluster,fill) %>%
-                  rename(prev_network_cluster = network_cluster, prev_fill=fill),
-                by="prev_network_cluster")
-df <- left_join(df,
-                df %>% ungroup() %>%
-                  filter(ordinal==0) %>%
-                  select(network_cluster,fill) %>%
-                  rename(root_fill=fill),
-                by="network_cluster")
-df <- df %>% mutate(x=root_fill*(1 - prev_fill))
+  df <- preprocess2(df)
+  df <- df %>%
+    filter(as.Date(date_joined)>="2015-09-30", as.numeric(as.character(ordinal)) <= 1) %>%
+    group_by(network_cluster,prev_network_cluster,ordinal,prev_same_network) %>%
+    summarise(impressions=sum(impressions),served=sum(served)) %>%
+    mutate(fill = served/impressions)
+  df <- left_join(df,
+                  df %>% ungroup() %>%
+                    filter(ordinal==0) %>%
+                    select(network_cluster,fill) %>%
+                    rename(prev_network_cluster = network_cluster, prev_fill=fill),
+                  by="prev_network_cluster")
+  df <- left_join(df,
+                  df %>% ungroup() %>%
+                    filter(ordinal==0) %>%
+                    select(network_cluster,fill) %>%
+                    rename(root_fill=fill),
+                  by="network_cluster")
+  df <- df %>% mutate(x=root_fill*(1 - prev_fill))
 }
 
 plotPhiData <- function(df) {
