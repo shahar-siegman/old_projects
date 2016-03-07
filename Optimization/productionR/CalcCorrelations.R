@@ -14,14 +14,14 @@ runCalcCorrel <- function ()
     summarise(impressions = sum(served/Fill),served=sum(served)) %>%
     mutate(Fill = served/ impressions) %>% ungroup()
   fills <- loadAllFillTables()
-  return(calcCorrel(integrateDate, fills))
+  return(calcCorrel(integrateDate, fills, 2))
 }
 
-calcCorrel <- function (inputs, tabulatedModels) {
-  order2Rows <- inputs[inputs$ordinal==2,]
-  tagsWithOrder0Fill <- adply(order2Rows, .margins=1, .fun=matchOrderZeroFill, .id= "id", tabulatedModels)
-  order2TagsObjectiveDF <- ddply(tagsWithOrder0Fill, .variables="groupingTag", .fun=calc2OrderCoeffs)
-  best <- optim(c(0,0),fn=score, gr=NULL, order2TagsObjectiveDF)
+calcCorrel <- function (inputs, tabulatedModels, order) {
+  orderRows <- inputs[inputs$ordinal==order,]
+  tagsWithOrder0Fill <- adply(orderRows, .margins=1, .fun=matchOrderZeroFill, .id= "id", tabulatedModels)
+  orderTagsObjectiveDF <- ddply(tagsWithOrder0Fill, .variables="groupingTag", .fun=calcOrderCoeffs, order)
+  best <- optim(c(0,0),fn=score, gr=NULL, orderTagsObjectiveDF)
   return(best)
 }
 
@@ -47,19 +47,36 @@ matchOrderZeroFill <- function(inputRow, tabulatedModels)
   return(result)
 }
 
+calcOrderCoeffs <- function(chainDF, order)
+{
+  if (order==1)
+    return (calcOrder1Coeffs(chainDF))
+  else
+    return (calcOrder2Coeffs(chainDF))
+}
 
-calc2OrderCoeffs <- function(chainDF)
+calcOrder1Coeffs <- function(chainDF)
 {
   net <- chainDF$network
-  fill <- chainDF$Fill
+  fill <- 1 - chainDF$Fill
+  corr12Type <- ifelse(net[1]==net[2],"s","d")
+  one <- fill[1]*(fill[2]-fill[3])
+  corr12Coeffs <- sqrt((1-fill[1])*fill[1]*(1-fill[3])*fill[3])
+}
+
+calcOrder2Coeffs <- function(chainDF)
+{
+  net <- chainDF$network
+  fill <- 1 - chainDF$Fill
   corr12Type <- ifelse(net[1]==net[2],"s","d")
   corr13Type <- ifelse(net[1]==net[3],"s","d")
   corr23Type <- ifelse(net[2]==net[3],"s","d")
 
-  one <- -fill[1]^2 * fill[2] * fill[4]
-  corr12coeff <- fill[1]*(fill[3]-fill[4])*sqrt((1-fill[1])*fill[1]*(1-fill[2])*fill[2])
-  corr13coeff <- fill[1]*fill[2]*sqrt((1-fill[1])*fill[1]*(1-fill[3])*fill[3])
-  corr23coeff <- fill[1]^2*sqrt((1-fill[2])*fill[2]*(1-fill[3])*fill[3])
+  one <- -fill[1] * fill[2] * fill[4]
+  corr12coeff <- (fill[3]-fill[4])*sqrt((1-fill[1])*fill[1]*(1-fill[2])*fill[2])
+  corr13coeff <- fill[2]*sqrt((1-fill[1])*fill[1]*(1-fill[3])*fill[3])
+  corr23coeff <- fill[1]*sqrt((1-fill[2])*fill[2]*(1-fill[3])*fill[3])
+  corr12corr13coeff <- (1-fill[1])*sqrt(fill[2]*(1-fill[2])*fill[3]*(1-fill[3]))
 
   s=0
   d=0
@@ -81,12 +98,13 @@ calc2OrderCoeffs <- function(chainDF)
   else
     d = d + corr23coeff
 
+
   if (corr12Type=="s" && corr13Type=="s")
-    ss=1
+    ss=corr12corr13coeff
   else if (corr12Type=="s" && corr13Type=="d" || corr12Type=="d" && corr13Type=="s")
-    sd=1
+    sd=corr12corr13coeff
   else if (corr12Type=="d" && corr13Type=="d")
-    dd=1
+    dd=corr12corr13coeff
 
   result <- data.frame("one"=one, "s"=s,"d"=d, "s.s" = ss, "s.d"=sd, "d.d"=dd)
 
