@@ -2,8 +2,18 @@ getFillsForAllPreChains <- function(inputDF, orderCutOff)
 {
   inputDF <- inputDF %>% mutate(pfx = str_replace_all(pfx,"[\\[\\]]",""))
 
-
+  withDate = "date" %in% names(inputDF)
   colName <- paste0("chain.",orderCutOff)
+
+  selectCols <- c("chain","Fill")
+  if (withDate) {
+    otherJoinCols <- c("date"="date")
+    selectCols <- c(selectCols,"date")
+  }
+  else
+  {
+    otherJoinCols <- c()
+  }
 
   inputDF <- inputDF %>%
     mutate(thisTag = paste0(network, sprintf("%.2f",FloorPrice)),
@@ -12,15 +22,21 @@ getFillsForAllPreChains <- function(inputDF, orderCutOff)
   inputDF[[colName]] <- inputDF$tmp
   result <- inputDF %>%  filter(ordinal==orderCutOff) %>%
     select(-tmp) %>% subscriptFillColumn(orderCutOff)
-  fillData <- inputDF %>% filter(ordinal < orderCutOff) %>% rename(chain=tmp) %>%
-    select(chain,Fill)
+
+  fillData <- inputDF %>%
+    filter(ordinal < orderCutOff) %>%
+    rename(chain=tmp) %>%
+    select_(.dots=selectCols)
+
 
   prevColName <- colName
   for (i in (orderCutOff-1):0) {
       colName <- paste0("chain.",i)
       result[[colName]] <- result[[prevColName]] %>% removeLastTag()
       prevColName <- colName
-      result <- left_join(result,fillData, by=setNames("chain",colName)) %>% subscriptFillColumn(i)
+      joinCols <- otherJoinCols
+      joinCols[colName] <- "chain"
+      result <- inner_join(result,fillData, by=joinCols) %>% subscriptFillColumn(i)
   }
   return(result)
 }

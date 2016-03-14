@@ -1,36 +1,54 @@
 source('../../libraries.R')
+optionDefault <- list(correlation=T,use_s=T, use_d=T, use_fill=F, use_pass=T, integrateDate=T)
 
-runCalcCorrel <- function (order=1, inputPath= 'data') {
+runCalcCorrel <- function (order=1, inputPath= 'data', inputOptions=list()) {
   inputs <- loadAllInputs(inputPath)
-  integrateDate <- inputs %>% group_by(network,FloorPrice,pfx,ordinal) %>%
-    summarise(impressions = sum(served/Fill),served=sum(served)) %>%
-    mutate(Fill = served/ impressions) %>% ungroup()
   tabulatedModels <- loadAllFillTables(inputPath)
+  options <- mergeByName(optionDefault, inputOptions)
 
-  return(calcCorrel(integrateDate,tabulatedModels, order))
-}
+  groupFields <- c("network","FloorPrice","pfx","ordinal")
+  if (!options$integrateDate)
+    groupFields <- c(groupFields,"date")
+  integrate <- inputs %>% group_by_(.dots=groupFields) %>%
+    summarise(impressions = sum(served/Fill),served=sum(served)) %>%
+    filter(served > 10 & impressions > 10) %>% mutate(Fill = served/ impressions) %>% ungroup()
 
-
-calcCorrel <- function (inputs, tabulatedModels, order) {
-  joinedFills <- getFillsForAllPreChains(inputs,order)
-  joinedFills <- getModelOrdinalZeroFillForCurrentTag(joinedFills,tabulatedModels)
-
-  scoreDF <- calcOrderCoeffs(joinedFills, order)
-
-  best <-  optim(c(0,0),fn=score, gr=NULL, scoreDF)
-
+  options$order=order
+  best <- calcCorrel(integrate,tabulatedModels,options)
   return(best)
 }
 
-calcOrderCoeffs <- function(chainDF, order)
-{
-  if (order==1)
-    return (calcOrder1Coeffs(chainDF))
-  else
-    return (calcOrder2Coeffs(chainDF))
+
+calcCorrel <- function (inputs, tabulatedModels, options) {
+  joinedFills <- getFillsForAllPreChains(inputs,options$order)
+  joinedFills <- getModelOrdinalZeroFillForCurrentTag(joinedFills,tabulatedModels)
+
+  scoreDF <- calcOrderCoeffs(joinedFills, options)
+
+  best <- list()
+  #best$by.optim <-  optim(c(0,0),fn=score, gr=NULL, scoreDF)
+
+  frmla <- makeFormula(options)
+  if (options$use_fill)
+    scoreDF$y <- 1-scoreDF$y
+  best$by.lm <- lm(frmla$formula, scoreDF)
+  scoreDF$fitted <- best$by.lm$fitted.values
+  best$scoreDF <- scoreDF
+  best$gplot <- ggplot(scoreDF) + geom_point(aes(x=fitted, y=y)) + geom_abline(slope=1,intercept =0) + coord_equal()
+  best$r2 <- 1 - sum(best$by.lm$residuals^2) / sum((scoreDF$y - mean(scoreDF$y))^2)
+  best$AIC = extractAIC(best$by.lm,0, frmla$k)
+  return(best)
 }
 
-calcOrder1Coeffs <- function(chainDF)
+calcOrderCoeffs <- function(chainDF, options)
+{
+  if (options$order==1)
+    return (calcOrder1Coeffs(chainDF,options))
+  else
+    return (calcOrder2Coeffs(chainDF,options))
+}
+
+calcOrder1Coeffs <- function(chainDF, options)
 {
   sigXsigY <- function(x,y) sqrt(x*y*(1-x)*(1-y))
 
@@ -41,18 +59,26 @@ calcOrder1Coeffs <- function(chainDF)
   net2 <- chainDF$chain.1 %>% word(2,2,":") %>% substr(1,1)
 
   corr12Type <- ifelse(net1==net2,"s","d")
-  one <- passrateBase - passrate2
+  one <- passrate2 - passrateBase
 
-  corr12coeff <- sigXsigY(passrate1,passrateBase) / passrate1
+  if (options$correlation)
+    corr12coeff <- sigXsigY(passrate1,passrateBase) / passrate1
+  else
+    corr12coeff <- 1 / passrate1
+
   s=ifelse(corr12Type=="s",corr12coeff,0)
   d=ifelse(corr12Type=="d",corr12coeff,0)
 
+  if (!options$use_d) {
+    s= s+d
+    d= NA
+  }
 
-  result <- data.frame("one"=one, "s"=s,"d"=d)
+  result <- data.frame("y"=passrate2, "fill"=1-passrateBase, "base"=passrateBase, "s"=s, "d"=d)
   return(result)
 }
 
-calcOrder2Coeffs <- function(chainDF)
+calcOrder2Coeffs <- function(chainDF, options)
 {
   passrate1 <- 1-chainDF$Fill.0
   passrate2 <- 1-chainDF$Fill.1
@@ -67,18 +93,29 @@ calcOrder2Coeffs <- function(chainDF)
   sigXsigY <- function(x,y) sqrt(x*y*(1-x)*(1-y))
 
   one <- passrateBase - passrate3
-  corr13coeff <- sigXsigY(passrate1,passrateBase) / passrate1
-  corr23coeff <- sigXsigY(passrate2,passrate3) / (passrate1*passrate2)
-
+  if (options$correlation) {
+    corr13coeff <- sigXsigY(passrate1,passrateBase) / passrate1
+    corr23coeff <- sigXsigY(passrate2,passrate3) / passrate2
+  }
+  else
+  {
+    corr13coeff <- 1 / passrate1
+    corr23coeff <- 1 / passrate2
+  }
   s=ifelse(corr13Type=="s",corr13coeff,0) + ifelse(corr23Type=="s",corr23coeff,0)
   d=ifelse(corr13Type=="d",corr13coeff,0) + ifelse(corr23Type=="d",corr23coeff,0)
 
-  result <- data.frame("one"=one, "s"=s,"d"=d)
+  if (!options$use_d)
+  {
+    s=s+d
+    d=NA
+  }
+  result <- data.frame("y"=passrate3, "fill" = 1-passrateBase, "base"=passrateBase, "s"=s, "d"=d)
 
   return(result)
 }
 
-score <- function(correls,scoreDF)
+score <- function(correls,scoreDF, options)
 {
   correl_s = correls[1]
   correl_d = correls[2]
@@ -89,23 +126,37 @@ score <- function(correls,scoreDF)
   return(res)
 }
 
-optimLoop <- function(orderTagsObjectiveDF)
-{
-  par=c(0,0)
-  tol= 1e-5
-  u=T;
-  while(u)
-  {
-    oldPar = par
-    par1 <- optim(par[1], fn=score_s, gr=NULL, method="Brent", lower=-2, upper=2, par[2], orderTagsObjectiveDF)
-    par2 <- optim(par[2], fn=score_d, gr=NULL, method="Brent", lower=-2, upper=2, par[1], orderTagsObjectiveDF)
-    par=c(par1$par, par2$par)
-    euclidDist <- sqrt(sum((oldPar-par)^2))
-    print (par)
-    u <- euclidDist > tol
-    # optim(c(0,0),fn=score, gr=NULL, orderTagsObjectiveDF)
-  }
-  return(par)
+mergeByName <- function(init,input) {
+  res <- init
+  nm <- intersect(names(input), names(init))
+  for (i in 1:length(nm))
+    res[[nm[i]]] <- input[[nm[i]]]
+  return (res)
 }
 
 
+makeFormula <- function(options)
+{
+  k=0
+  frmla <- "y ~ "
+  if (options$use_fill) {
+    frmla=paste0(frmla," fill")
+    k=k+1
+  }
+  if (options$use_pass)
+  {
+    frmla=paste0(frmla," + base")
+    k=k+1
+  }
+  if (options$use_s) {
+    frmla = paste0(frmla, " + s ")
+    k=k+1
+    if (options$use_d) {
+      frmla = paste0(frmla, " + d ")
+      k=k+1
+    }
+  }
+  frmla = paste0(frmla, " + 0")
+  k
+  return(list(formula=frmla,k=k))
+}
