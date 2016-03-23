@@ -92,23 +92,12 @@ analysis4 <- function(Print=F, w=4, ...)
   return(df3)
 }
 
-analysis5 <- function()
+servedPredictionSummaryDf <- function()
 {
   df3 <- servedBiasMovingAveragePrediction(w=1, filterWeirdNetworks=T)
   predBias <- df3 %>% filter(pred_bias >=-1, pred_bias <=1) %>% group_by(placement_id,date) %>%
-    summarise(served=sum(served),pred_served=sum(pred_served)) %>% calcBias("pred_served","served") %>%
-    `[[`("pred_served_bias")
-  result <- data.frame()
-  cnt <- length(predBias)
-  for (i in 1:20) {
-    predErrWithSafetyMargin = predBias -i/100
-    result <- rbind(result,data.frame(
-      safety_margin=i,
-      severe_down = sum(predErrWithSafetyMargin <= -0.15)/cnt,
-      reasonable_down = sum(predErrWithSafetyMargin > -0.15 & predErrWithSafetyMargin <= 0)/cnt,
-      reasonable_up = sum(predErrWithSafetyMargin > 0 & predErrWithSafetyMargin <= 0.1)/cnt,
-      severe_up = sum(predErrWithSafetyMargin > 0.1) / cnt
-    ))
-  }
-  return(result)
+    summarise(served=sum(served),pred_served=sum(pred_served)) %>% ungroup() %>% calcBias("pred_served","served")
+  return (predBias)
 }
+
+# analysis5 was unified with analysis9

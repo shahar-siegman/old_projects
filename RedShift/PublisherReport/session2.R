@@ -2,17 +2,17 @@ source('../../libraries.R')
 library("L1pack")
 getListTagData <- function()
 {
-  read.csv('list2_placements_tag_performance.csv', stringsAsFactors = F)
+  read.csv('list2_placements_tag_performance1.csv', stringsAsFactors = F)
 }
 
-preprocess2 <- function(df)
+preprocess2 <- function(df, min_served_count=500)
 {
   df1 <- df %>% mutate(ecpm = 1000*income/served,
                       code=substr(tag_name,1,1),
                       week=as.factor(floor(as.numeric(as.Date(date_joined)-as.Date('2016-02-10'))/7)))
 
   df1 <- df1 %>% select(placement_id, week, date_joined, floor_price, served, income, tag_name, code, ecpm)
-  df1 <- df1 %>% filter(code !="", served>500)
+  df1 <- df1 %>% filter(code !="", served>min_served_count)
   return(df1)
 }
 
@@ -55,8 +55,9 @@ fitEcpmByNetwork <- function()
     currentMedian <- median(data$ecpm/data$floor_price)
     netmodels <- rbind(netmodels,data.frame(
       network=network,
-      coeff = currentLm$coefficients[1],
-      ad = currentAd$coefficients[1],
+      least_squares = currentLm$coefficients[1],
+      least_abs = currentAd$coefficients[1],
+      abs_median_resid = median(abs(currentAd$residuals)),
       mode = currentMode,
       median=currentMedian))
   }
