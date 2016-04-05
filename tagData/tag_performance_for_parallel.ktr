@@ -714,7 +714,7 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <connection>komoona dev</connection>
+    <connection>komoona_production</connection>
     <sql>SELECT  ads_network_id &#xd;&#xa;	, date&#xd;&#xa;	, impressions&#xd;&#xa;	, served&#xd;&#xa;	, income&#xd;&#xa;	, publisher_income&#xd;&#xa;FROM komoona_db.kmn_cpm&#xd;&#xa;where date&#x3e;&#x3d;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27; and date &#x3c;&#x3d; date_add&#x28;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;, interval 35 day&#x29;&#xd;&#xa;and tagid&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27; &#x3b;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
@@ -740,7 +740,7 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <connection>komoona dev</connection>
+    <connection>komoona_production</connection>
     <sql>select 	ad_network_id&#xd;&#xa;	, cast&#x28;startdate as char&#x29; startdate&#xd;&#xa;	, chain_name&#xd;&#xa;	, chain_id&#xd;&#xa;    , substring_index&#x28;substring_index&#x28;substring_index&#x28;chain_name,&#x22;&#x3a;&#x22;,ordinal&#x2b;1&#x29;,&#x22;&#x3a;&#x22;,-1&#x29;,&#x22;&#x3d;&#x22;,1&#x29; tag_name&#xd;&#xa;	, ordinal&#xd;&#xa;	, floor_price&#xd;&#xa;	, entity_type&#xd;&#xa;from kmn_chain_history chain&#xd;&#xa;inner join kmn_ads_network ads on &#x28;ads.id&#x3d; chain.ad_network_id&#x29;&#xd;&#xa;where startdate &#x3e; &#x27;2015-08-01&#x27;&#xd;&#xa;and ads.layoutid&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27;&#x3b;</sql>
     <limit>0</limit>
     <lookup/>
@@ -850,7 +850,7 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <connection>komoona dev</connection>
+    <connection>komoona_production</connection>
     <sql>select 	ad_network_id&#xd;&#xa;	, cast&#x28;startdate as char&#x29; startdate&#xd;&#xa;	, chain_name&#xd;&#xa;	, chain_id&#xd;&#xa;    , substring_index&#x28;substring_index&#x28;substring_index&#x28;chain_name,&#x22;&#x3a;&#x22;,ordinal&#x2b;1&#x29;,&#x22;&#x3a;&#x22;,-1&#x29;,&#x22;&#x3d;&#x22;,1&#x29; tag_name&#xd;&#xa;	, ordinal&#xd;&#xa;	, floor_price&#xd;&#xa;	, entity_type&#xd;&#xa;from kmn_main_chain_history chain&#xd;&#xa;inner join kmn_ads_network ads on ads.id&#x3d; chain.ad_network_id&#xd;&#xa;where startdate &#x3e; &#x27;2015-08-01&#x27;&#xd;&#xa;and ads.layoutid&#x3d;&#x27;&#x24;&#x7b;placement_id&#x7d;&#x27;&#x3b;</sql>
     <limit>0</limit>
     <lookup/>
