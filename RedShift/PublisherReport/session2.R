@@ -2,6 +2,8 @@ source('../../libraries.R')
 library("L1pack")
 getListTagData <- function()
 {
+  # daily perfromance (mysql) at the tag level (including which chain)
+  # for List 2 placements for dates 2016-02-10 to 2016-03-15
   read.csv('list2_placements_tag_performance1.csv', stringsAsFactors = F)
 }
 
@@ -40,6 +42,7 @@ analysis7 <- function(df)
 
 fitEcpmByNetwork <- function()
 {
+  # fits a few variants of linear models by network
   df <- getListTagData()
   df <- preprocess2(df)
   networks <- "ejoptx"
@@ -67,12 +70,14 @@ fitEcpmByNetwork <- function()
 }
 
 Mode <- function(x) {
+  # statistical mode (most common single entry in sample)
   ux <- unique(x)
   ux[which.max(tabulate(match(x, ux)))]
 }
 
 ecpmFloorPriceCoeffs <- function()
 {
+  # The Results of fitEcpmByNetwork lad
   lines <- "Network, coeff
          e, 1.1813321
          j, 1.0135180

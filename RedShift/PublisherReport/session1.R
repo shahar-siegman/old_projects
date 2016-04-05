@@ -2,7 +2,8 @@ source('../../libraries.R')
 
 getData <- function()
 {
-  read.csv('kettle_out.csv', stringsAsFactors = F)
+  # joined redshift and mysql, aggregated by placement, network, date
+  read.csv('mysql_redshift_joined_network_level.csv', stringsAsFactors = F)
 }
 
 preprocess <- function(df, filterWeirdDays=T, filterWeirdNetworks=F)

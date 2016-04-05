@@ -4,7 +4,6 @@ lagDailyTagEcpm <- function() {
   tagData <- tagData %>% arrange(placement_id, tag_name, floor_price, date_joined) %>%
     group_by(placement_id, tag_name, floor_price) %>%
     mutate(ecpm=1000*income/served, ecpm_lag=lag(ecpm,2)) %>% ungroup()
-
   return(tagData)
 }
 
@@ -15,7 +14,6 @@ lagDailyNetworkEcpm <- function() {
   networkData <- networkData %>% arrange(placement_id, code, date_joined) %>%
     group_by(placement_id, code) %>%
     mutate(ecpm=1000*income/served, ecpm_lag=lag(ecpm,2)) %>% ungroup()
-
   return(networkData)
 }
 
@@ -67,7 +65,9 @@ analysis8 <- function()
 
 analysis9 <- function()
 {
-  servedPrediction <- servedPredictionSummaryDf() # %>% `[[`("pred_served_bias")
+  # computes "pred_served" and "pred_served_bias", the predicted # of served per network and the err term
+  # counts placement*day for each category
+  servedPrediction <- servedPredictionSummaryDf()
   revenueData <- compareLagPredictions() %>% select(placement_id, date_joined, served, income_plcmnt) %>%
     rename(served_tagdata=served, date=date_joined)
   joined <- inner_join(servedPrediction, revenueData, by=c("placement_id","date"))
@@ -98,6 +98,51 @@ analysis9 <- function()
   return(result)
 }
 
+analysis10 <- function()
+{
+  err_thres <- c(0.1, 0.2, 0.4)
+  plcmnt_err_count_tol <- 0.15
+  small_plcmnt_day_dollar_amount <- 10
+  servedPrediction <- servedPredictionSummaryDf(filterWeirdNetworks=T)
+  revenueData <- compareLagPredictions() %>% select(placement_id, date_joined, served, income_plcmnt, pred_income_plcmnt_bias) %>%
+    rename(served_tagdata=served, date=date_joined)
+  joined <- inner_join(servedPrediction, revenueData, by=c("placement_id","date"))
+
+  df <- joined %>% mutate(errcat1=ifelse(abs(pred_income_plcmnt_bias) < err_thres[1],1,0),
+                          errcat2=ifelse(abs(pred_income_plcmnt_bias) < err_thres[2],1,0),
+                          errcat3=ifelse(abs(pred_income_plcmnt_bias) < err_thres[3],1,0),
+                          errcat_other=ifelse(errcat1 | errcat2 | errcat3, 0, 1),
+                          is_small_day = ifelse(abs(income_plcmnt) < small_plcmnt_day_dollar_amount,1,0))
+  df1 <- df %>% group_by(placement_id) %>% summarise(days_errcat1=sum(errcat1, na.rm=T)/n(),
+                                         days_errcat2=sum(errcat2, na.rm=T)/n(),
+                                         days_errcat3=sum(errcat3, na.rm=T)/n(),
+                                         days_errcat_other=sum(errcat3, na.rm=T)/n(),
+                                         days_small=sum(is_small_day, na.rm=T)/n(),
+                                         cnt = n()) %>% filter(cnt>=7)
+
+  # df1 <- df1 %>% mutate(plcmnt_errcat1 = ifelse(days_errcat1>= cnt*(1-plcmnt_err_count_tol),1,0),
+  #                    plcmnt_errcat2 = ifelse(days_errcat2>= cnt*(1-plcmnt_err_count_tol),1,0),
+  #                    plcmnt_errcat3 = ifelse(days_errcat3>= cnt*(1-plcmnt_err_count_tol),1,0),
+  #                    plcmnt_small= ifelse(days_small>= cnt*0.9, 1,0))
+
+  print(sum(df$errcat_other, na.rm=T)/sum(!is.na(df$errcat_other)))
+
+  return(df1)
+}
+
+analysis11 <- function()
+{
+  quantileCutoff <- 0.9
+  servedPrediction <- servedPredictionSummaryDf()
+  revenueData <- compareLagPredictions() %>% select(placement_id, date_joined, served, income_plcmnt, pred_income_plcmnt_bias) %>%
+    rename(served_tagdata=served, date=date_joined)
+  joined <- inner_join(servedPrediction, revenueData, by=c("placement_id","date"))
+  df1 <- joined %>% group_by(placement_id) %>%
+    summarise(acc_70 = quantile(abs(pred_income_plcmnt_bias),0.7, na.rm=T),
+              acc_80 = quantile(abs(pred_income_plcmnt_bias),0.8, na.rm=T),
+              acc_90 = quantile(abs(pred_income_plcmnt_bias),0.9, na.rm=T))
+  return(df1)
+}
 
 
 #servedPredict <- servedBiasMovingAveragePrediction(1)

@@ -12,13 +12,12 @@ getListTagData2 <- function()
 
 matchTagData <- function()
 {
+  # joining tag-level data rs <-> mysql
   rsData <- loadRsByTagData()
   sqlData <- getListTagData2() %>% preprocess2(min_served_count=0)
-
   joinedData <- inner_join(rsData,sqlData,by=c(placement_id="placement_id",
                                                date="date_joined",
                                                served_tag="tag_name"))
-
   return(joinedData)
 }
 
