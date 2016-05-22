@@ -93,10 +93,12 @@ analysis4 <- function(Print=F, w=4, ...)
   return(df3)
 }
 
-servedPredictionSummaryDf <- function()
+servedPredictionSummaryDf <- function(y="p")
 {
+  groupByWhat <- c(p="placement_id",s="sitename")
   df3 <- servedBiasMovingAveragePrediction(w=1, filterWeirdNetworks=T)
-  predBias <- df3 %>% filter(pred_bias >=-1, pred_bias <=1) %>% group_by(placement_id,date) %>%
+  df3 <- inner_join(df3, readPlacementSiteTable(), by="placement_id")
+  predBias <- df3 %>% filter(pred_bias >=-1, pred_bias <=1) %>% group_by_(groupByWhat[y],"date") %>%
     summarise(served=sum(served),pred_served=sum(pred_served)) %>% ungroup() %>% calcBias("pred_served","served")
   return (predBias)
 }
