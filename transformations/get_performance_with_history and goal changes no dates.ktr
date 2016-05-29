@@ -10,13 +10,18 @@
     <directory>&#x2f;</directory>
     <parameters>
         <parameter>
+            <name>base_dir</name>
+            <default_value>c&#x3a;&#x5c;shahar&#x5c;projects&#x5c;transformations</default_value>
+            <description/>
+        </parameter>
+        <parameter>
             <name>end_date</name>
-            <default_value>&#x27;2016-01-09&#x27;</default_value>
+            <default_value>&#x27;2016-05-26&#x27;</default_value>
             <description/>
         </parameter>
         <parameter>
             <name>start_date</name>
-            <default_value>2016-01-01</default_value>
+            <default_value>2014-01-01</default_value>
             <description/>
         </parameter>
     </parameters>
@@ -87,37 +92,10 @@
   </notepads>
   <connection>
     <name>komoona dev</name>
-    <server>komoonadevdb.cesnzoem9yag.us-east-1.rds.amazonaws.com</server>
+    <server>devdb.komoona.com</server>
     <type>MYSQL</type>
     <access>Native</access>
     <database>komoona_db</database>
-    <port>3306</port>
-    <username>komoona</username>
-    <password>Encrypted 2be98afc86aa7f28abd15b87ed494b8df</password>
-    <servername/>
-    <data_tablespace/>
-    <index_tablespace/>
-    <attributes>
-      <attribute><code>EXTRA_OPTION_MYSQL.defaultFetchSize</code><attribute>500</attribute></attribute>
-      <attribute><code>EXTRA_OPTION_MYSQL.useCursorFetch</code><attribute>true</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
-      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
-      <attribute><code>PORT_NUMBER</code><attribute>3306</attribute></attribute>
-      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
-      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
-      <attribute><code>STREAM_RESULTS</code><attribute>Y</attribute></attribute>
-      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
-      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
-    </attributes>
-  </connection>
-  <connection>
-    <name>komoona stat</name>
-    <server>komoona-stat.cesnzoem9yag.us-east-1.rds.amazonaws.com</server>
-    <type>MYSQL</type>
-    <access>Native</access>
-    <database>komoona_stat</database>
     <port>3306</port>
     <username>komoona</username>
     <password>Encrypted 2be98afc86aa79791a50cac668cc2fe8a</password>
@@ -159,6 +137,60 @@
       <attribute><code>PORT_NUMBER</code><attribute>5439</attribute></attribute>
       <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
       <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+  <connection>
+    <name>komoona stat</name>
+    <server>komoona-stat.cesnzoem9yag.us-east-1.rds.amazonaws.com</server>
+    <type>MYSQL</type>
+    <access>Native</access>
+    <database>komoona_stat</database>
+    <port>3306</port>
+    <username>komoona</username>
+    <password>Encrypted 2be98afc86aa79791a50cac668cc2fe8a</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>EXTRA_OPTION_MYSQL.defaultFetchSize</code><attribute>500</attribute></attribute>
+      <attribute><code>EXTRA_OPTION_MYSQL.useCursorFetch</code><attribute>true</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>3306</attribute></attribute>
+      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>STREAM_RESULTS</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+  <connection>
+    <name>komoona_production</name>
+    <server>komoona-db-az.cesnzoem9yag.us-east-1.rds.amazonaws.com</server>
+    <type>MYSQL</type>
+    <access>Native</access>
+    <database>komoona_db</database>
+    <port>3306</port>
+    <username>komoona</username>
+    <password>Encrypted 2be98afc86aa79791a50cac668cc2fe8a</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>EXTRA_OPTION_MYSQL.defaultFetchSize</code><attribute>500</attribute></attribute>
+      <attribute><code>EXTRA_OPTION_MYSQL.useCursorFetch</code><attribute>true</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>3306</attribute></attribute>
+      <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>N</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>STREAM_RESULTS</code><attribute>Y</attribute></attribute>
       <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
       <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
       <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
@@ -373,7 +405,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT tagid&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;floor order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29; floor_price_event&#xd;&#xa;	, if&#x28;date&#x3c;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,0,datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29;&#x29; floor_change_date&#xd;&#xa;FROM kmn_floor_prices_history &#xd;&#xa;WHERE date between &#x27;2015-01-01&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;and floor &#x3e; 0&#xd;&#xa;&#xd;&#xa;group by tagid, floor_change_date&#x3b;&#xd;&#xa;</sql>
+    <sql>SELECT tagid&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;floor order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29; floor_price_event&#xd;&#xa;	, if&#x28;date&#x3c;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,0,datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29;&#x29; floor_change_date&#xd;&#xa;FROM kmn_floor_prices_history &#xd;&#xa;WHERE date between &#x27;2014-01-01&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;and floor &#x3e; 0&#xd;&#xa;&#xd;&#xa;group by tagid, floor_change_date&#x3b;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -530,9 +562,9 @@
     <endedLine/>
     <fileNameInField>N</fileNameInField>
     <fileNameField/>
-    <create_parent_folder>N</create_parent_folder>
+    <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;ImproveMargin&#x5c;performance.out</name>
+      <name>&#x24;&#x7b;base_dir&#x7d;&#x5c;performance_with_history&#x5c;performance.out</name>
       <is_command>N</is_command>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
@@ -668,7 +700,7 @@
     <fileNameField/>
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;ImproveMargin&#x5c;kettle_out</name>
+      <name>&#x24;&#x7b;base_dir&#x7d;&#x5c;performance_with_history&#x5c;kettle_output</name>
       <is_command>N</is_command>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
@@ -720,7 +752,7 @@
     <fileNameField/>
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;ImproveMargin&#x5c;kettle_out2</name>
+      <name>&#x24;&#x7b;base_dir&#x7d;&#x5c;performance_with_history&#x5c;kettle_out2</name>
       <is_command>N</is_command>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
@@ -772,7 +804,7 @@
     <fileNameField/>
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;ImproveMargin&#x5c;kettle_out3</name>
+      <name>&#x24;&#x7b;base_dir&#x7d;&#x5c;performance_with_history&#x5c;kettle_out3</name>
       <is_command>N</is_command>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
@@ -2525,7 +2557,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT tagid&#xd;&#xa;	, datediff&#x28;date&#x28;goal_change_time&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; goal_change_date &#xd;&#xa;    , case substring_index&#x28;group_concat&#x28;optimization_goal_event order by goal_change_time&#x29;,&#x27;,&#x27;,-1&#x29;&#xd;&#xa;		when 1 then &#x27;A&#x27; &#xd;&#xa;        when 2 then &#x27;B&#x27; &#xd;&#xa;        when 3 then &#x27;C&#x27; &#xd;&#xa;        when 4 then &#x27;A&#x2b;&#x27; &#xd;&#xa;		when 5 then &#x27;C-&#x27; &#xd;&#xa;        else &#x27;U&#x27; end  optimization_goal_event&#xd;&#xa;FROM &#x28;&#xd;&#xa;SELECT entity_id tagid&#xd;&#xa;	, &#x27;2015-01-01 00&#x3a;00&#x3a;00&#x27; goal_change_time &#xd;&#xa;	, substring_index&#x28;group_concat&#x28;old_value order by timestamp&#x29;,&#x27;,&#x27;,1&#x29; optimization_goal_event&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization_goal_id&#x27;&#xd;&#xa;and timestamp between unix_timestamp&#x28;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; &#x23; Midnight Jan 1st&#xd;&#xa;		and unix_timestamp&#x28;&#x24;&#x7b;end_date&#x7d;&#x29; &#xd;&#xa;group by tagid&#xd;&#xa;&#xd;&#xa;UNION&#xd;&#xa;&#xd;&#xa;SELECT entity_id tagid&#xd;&#xa;    , from_unixtime&#x28;timestamp&#x29; goal_change_time&#xd;&#xa;	, new_value optimization_goal_event&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization_goal_id&#x27;&#xd;&#xa;and timestamp between unix_timestamp&#x28;&#x27;2015-01-01&#x27;&#x29; &#x23; Midnight Jan 1st&#xd;&#xa;		and unix_timestamp&#x28;&#x24;&#x7b;end_date&#x7d;&#x29;  &#x23; Midnight Oct. 1st&#xd;&#xa;&#x29; a&#xd;&#xa;group by tagid, goal_change_date</sql>
+    <sql>SELECT tagid&#xd;&#xa;	, datediff&#x28;date&#x28;goal_change_time&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; goal_change_date &#xd;&#xa;    , case substring_index&#x28;group_concat&#x28;optimization_goal_event order by goal_change_time&#x29;,&#x27;,&#x27;,-1&#x29;&#xd;&#xa;		when 1 then &#x27;A&#x27; &#xd;&#xa;        when 2 then &#x27;B&#x27; &#xd;&#xa;        when 3 then &#x27;C&#x27; &#xd;&#xa;        when 4 then &#x27;A&#x2b;&#x27; &#xd;&#xa;		when 5 then &#x27;C-&#x27; &#xd;&#xa;        else &#x27;U&#x27; end  optimization_goal_event&#xd;&#xa;FROM &#x28;&#xd;&#xa;SELECT entity_id tagid&#xd;&#xa;	, &#x27;2014-01-01 00&#x3a;00&#x3a;00&#x27; goal_change_time &#xd;&#xa;	, substring_index&#x28;group_concat&#x28;old_value order by timestamp&#x29;,&#x27;,&#x27;,1&#x29; optimization_goal_event&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization_goal_id&#x27;&#xd;&#xa;and timestamp between unix_timestamp&#x28;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; &#x23; Midnight Jan 1st&#xd;&#xa;		and unix_timestamp&#x28;&#x24;&#x7b;end_date&#x7d;&#x29; &#xd;&#xa;group by tagid&#xd;&#xa;&#xd;&#xa;UNION&#xd;&#xa;&#xd;&#xa;SELECT entity_id tagid&#xd;&#xa;    , from_unixtime&#x28;timestamp&#x29; goal_change_time&#xd;&#xa;	, new_value optimization_goal_event&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization_goal_id&#x27;&#xd;&#xa;and timestamp between unix_timestamp&#x28;&#x27;2014-01-01&#x27;&#x29; &#x23; Midnight Jan 1st&#xd;&#xa;		and unix_timestamp&#x28;&#x24;&#x7b;end_date&#x7d;&#x29;  &#x23; Midnight Oct. 1st&#xd;&#xa;&#x29; a&#xd;&#xa;group by tagid, goal_change_date</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -2603,7 +2635,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT tagid&#xd;&#xa;    , s.sitename&#xd;&#xa;	, s.username&#xd;&#xa;	, datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; performance_date&#xd;&#xa;	, r.impressions&#xd;&#xa;	, served&#xd;&#xa;	, 100&#x2a;served&#x2f;r.impressions fill&#xd;&#xa;	, cost&#xd;&#xa;	, profit&#xd;&#xa;	, cost &#x2b; profit revenue&#xd;&#xa;	, 1000&#x2a;cost&#x2f;served client_ecpm&#xd;&#xa;	, 1000&#x2a;&#x28;cost&#x2b;profit&#x29;&#x2f;served total_ecpm&#xd;&#xa;&#xd;&#xa;FROM kmn_tag_report r&#xd;&#xa;inner join kmn_layouts l on &#x28;l.layoutid &#x3d; r.tagid&#x29;&#xd;&#xa;inner join kmn_sites s using &#x28;siteid&#x29;&#xd;&#xa;&#xd;&#xa;WHERE &#xd;&#xa;	date between &#x27;&#x24;&#x7b;start_date&#x7d;&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;	and r.impressions &#x3e; 0&#xd;&#xa;	and served &#x3e; 10&#xd;&#xa;order by tagid,performance_date</sql>
+    <sql>SELECT tagid&#xd;&#xa;    , s.sitename&#xd;&#xa;	, l.tag_url username&#xd;&#xa;	, datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; performance_date&#xd;&#xa;	, r.impressions&#xd;&#xa;	, served&#xd;&#xa;	, 100&#x2a;served&#x2f;r.impressions fill&#xd;&#xa;	, cost&#xd;&#xa;	, profit&#xd;&#xa;	, cost &#x2b; profit revenue&#xd;&#xa;	, 1000&#x2a;cost&#x2f;served client_ecpm&#xd;&#xa;	, 1000&#x2a;&#x28;cost&#x2b;profit&#x29;&#x2f;served total_ecpm&#xd;&#xa;&#xd;&#xa;FROM kmn_tag_report r&#xd;&#xa;inner join kmn_layouts l on &#x28;l.layoutid &#x3d; r.tagid&#x29;&#xd;&#xa;inner join kmn_sites s using &#x28;siteid&#x29;&#xd;&#xa;&#xd;&#xa;WHERE &#xd;&#xa;	date between &#x27;&#x24;&#x7b;start_date&#x7d;&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;	and r.impressions &#x3e; 0&#xd;&#xa;	and served &#x3e; 10&#xd;&#xa;order by tagid,performance_date</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -2629,7 +2661,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>select r.tagid&#xd;&#xa;	, datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; new_revshare_date&#xd;&#xa; 	, substring_index&#x28;group_concat&#x28;revshare order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29;  as new_revshare &#xd;&#xa;from kmn_revshare r &#xd;&#xa;where date&#x3e;&#x3d;&#x27;2015-01-01&#x27;&#xd;&#xa;group by tagid, date&#x3b;&#xd;&#xa;</sql>
+    <sql>select r.tagid&#xd;&#xa;	, datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; new_revshare_date&#xd;&#xa; 	, substring_index&#x28;group_concat&#x28;revshare order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29;  as new_revshare &#xd;&#xa;from kmn_revshare r &#xd;&#xa;where date&#x3e;&#x3d;&#x27;2014-01-01&#x27;&#xd;&#xa;group by tagid, date&#x3b;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
