@@ -405,7 +405,7 @@
            <schema_name/>
            </partitioning>
     <connection>komoona dev</connection>
-    <sql>SELECT tagid&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;floor order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29; floor_price_event&#xd;&#xa;	, if&#x28;date&#x3c;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,0,datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29;&#x29; floor_change_date&#xd;&#xa;FROM kmn_floor_prices_history &#xd;&#xa;WHERE date between &#x27;2014-01-01&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;and floor &#x3e; 0&#xd;&#xa;&#xd;&#xa;group by tagid, floor_change_date&#x3b;&#xd;&#xa;</sql>
+    <sql>SELECT tagid&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;floor order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29; floor_price_event&#xd;&#xa;	, if&#x28;date&#x3c;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,0,datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29;&#x29; floor_change_date&#xd;&#xa;FROM kmn_floor_prices_history &#xd;&#xa;WHERE date &#x3c;&#x3d; &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;and floor &#x3e; 0&#xd;&#xa;&#xd;&#xa;group by tagid, floor_change_date&#x3b;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
