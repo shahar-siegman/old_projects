@@ -13,4 +13,21 @@ ImproveMargin/placement_report_Jan1-9.xlsx
 *.pdf
 all_placements_*
 *.txt
+# node.js ignores
+*.log
+*.pid
+*.seed
+.grunt
+.lock-wscript
+.node_repl_history
+.npm
+.nyc_output
+build/Release
+coverage
+jspm_packages
+lib-cov
+logs
+node_modules
+npm-debug.log*
+pids
 

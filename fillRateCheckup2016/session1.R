@@ -2,6 +2,23 @@ source("../libraries.R")
 #a <- read.csv("placement_historical_performance.csv", stringsAsFactors = F)
 #a$date <- as.Date("2014-01-01")+a$performance_date
 
+timePlotFormat <- function()
+{
+  theme(axis.text=element_text(size=18,face="bold"),
+        axis.title=element_text(size=18,face="bold"),
+        panel.grid.major.x=element_line(colour="grey",linetype=2, size=1.5))
+}
+
+ecpmCeilCategories <- function(ceil=T)
+{
+  b <- c("0-20¢","20¢-60¢","60¢-$1.00")
+  if (ceil)
+    b <- c(b,"> $1.00")
+  else
+    b <- c(b,"$1.00-$1.40")
+  return( scale_colour_discrete(name="eCPM category\n(dollars)" ,labels=b))
+}
+
 # a1 - a clean version of a
 a1 <- a %>% filter(revenue>1,is.numeric(floor_price)) %>%
   mutate(year_mon=as.yearmon(date),
@@ -93,13 +110,23 @@ p2 <- ggplot(b2 %>% filter(ecpm_round <=5, ecpm_round >=0.4)) +
 
 # impression distribution by ecpm, over time
 p3 <- ggplot(b2 %>% mutate(ecpm_ceil=pmin(1.2, ecpm_round)) %>% group_by(year_mon,ecpm_ceil) %>% summarise(relative_imps=sum(relative_imps))) +
-  geom_line(aes(x=year_mon,y=relative_imps,group=ecpm_ceil,colour=as.factor(ecpm_ceil)),size=2) +
-  geom_point(aes(x=year_mon,y=relative_imps,group=ecpm_ceil,colour=as.factor(ecpm_ceil)),size=2.5)
+  geom_line(aes(x=as.Date(year_mon),y=relative_imps,group=ecpm_ceil,colour=as.factor(ecpm_ceil)),size=2) +
+  geom_point(aes(x=as.Date(year_mon),y=relative_imps,group=ecpm_ceil,colour=as.factor(ecpm_ceil)),size=2.5)+
+  timePlotFormat()+
+  scale_y_continuous(labels=scales::percent)+
+  xlab("Date")+
+  ylab("Fraction of impressions")+labs(colour="eCPM category\n(dollars)")+
+  ecpmCeilCategories()
 
 # p4 through p6 - fill timeline by category, broken into 3 eCPM ranges.
 p4 <- ggplot(b2 %>% filter(ecpm_round <=1.21)) +
-  geom_line(aes(x=year_mon,y=fill,group=ecpm_round,colour=as.factor(ecpm_round)),size=2)+
-  geom_point(aes(x=year_mon,y=fill,group=ecpm_round,colour=as.factor(ecpm_round)), size=2.5)
+  geom_line(aes(x=as.Date(year_mon),y=fill,group=ecpm_round,colour=as.factor(ecpm_round)),size=2)+
+  geom_point(aes(x=as.Date(year_mon),y=fill,group=ecpm_round,colour=as.factor(ecpm_round)), size=2.5)+
+  timePlotFormat()+
+  scale_y_continuous(labels=scales::percent)+
+  xlab("Date")+
+  ylab("Fill")+
+  ecpmCeilCategories(F)
 
 p5 <- ggplot(b2 %>% filter(ecpm_round >= 1.19, ecpm_round <= 2.41)) +
   geom_line(aes(x=year_mon,y=fill,group=ecpm_round,colour=as.factor(ecpm_round)),size=2)+
