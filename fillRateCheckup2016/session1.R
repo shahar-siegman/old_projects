@@ -2,6 +2,9 @@ source("../libraries.R")
 #a <- read.csv("placement_historical_performance.csv", stringsAsFactors = F)
 #a$date <- as.Date("2014-01-01")+a$performance_date
 
+a <- read.csv("placement_performance_since_2014-01_with_tagurl.csv", sep=";", stringsAsFactors = F)
+a$date <- a$performance_date_date
+
 timePlotFormat <- function()
 {
   theme(axis.text=element_text(size=18,face="bold"),
@@ -18,7 +21,7 @@ ecpmCeilCategories <- function(ceil=T)
     b <- c(b,"$1.00-$1.40")
   return( scale_colour_discrete(name="eCPM category\n(dollars)" ,labels=b))
 }
-
+print(1)
 # a1 - a clean version of a
 a1 <- a %>% filter(revenue>1,is.numeric(floor_price)) %>%
   mutate(year_mon=as.yearmon(date),
@@ -31,7 +34,7 @@ b1 <- a1 %>%
   summarise(revenue=sum(as.numeric(revenue)), served=sum(as.numeric(served)), imps = sum(as.numeric(impressions))) %>% # as.numeric(.) solves integer overflow
   ungroup() %>%
   mutate(ecpm=1000*revenue/served, fill = served/imps)
-
+print(2)
 # b2 - revenue, served and impressions grouped by month and daily placement ecpm
 b2 <- a1 %>%
   group_by(year_mon,ecpm_round) %>%
@@ -39,7 +42,7 @@ b2 <- a1 %>%
   group_by(year_mon) %>% mutate(relative_imps=imps/sum(imps)) %>%
   ungroup() %>%
   mutate(fill = served/imps)
-
+print(3)
 
 # d - combine with house impression statistics at the placement level
 #houseImps <- read.csv("house_imps_by_placement.csv",stringsAsFactors = F)
