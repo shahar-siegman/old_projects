@@ -14,7 +14,7 @@ var con =mysql.createConnection({host: "devdb.komoona.com",
     password:"eunubv2010",
     database: "komoona_db"});
 
-writer.pipe(fs.createWriteStream('site.csv'));
+writer.pipe(fs.createWriteStream('site_available_networks_largest.csv'));
 
 var availableNetworkStream= new stream.Writable({highWaterMark: 200, objectMode:true});
 availableNetworkStream._write=function(chunk,encoding,callback){
@@ -33,9 +33,10 @@ availableNetworkStream._write=function(chunk,encoding,callback){
     callback();
 }
 
-var qStream=con.query('select site, timestamp, network, status \
+var qStream=con.query("select site, timestamp, network, status \
 from kmn_available_networks \
-order by site, timestamp').stream();
+where network in ('pubmatic','pulsepoint','openx','aol','smaato','index')\
+order by site, timestamp").stream();
 
 qStream.pipe(availableNetworkStream);
 qStream.on('end', finishUp)

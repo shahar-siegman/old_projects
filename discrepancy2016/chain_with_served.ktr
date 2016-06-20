@@ -3,7 +3,7 @@
   <info>
     <name>chain_with_served</name>
     <description/>
-    <extended_description/>
+    <extended_description>This transformation generates served data at the tag level &#xd;&#xa;that can be used to model the contributions to discrepancy of each network</extended_description>
     <trans_version/>
     <trans_type>Normal</trans_type>
     <trans_status>0</trans_status>

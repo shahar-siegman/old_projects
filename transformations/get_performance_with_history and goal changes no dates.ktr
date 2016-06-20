@@ -16,7 +16,7 @@
         </parameter>
         <parameter>
             <name>end_date</name>
-            <default_value>&#x27;2016-05-26&#x27;</default_value>
+            <default_value>&#x27;2016-06-16&#x27;</default_value>
             <description/>
         </parameter>
         <parameter>
@@ -404,7 +404,7 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <connection>komoona dev</connection>
+    <connection>komoona_production</connection>
     <sql>SELECT tagid&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;floor order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29; floor_price_event&#xd;&#xa;	, if&#x28;date&#x3c;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,0,datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29;&#x29; floor_change_date&#xd;&#xa;FROM kmn_floor_prices_history &#xd;&#xa;WHERE date &#x3c;&#x3d; &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;and floor &#x3e; 0&#xd;&#xa;&#xd;&#xa;group by tagid, floor_change_date&#x3b;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
@@ -686,7 +686,7 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <separator>,</separator>
+    <separator>&#x3b;</separator>
     <enclosure>&#x22;</enclosure>
     <enclosure_forced>N</enclosure_forced>
     <enclosure_fix_disabled>N</enclosure_fix_disabled>
@@ -721,8 +721,8 @@
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>1338</xloc>
-      <yloc>341</yloc>
+      <xloc>1337</xloc>
+      <yloc>340</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -1893,6 +1893,20 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 <grouping_symbol/>
 <currency_symbol/>
 </calculation>
+       <calculation><field_name>performance_date_date</field_name>
+<calc_type>ADD_DAYS</calc_type>
+<field_a>start_date_date</field_a>
+<field_b>performance_date_int</field_b>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>yyyy-MM-dd</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>1349</xloc>
@@ -2530,8 +2544,8 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <connection>komoona dev</connection>
-    <sql>SELECT layoutid &#xd;&#xa;	, floor_price latest_floor_price&#xd;&#xa;    , optimization&#x3e;&#x3d;3 latest_optimization_on&#xd;&#xa;	, case optimization_goal_id&#xd;&#xa;		when 1 then &#x27;A&#x27; &#xd;&#xa;		when 2 then &#x27;B&#x27; &#xd;&#xa;		when 3 then &#x27;C&#x27; &#xd;&#xa;		when 4 then &#x27;A&#x2b;&#x27; &#xd;&#xa;		when 5 then &#x27;C-&#x27; &#xd;&#xa;	else &#x27;U&#x27; end  latest_optimization_goal&#xd;&#xa;    &#xd;&#xa;from kmn_layouts&#xd;&#xa;</sql>
+    <connection>komoona_production</connection>
+    <sql>SELECT layoutid &#xd;&#xa;	, floor_price latest_floor_price&#xd;&#xa;    , optimization&#x3e;&#x3d;3 latest_optimization_on&#xd;&#xa;	, case optimization_goal_id&#xd;&#xa;		when 1 then &#x27;A&#x27; &#xd;&#xa;		when 2 then &#x27;B&#x27; &#xd;&#xa;		when 3 then &#x27;C&#x27; &#xd;&#xa;		when 4 then &#x27;A&#x2b;&#x27; &#xd;&#xa;		when 5 then &#x27;C-&#x27; &#xd;&#xa;	else &#x27;U&#x27; end  latest_optimization_goal&#xd;&#xa;	, substring_index&#x28;tag_url,&#x27;&#x2f;&#x2f;&#x27;,-1&#x29; clean_url&#xd;&#xa;    &#xd;&#xa;from kmn_layouts&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -2556,7 +2570,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <connection>komoona dev</connection>
+    <connection>komoona_production</connection>
     <sql>SELECT tagid&#xd;&#xa;	, datediff&#x28;date&#x28;goal_change_time&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; goal_change_date &#xd;&#xa;    , case substring_index&#x28;group_concat&#x28;optimization_goal_event order by goal_change_time&#x29;,&#x27;,&#x27;,-1&#x29;&#xd;&#xa;		when 1 then &#x27;A&#x27; &#xd;&#xa;        when 2 then &#x27;B&#x27; &#xd;&#xa;        when 3 then &#x27;C&#x27; &#xd;&#xa;        when 4 then &#x27;A&#x2b;&#x27; &#xd;&#xa;		when 5 then &#x27;C-&#x27; &#xd;&#xa;        else &#x27;U&#x27; end  optimization_goal_event&#xd;&#xa;FROM &#x28;&#xd;&#xa;SELECT entity_id tagid&#xd;&#xa;	, &#x27;2014-01-01 00&#x3a;00&#x3a;00&#x27; goal_change_time &#xd;&#xa;	, substring_index&#x28;group_concat&#x28;old_value order by timestamp&#x29;,&#x27;,&#x27;,1&#x29; optimization_goal_event&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization_goal_id&#x27;&#xd;&#xa;and timestamp between unix_timestamp&#x28;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; &#x23; Midnight Jan 1st&#xd;&#xa;		and unix_timestamp&#x28;&#x24;&#x7b;end_date&#x7d;&#x29; &#xd;&#xa;group by tagid&#xd;&#xa;&#xd;&#xa;UNION&#xd;&#xa;&#xd;&#xa;SELECT entity_id tagid&#xd;&#xa;    , from_unixtime&#x28;timestamp&#x29; goal_change_time&#xd;&#xa;	, new_value optimization_goal_event&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization_goal_id&#x27;&#xd;&#xa;and timestamp between unix_timestamp&#x28;&#x27;2014-01-01&#x27;&#x29; &#x23; Midnight Jan 1st&#xd;&#xa;		and unix_timestamp&#x28;&#x24;&#x7b;end_date&#x7d;&#x29;  &#x23; Midnight Oct. 1st&#xd;&#xa;&#x29; a&#xd;&#xa;group by tagid, goal_change_date</sql>
     <limit>0</limit>
     <lookup/>
@@ -2608,7 +2622,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <connection>komoona dev</connection>
+    <connection>komoona_production</connection>
     <sql>SELECT entity_id tagid&#xd;&#xa;    , datediff&#x28;date&#x28;from_unixtime&#x28;timestamp&#x29;&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; in_out_date&#xd;&#xa;	, substring_index&#x28;group_concat&#x28;if&#x28;new_value&#x3e;&#x3d;3,1,0&#x29; order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29; optimization_in_out&#xd;&#xa;FROM komoona_db.kmn_history h &#xd;&#xa;where entity_type&#x3d;&#x27;placement&#x27; and field&#x3d;&#x27;optimization&#x27;&#xd;&#xa;and timestamp between unix_timestamp&#x28;&#x27;2015-01-01&#x27;&#x29;  &#x23; Midnight Jan 1st&#xd;&#xa;		and unix_timestamp&#x28;&#x24;&#x7b;end_date&#x7d;&#x29;  &#x23; Midnight Oct. 1st&#xd;&#xa;group by tagid, in_out_date&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
@@ -2634,7 +2648,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <connection>komoona dev</connection>
+    <connection>komoona_production</connection>
     <sql>SELECT tagid&#xd;&#xa;    , s.sitename&#xd;&#xa;	, l.tag_url username&#xd;&#xa;	, datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; performance_date&#xd;&#xa;	, r.impressions&#xd;&#xa;	, served&#xd;&#xa;	, 100&#x2a;served&#x2f;r.impressions fill&#xd;&#xa;	, cost&#xd;&#xa;	, profit&#xd;&#xa;	, cost &#x2b; profit revenue&#xd;&#xa;	, 1000&#x2a;cost&#x2f;served client_ecpm&#xd;&#xa;	, 1000&#x2a;&#x28;cost&#x2b;profit&#x29;&#x2f;served total_ecpm&#xd;&#xa;&#xd;&#xa;FROM kmn_tag_report r&#xd;&#xa;inner join kmn_layouts l on &#x28;l.layoutid &#x3d; r.tagid&#x29;&#xd;&#xa;inner join kmn_sites s using &#x28;siteid&#x29;&#xd;&#xa;&#xd;&#xa;WHERE &#xd;&#xa;	date between &#x27;&#x24;&#x7b;start_date&#x7d;&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;	and r.impressions &#x3e; 0&#xd;&#xa;	and served &#x3e; 10&#xd;&#xa;order by tagid,performance_date</sql>
     <limit>0</limit>
     <lookup/>
@@ -2660,8 +2674,8 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <connection>komoona dev</connection>
-    <sql>select r.tagid&#xd;&#xa;	, datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; new_revshare_date&#xd;&#xa; 	, substring_index&#x28;group_concat&#x28;revshare order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29;  as new_revshare &#xd;&#xa;from kmn_revshare r &#xd;&#xa;where date&#x3e;&#x3d;&#x27;2014-01-01&#x27;&#xd;&#xa;group by tagid, date&#x3b;&#xd;&#xa;</sql>
+    <connection>komoona_production</connection>
+    <sql>select r.tagid&#xd;&#xa;	, datediff&#x28;date_add&#x28;date&#x28;creationdate&#x29;,interval 1 day&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; new_revshare_date&#xd;&#xa; 	, substring_index&#x28;group_concat&#x28;revshare order by timestamp&#x29;,&#x27;,&#x27;,-1&#x29;  as new_revshare &#xd;&#xa;from kmn_revshare r &#xd;&#xa;where date&#x3e;&#x3d;&#x27;2014-01-01&#x27;&#xd;&#xa;group by tagid, new_revshare_date&#x3b;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -2712,7 +2726,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <connection>komoona dev</connection>
+    <connection>komoona_production</connection>
     <sql>select placement_id tagid&#xd;&#xa;	, datediff&#x28;if&#x28;date&#x28;update_timestamp&#x29;&#x3e;&#x3d;&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;,date&#x28;update_timestamp&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29;,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; risk_change_date &#xd;&#xa;	, substring_index&#x28;group_concat&#x28;avg_daily_revenue_percent order by update_timestamp&#x29;,&#x27;,&#x27;,-1&#x29; new_risk_percent&#xd;&#xa;from kmn_risk_allocation&#xd;&#xa;where update_timestamp between &#x27;2015-01-01&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;group by tagid, risk_change_date&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
