@@ -1,5 +1,6 @@
 source("../libraries.R")
 
+# commented out for speed
 # k6 <- a %>% mutate(ecpm_bin=round(2.5*total_ecpm)/2.5,
 #                    date=as.Date(date))%>%
 #   filter(!is.na(ecpm_bin)) %>%
@@ -12,15 +13,21 @@ source("../libraries.R")
 #             median_fill=median(fill)/100) %>%
 #   mutate(fill=served/impressions)
 
-k7 <- k6 %>% mutate(year=as.numeric(format(date,"%Y")),
-                    month=as.numeric(format(date,"%m")),
-                    mday=as.numeric(format(date,"%d")),
-                    year_group=year+ifelse(month==12,1,0),
-                    month_day=as.factor(sprintf("%d/%d",month,mday)),
-                    scale_date=date-365*(year_group-2014),
-                    year_group=as.factor(year_group)) %>%
-  filter(date >='2014-12-01' & month %in% c(1,2,3,12))
+prepareYoyCompare <- function(q)
+{
+  q <- q %>%mutate(fill=served/impressions,
+                   year=as.numeric(format(date,"%Y")),
+                   month=as.numeric(format(date,"%m")),
+                   mday=as.numeric(format(date,"%d"))) %>%
+    filter(date >='2014-11-29') %>%
+    mutate(year_group=year+ifelse(month>=11,1,0),
+           scale_date=date-365*(year_group-2014)) %>%
+    filter(month %in% c(1,2,3,12))
+  return(q)
+}
+k7 <- k6 %>% prepareYoyCompare()
 
+# 2015 vs. 2016 overlay
 pk5 <- ggplot(k7 %>% filter(ecpm_bin<1.61)) +
   geom_line(aes(x=scale_date, y=median_fill,group=year_group, colour=year_group),size=1.25)+
   geom_point(aes(x=scale_date, y=ifelse(day.of.week(month,mday,year)==0,median_fill,NA), colour=year_group),size=2)+
@@ -64,18 +71,7 @@ q8 <- q7 %>%
   ungroup()
 
 print(3)
-prepareYoyCompare <- function(q)
-{
-  q <- q %>%mutate(fill=served/impressions,
-         year=as.numeric(format(date,"%Y")),
-         month=as.numeric(format(date,"%m")),
-         mday=as.numeric(format(date,"%d"))) %>%
-  filter(date >='2014-11-29') %>%
-  mutate(year_group=year+ifelse(month>=11,1,0),
-         scale_date=date-365*(year_group-2014)) %>%
-    filter(month %in% c(1,2,3,12))
-  return(q)
-}
+
 
 print(4)
 

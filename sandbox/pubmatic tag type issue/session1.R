@@ -1,8 +1,10 @@
 source('../../libraries.R')
 
-#a <- read.csv('performance_with_good_bad.csv',stringsAsFactors = F)
+a <- read.csv('performance_with_good_bad_jun23.csv',stringsAsFactors = F)
 
-b <- a %>% filter(tag_type %in% c('good','bad'),!is.na(ordinal), impressions>100) %>%
+b <- a %>% filter(tag_type %in% c('good','bad'),!is.na(ordinal),
+                  impressions>100,
+                  as.Date(date_joined)>='2016-06-01') %>%
   mutate(floor_price_bin=round(floor_price*2.5)/2.5,
          ordinal=as.factor(ordinal),
          tag_type=as.factor(tag_type)) %>%
