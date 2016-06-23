@@ -38,7 +38,10 @@ print(2)
 # b2 - revenue, served and impressions grouped by month and daily placement ecpm
 b2 <- a1 %>%
   group_by(year_mon,ecpm_round) %>%
-  summarise(revenue=sum(as.numeric(revenue)), served=sum(as.numeric(served)), imps = sum(as.numeric(impressions))) %>% # as.numeric(.) solves integer overflow
+  summarise(revenue=sum(as.numeric(revenue)),
+            served=sum(as.numeric(served)),
+            imps = sum(as.numeric(impressions)),
+            median_fill=median(fill)/100) %>% # as.numeric(.) solves integer overflow
   group_by(year_mon) %>% mutate(relative_imps=imps/sum(imps)) %>%
   ungroup() %>%
   mutate(fill = served/imps)
