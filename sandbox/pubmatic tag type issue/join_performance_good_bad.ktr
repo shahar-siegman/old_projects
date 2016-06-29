@@ -318,7 +318,7 @@
     <fileNameField/>
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;sandbox&#x5c;pubmatic tag type issue&#x5c;performance_with_good_bad_jun23</name>
+      <name>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;sandbox&#x5c;pubmatic tag type issue&#x5c;performance_with_good_bad_jun27</name>
       <is_command>N</is_command>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
@@ -615,7 +615,7 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-    <filename>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;sandbox&#x5c;pubmatic tag type issue&#x5c;performance_with_history_jun23.csv</filename>
+    <filename>C&#x3a;&#x5c;Shahar&#x5c;Projects&#x5c;sandbox&#x5c;pubmatic tag type issue&#x5c;performance_with_history_jun27.csv</filename>
     <filename_field/>
     <rownum_field/>
     <include_filename>N</include_filename>
