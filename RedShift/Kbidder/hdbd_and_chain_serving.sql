@@ -20,14 +20,8 @@ select * from (
     left join hdbd_networks net on json_extract_path_text(a.hdbd_json, net.network_letter,'cpm') != ''
     where 
     l.list_id=3 and
-    "timestamp" between '2016-06-20 11:00:00' and '2016-06-20 12:00:00'
+    "timestamp" between '2016-06-24 23:00:00' and '2016-06-25 01:00:00'
   group by a.placement_id, a.cb, net.network_letter
   ) q
 where final_state_ in ('e.js-err','placement');
   
-
-  from aggregated_logs_5 a
-  where 
-  a.placement_id='b099e27c6d929509f67c5a04cca99000'
-  and "timestamp" between '2016-06-20 11:00:00' and '2016-06-20 12:00:00'
-  group by a.placement_id, a.cb --, timestamp_hour
