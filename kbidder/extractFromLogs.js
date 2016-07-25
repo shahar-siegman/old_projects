@@ -3,6 +3,7 @@ var readline = require('readline');
 var csvWriter = require('csv-write-stream');
 var writer = csvWriter();
 var inputFiles = ['kbidder_10_11.txt', 'kbidder_11_12.txt', 'kbidder_12_13.txt', 'kbidder_13_14.txt', 'kbidder_14_15.txt', 'kbidder_15_16.txt'];
+var inputFile='';
 //
 function loadData(dataFile) {
     var outFile = inputFile.split('.')[0]+'_parsed.csv';
@@ -33,9 +34,12 @@ function handleLine(row) {
         log_type: timeAndTypeParts[0].trim(),
         tagid: record.tagid,
         cb: record.cb,
+        ver: record.v,
+        browser: record.browser
     }
-    if (basicProperties.log_type=="tag" && record.parent)
-        return; // skip row if it was mistakenly matched
+    writer.write(basicProperties);
+    return;
+    // if (basicProperties.log_type != "placement" || (record.parent && record.parent.length >0) )        return; // skip row if it was mistakenly matched
     var extendedProperties;
     if (basicProperties.log_type=="placement" && record.hdbdId) // there is hdbd data
     { 
@@ -72,13 +76,22 @@ function handleLine(row) {
 
     for (attr in extendedProperties) basicProperties[attr]=extendedProperties[attr];
 
-    writer.write(basicProperties);
+
     //console.log('next!');
 }
-
+/*
 for (var i=1; i< inputFiles.length; i++) {
-    consolse.log('processing ' + inputFiles[i]);
-    loadData(inputFiles[i]);
-    console.log('done with ' + inputFiles[i]);
-}
-    
+    inputFile= inputFiles[i];
+    console.log('processing ' + inputFile);
+    loadData(inputFile);
+    console.log('done with ' + inputFile);
+} */
+//inputFile='kbidder_10_11.txt';
+//inputFile='kbidder_11_12.txt';
+//inputFile='kbidder_12_13.txt';
+//inputFile='kbidder_13_14.txt';
+//inputFile='kbidder_14_15.txt';
+//inputFile='kbidder_15_16.txt';
+inputFile='result.txt'
+loadData(inputFile);
+
