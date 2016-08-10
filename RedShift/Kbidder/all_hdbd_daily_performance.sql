@@ -1,6 +1,7 @@
 
 select r.tagid
 	, l.name
+    , l.floor_price
     , replace(substring_index(l.tag_url,'//',-1),'www.','') clean_url
 	, r.date
 	, r.impressions	
@@ -20,4 +21,4 @@ inner join (
     group by 1,2 ) h using(tagid,date)
 inner join kmn_layouts l on l.layoutid=r.tagid
 where date >='2016-03-01'
-
+having hb_impressions_with_bids>0
