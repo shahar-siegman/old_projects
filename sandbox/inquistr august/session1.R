@@ -8,7 +8,7 @@ b1 <- read.csv('floor_prices2.csv',stringsAsFactors = F)
 b1 <- b1 %>% rename(placement_id=tagid, date=date_)
 b1$date <- as.Date(b1$date)
 b1$week <- as.integer(floor( (b1$date-min(b1$date)) /7))
-
+b1$floor_price=as.numeric(b1$floor_price)
 
 
 a0 <- a %>% group_by(placement_id,date,tag_code) %>%
@@ -97,13 +97,18 @@ for (i in 1:30) {
   pid = levels(a2$placement_id)[i]
   a3 <- a2 %>% filter(placement_id==pid,
                       is_leading_chain,
-                      date %in% (as.Date("2016-08-01")+0:5),
+                      date %in% (as.Date("2016-08-01")+0:8),
                       chain_length>2)
-    #utate(chain_codes=ifelse(is.na(lead_tag_network),paste0(chain_codes,"_"),chain_codes))
+
   bl[[i]] <- b1 %>% filter(placement_id==pid, date %in% unique(a3$date))
   p[[i]] <- ggplot() +
-    geom_path(aes(x=chain_cum_fill,y=chain_cum_rcpm,group=chain_codes, colour=chain_codes), data=a3, size=1.25)+
-    geom_point(aes(x=chain_cum_fill,y=chain_cum_rcpm, colour=tag_network, shape=as.factor(date)), data=a3, size=2) +
-   # geom_abline(aes(slope=floor_price,intercept=0),data=bl[[i]],colour="black",linetype="dotdash", size=1.25)+
-    facet_wrap(~date)
+    geom_path(aes(x=chain_cum_fill,y=chain_cum_rcpm,group=chain_codes, colour=chain_codes), data=a3 %>% filter(chain_allocation>=0.1), size=1.25)+
+    geom_path(aes(x=chain_cum_fill,y=chain_cum_rcpm,group=chain_codes, colour=chain_codes), data=a3 %>% filter(chain_allocation<0.1), size=1.25, linetype="71")+
+    geom_point(aes(x=chain_cum_fill,y=chain_cum_rcpm, colour=chain_codes, shape=as.factor(tag_network)), data=a3, size=3) +
+    geom_point(aes(x=chain_cum_fill,y=chain_cum_rcpm, colour=chain_codes, size=chain_allocation^1.5, shape=as.factor(tag_network)), data=a3%>%filter(chain_length==place)) +
+    geom_abline(aes(slope=floor_price,intercept=0),data=bl[[i]],colour="black",linetype="dotdash", size=1.25)+
+    geom_text(aes(x=chain_cum_fill,y=chain_cum_rcpm,label=sprintf("%1.2f",chain_cum_rcpm/chain_cum_fill)),data=a3%>%filter(chain_length==place), nudge_x = 0.03, check_overlap=T)+
+    facet_wrap(~date)+
+    scale_x_continuous(labels=scales::percent)+
+    labs(x="Fill",y="rCPM",shape="Network")
 }
