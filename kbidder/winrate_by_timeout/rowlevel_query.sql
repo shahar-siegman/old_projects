@@ -1,4 +1,4 @@
-create table temp_kb_placements_rows1 as 
+-- create table temp_kb_placements_rows1 as 
 select placement_id
   , cb
   , "timestamp"
@@ -28,4 +28,5 @@ where placement_id in ('83d6f1934c618a6b7f30f17f1671d794'
   , '5c312e17f768c831ac20170cd6386f8b'
   , '3fe0fd006d3c2a96533c0378ffba323f'
   , '741aebc4a3619038194cb581247f19eb')
-and timestamp >= '2016-07-28';
+and timestamp >= '2016-07-28'
+limit 100;

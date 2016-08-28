@@ -158,3 +158,31 @@ where
   and strpos(a.hdbd_json, a.served_tag) = 0
   order by uid, "timestamp", placement_id
  limit 1000;
+ 
+
+insert into temp_kb_placements_rows1
+select placement_id
+  , cb
+  , "timestamp"
+  , case when final_state in ('tag', 'stat-1',  'placement', 'js-err') and length(hdbd_json)>4 then 1 else 0 end win
+  , served_tag
+  , case 
+      when strpos(a.hdbd_json, a.served_tag) > 0 AND length(a.served_tag) > 1 then 'header tag' 
+      when a.served_tag='h' then 'h' 
+      when a.served_tag='' then 'blank' 
+      when length(a.served_tag)=2 or length(a.served_tag)=3 then 'chain'
+      else 'unknown'
+    end served_type
+  , json_extract_path_text(json_extract_array_element_text(pbsbids, 0),'bid_ts') first_sent_bid_ts
+  , json_extract_path_text(json_extract_array_element_text(pbsbids, 1),'bid_ts') second_sent_bid_ts
+  , final_state
+  , hdbd_time
+  , hdbd_json
+  , pbsbids
+  , kb_code
+  , kb_sold_cpm
+
+from aggregated_logs_5 a
+where placement_id in   ('02616da2513ca0580908133fe4af88c7','6c71ef147b1282b8cda1226b5335a0c4','754088270109c65dab2efdfd27487121','8f5683cfba9109c0850c75e7baa7ccba','b6206ad037f9ff41bf6a2046aa1eca62','8fbbec6fdd52d002e67460fb3f2be516','f924845f67152f877e2a2304c5052f2b')
+and timestamp >='2016-08-09 02:00:00';
+
