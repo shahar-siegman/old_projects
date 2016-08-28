@@ -106,7 +106,7 @@ for (i in 1:30) {
   pid = levels(a2$placement_id)[i]
   a3 <- a2 %>% filter(placement_id==pid,
                       is_leading_chain,
-                      date %in% (as.Date("2016-08-01")+0:8),
+                      date %in% (as.Date("2016-08-12")+0:8),
                       chain_length>2)
   if (nrow(a3)<10)
     next
