@@ -1,3 +1,5 @@
+logFiles/
 node_modules/
 zippedLogFiles/
 zippedLogFiles20150907/
+s2s2_statLog*

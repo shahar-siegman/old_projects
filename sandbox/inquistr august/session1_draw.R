@@ -1,6 +1,6 @@
 source('../../libraries.R')
 print(1)
-a <- read.csv('hawtceleb_chain_performance2.csv',stringsAsFactors = F)
+a <- read.csv('chain_performance_low_margin_placements.csv',stringsAsFactors = F)
 a$date <- as.Date(a$date)
 a$placement_id <- as.factor(a$placement_id)
 a$week <- as.integer(floor( (a$date-min(a$date)) /7))
@@ -10,9 +10,16 @@ a$tag_ecpm <- as.numeric(a$tag_ecpm)
 a$tag_fill_contrib <- as.numeric(a$tag_fill_contrib)
 a$tag_rcpm_contrib <- as.numeric(a$tag_rcpm_contrib)
 
+a <- a %>% filter(placement_id %in% c('328c2472f5257df2697b5908932619e0',
+                                       '371960ca1872757895184fc2a704e76a',
+                                       '6e353182dfb4514f2a7924953a0c4d70',
+                                       '9ce0d38850bfa5349e46f90e4f46b5b7',
+                                       'a28b4de4f73ba41337c87b1a4f739437',
+                                       'f4046cd90b36b7fabb61a7c37b2bd933'))
+
 
 a <- a %>% arrange(placement_id, date, desc(impressions), place)
-b1 <- read.csv('hawtceleb_floor_prices2.csv',stringsAsFactors = F)
+b1 <- read.csv('floor_prices_low_margin_placements.csv',stringsAsFactors = F)
 b1 <- b1 %>% rename(placement_id=tagid, date=date_)
 b1$date <- as.Date(b1$date)
 b1$week <- as.integer(floor( (b1$date-min(b1$date)) /7))
@@ -100,28 +107,49 @@ a2 <- a6 %>% group_by(placement_id, chain_codes,date) %>%
 
 print(2)
 p <- list()
+q <- list()
 bl <- list()
 j <-0
-for (i in 1:30) {
-  pid = levels(a2$placement_id)[i]
+imax <- min(30, length(levels(a2$placement_id)))
+
+a2.5 <- a2 %>%  filter(is_leading_chain,
+                      date %in% (as.Date("2016-08-19")+0:9),
+                      chain_length>2) %>%
+  group_by(placement_id) %>%
+  filter(n()>=10) %>%
+  ungroup() %>%
+  droplevels()
+
+
+print(a2.5 %>% group_by(placement_id) %>% summarise(nrow=n()))
+for (i in 1:imax) {
+  pid = levels(a2.5$placement_id)[i]
   a3 <- a2 %>% filter(placement_id==pid,
                       is_leading_chain,
-                      date %in% (as.Date("2016-08-12")+0:8),
+                      date %in% (as.Date("2016-08-19")+0:9),
                       chain_length>2)
   if (nrow(a3)<10)
     next
 
   j <- j+1
   print(sprintf("%d: %s (%d)",i,pid,j))
+  max_chain_cum_fill <- max(a3$chain_cum_fill)
   bl[[j]] <- b1 %>% filter(placement_id==pid, date %in% unique(a3$date))
   p[[j]] <- ggplot() +
+    geom_path(aes(x=chain_cum_fill,y=chain_cum_rcpm,group=chain_codes, colour=chain_codes), data=a3 %>% filter(chain_allocation<0.1), size=0.25, linetype="71")+
     geom_path(aes(x=chain_cum_fill,y=chain_cum_rcpm,group=chain_codes, colour=chain_codes), data=a3 %>% filter(chain_allocation>=0.1), size=1.25)+
-    geom_path(aes(x=chain_cum_fill,y=chain_cum_rcpm,group=chain_codes, colour=chain_codes), data=a3 %>% filter(chain_allocation<0.1), size=1.25, linetype="71")+
     geom_point(aes(x=chain_cum_fill,y=chain_cum_rcpm, colour=chain_codes, shape=as.factor(tag_network)), data=a3, size=3) +
     geom_point(aes(x=chain_cum_fill,y=chain_cum_rcpm, colour=chain_codes, size=chain_allocation^1.5, shape=as.factor(tag_network)), data=a3%>%filter(chain_length==place)) +
     geom_abline(aes(slope=floor_price,intercept=0),data=bl[[j]],colour="black",linetype="dotdash", size=1.25)+
-    geom_text(aes(x=chain_cum_fill,y=chain_cum_rcpm,label=sprintf("%1.2f",chain_cum_rcpm/chain_cum_fill)),data=a3%>%filter(chain_length==place), nudge_x = max(a3$chain_cum_fill)/25, check_overlap=T)+
+    geom_text(aes(x=chain_cum_fill,y=chain_cum_rcpm,label=sprintf("%1.2f",chain_cum_rcpm/chain_cum_fill)),data=a3%>%filter(chain_length==place), nudge_x = max_chain_cum_fill/25, check_overlap=T)+
+    geom_text(aes(x=max_chain_cum_fill*0.9,y=floor_price*max_chain_cum_fill*0.8,label=sprintf("%1.2f",floor_price)),data=bl[[j]],colour="darkgrey")+
     facet_wrap(~date)+
     scale_x_continuous(labels=scales::percent)+
     labs(x="Fill",y="rCPM",shape="Network")
+
+  #a3 %>% mutate(chain_codes=ifelse(chain_allocation>=0.1, chain_codes,'other')) %>% group_by(chain_codes)
+  q[[j]] <- ggplot(data=a3 %>% filter(chain_allocation>=0.01,place==1)) +
+    geom_bar(aes(x=factor(1),y=chain_allocation,fill=chain_codes),width=1,position="stack", stat="identity")+
+    facet_wrap(~date)+
+    scale_y_continuous(labels=scales::percent)
 }

@@ -4,7 +4,7 @@ select r.tagid
     , r.served
     , r.cost+r.profit revenue
 	, coalesce(a.opt_code, l.optimization) opt_code
-    , case opt_code
+    , case coalesce(a.opt_code, l.optimization)
 		when 3 then 'maestro'
         when 4 then 'maestro'
         when 5 then 'maestro'

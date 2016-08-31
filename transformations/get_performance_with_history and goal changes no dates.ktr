@@ -16,12 +16,12 @@
         </parameter>
         <parameter>
             <name>end_date</name>
-            <default_value>&#x27;2016-06-16&#x27;</default_value>
+            <default_value>&#x27;2016-08-29&#x27;</default_value>
             <description/>
         </parameter>
         <parameter>
             <name>start_date</name>
-            <default_value>2014-01-01</default_value>
+            <default_value>2016-08-23</default_value>
             <description/>
         </parameter>
     </parameters>
@@ -2122,7 +2122,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
         <type>Number</type>
         <length>-2</length>
         <precision>-2</precision>
-        <conversion_mask>&#x23;,&#x23;&#x23;0.&#x23;&#x23;&#x23;</conversion_mask>
+        <conversion_mask>&#x23;.&#x23;&#x23;&#x23;&#x23;</conversion_mask>
         <date_format_lenient>false</date_format_lenient>
         <date_format_locale/>
         <date_format_timezone/>
@@ -2649,7 +2649,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
            <schema_name/>
            </partitioning>
     <connection>komoona_production</connection>
-    <sql>SELECT tagid&#xd;&#xa;    , s.sitename&#xd;&#xa;	, l.tag_url username&#xd;&#xa;	, datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; performance_date&#xd;&#xa;	, r.impressions&#xd;&#xa;	, served&#xd;&#xa;	, 100&#x2a;served&#x2f;r.impressions fill&#xd;&#xa;	, cost&#xd;&#xa;	, profit&#xd;&#xa;	, cost &#x2b; profit revenue&#xd;&#xa;	, 1000&#x2a;cost&#x2f;served client_ecpm&#xd;&#xa;	, 1000&#x2a;&#x28;cost&#x2b;profit&#x29;&#x2f;served total_ecpm&#xd;&#xa;&#xd;&#xa;FROM kmn_tag_report r&#xd;&#xa;inner join kmn_layouts l on &#x28;l.layoutid &#x3d; r.tagid&#x29;&#xd;&#xa;inner join kmn_sites s using &#x28;siteid&#x29;&#xd;&#xa;&#xd;&#xa;WHERE &#xd;&#xa;	date between &#x27;&#x24;&#x7b;start_date&#x7d;&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;	and r.impressions &#x3e; 0&#xd;&#xa;	and served &#x3e; 10&#xd;&#xa;order by tagid,performance_date</sql>
+    <sql>SELECT tagid&#xd;&#xa;    , s.sitename&#xd;&#xa;	, l.tag_url url&#xd;&#xa;	, datediff&#x28;date,&#x27;&#x24;&#x7b;start_date&#x7d;&#x27;&#x29; performance_date&#xd;&#xa;	, r.impressions&#xd;&#xa;	, served&#xd;&#xa;	, served&#x2f;r.impressions fill&#xd;&#xa;	, cost&#xd;&#xa;	, profit&#xd;&#xa;	, cost &#x2b; profit revenue&#xd;&#xa;	, 1000&#x2a;cost&#x2f;served client_ecpm&#xd;&#xa;	, 1000&#x2a;&#x28;cost&#x2b;profit&#x29;&#x2f;served total_ecpm&#xd;&#xa;&#xd;&#xa;FROM kmn_tag_report r&#xd;&#xa;inner join kmn_layouts l on &#x28;l.layoutid &#x3d; r.tagid&#x29;&#xd;&#xa;inner join kmn_sites s using &#x28;siteid&#x29;&#xd;&#xa;&#xd;&#xa;WHERE &#xd;&#xa;	date between &#x27;&#x24;&#x7b;start_date&#x7d;&#x27; and &#x24;&#x7b;end_date&#x7d;&#xd;&#xa;	and r.impressions &#x3e; 0&#xd;&#xa;	and served &#x3e; 10&#xd;&#xa;order by tagid,performance_date</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
