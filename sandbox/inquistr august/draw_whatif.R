@@ -1,16 +1,24 @@
 
 whatif <- function(a3,pid,j)
 {
-  if (nrow(a3)<10)
-    return()
-
   if (missing(j))
     j <-1
 
-  if (missing(pid))
-    pid <- a3$placement_id[1]
+  if(class(a3$placement_id) != "factor")
+    a3$placement_id <- as.factor(a3$placement_id)
 
+  if (missing(pid) || str_length(pid)==0)
+    pid <- levels(a3$placement_id)[j]
+
+  print(paste0("placement_id: ",pid))
   a3 <- a3 %>% filter(placement_id==pid)
+
+  if (nrow(a3)<10)
+  {
+    print(paste0("rows to draw: ",nrow(a3),"; exiting"))
+    return()
+  }
+
 
   max_chain_cum_fill <- max(a3$chain_cum_fill)
   bl[[j]] <- b1 %>% filter(placement_id==pid, date %in% unique(a3$date))
@@ -31,6 +39,8 @@ whatif <- function(a3,pid,j)
     facet_wrap(~date)+
     scale_y_continuous(labels=scales::percent)
 
+  w <- ggplot()+
+    geom_point(aes(x=))
   graphics.off()
 
   x11(); print(p[[j]]); x11(); print(q[[j]])
