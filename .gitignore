@@ -1,5 +1,6 @@
 **/.RData*
 *.csv
+*.xlsx
 **/\~*
 sandbox/gitest/
 sandbox/churn/
@@ -30,6 +31,5 @@ logs
 node_modules
 npm-debug.log*
 pids
-
-
 .vscode
+

@@ -1,5 +1,5 @@
 
-whatif <- function(a3,pid,j)
+whatif <- function(a3,pid,j,tag.plot=T)
 {
   if (missing(j))
     j <-1
@@ -18,7 +18,6 @@ whatif <- function(a3,pid,j)
     print(paste0("rows to draw: ",nrow(a3),"; exiting"))
     return()
   }
-
 
   max_chain_cum_fill <- max(a3$chain_cum_fill)
   bl[[j]] <- b1 %>% filter(placement_id==pid, date %in% unique(a3$date))
@@ -39,9 +38,22 @@ whatif <- function(a3,pid,j)
     facet_wrap(~date)+
     scale_y_continuous(labels=scales::percent)
 
-  w <- ggplot()+
-    geom_point(aes(x=))
   graphics.off()
+  if (tag.plot) {
+    w <-adtag_plot(a3)
+    x11(); print(w)
+  }
 
-  x11(); print(p[[j]]); x11(); print(q[[j]])
+  x11(); print(q[[j]]); x11(); print(p[[j]]);
+}
+
+adtag_plot <- function(a3)
+{
+  a3 <- a3 %>% filter(place>0) %>% mutate(tag_rcpm=tag_ecpm * tag_served/tag_impressions, place=as.factor(place))
+  max_ecpm=max(a3$tag_ecpm)
+  w <- ggplot(data=a3) +
+    geom_point(aes(x=tag_ecpm,y=tag_rcpm,colour=tag_network,shape=place))+
+    #geom_text(aes(x=tag_ecpm,y=tag_rcpm,colour=tag_network,label=as.character(tag_code)) ,nudge_x=max_ecpm/25, check_overlap = T)+
+    facet_wrap(~date)
+  return(w)
 }

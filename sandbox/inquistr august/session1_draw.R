@@ -1,6 +1,6 @@
 source('../../libraries.R')
 print(1)
-a <- read.csv('chain_performance5.csv',stringsAsFactors = F)
+a <- read.csv('ngames/chain_performance_9_18.csv',stringsAsFactors = F)
 a$date <- as.Date(a$date)
 a$placement_id <- as.factor(a$placement_id)
 a$week <- as.integer(floor( (a$date-min(a$date)) /7))
@@ -19,7 +19,7 @@ a$tag_rcpm_contrib <- as.numeric(a$tag_rcpm_contrib)
 
 
 a <- a %>% arrange(placement_id, date, desc(impressions), place)
-b1 <- read.csv('floor_prices5.csv',stringsAsFactors = F)
+b1 <- read.csv('ngames/floor_prices_9_18.csv',stringsAsFactors = F)
 b1 <- b1 %>% rename(placement_id=tagid, date=date_)
 b1$date <- as.Date(b1$date)
 b1$week <- as.integer(floor( (b1$date-min(b1$date)) /7))
@@ -78,7 +78,7 @@ a5 <- a4 %>%
   mutate(chain_allocation=extended_chain_imps/placement_impressions)
 print(6)
 a6 <- a5 %>%
-  select(placement_id, chain_codes, date, impressions, place, tag_code, tag_served, tag_ecpm,
+  select(placement_id, chain_codes, date, impressions, place, tag_code, tag_impressions, tag_served, tag_ecpm,
          week, tag_network, chain_first_tag, chain_cum_fill, chain_cum_rcpm, is_leading_chain, chain_length, chain_allocation)
 
 
@@ -87,6 +87,7 @@ a2 <- a6 %>% group_by(placement_id, chain_codes,date) %>%
   summarise(impressions=first(impressions),
             place=0,
             tag_code='',
+            tag_impressions=0,
             tag_served=0,
             tag_ecpm=0,
             week=first(week),
@@ -113,8 +114,8 @@ j <-0
 imax <- min(30, length(levels(a2$placement_id)))
 
 a2.5 <- a2 %>%  filter(is_leading_chain,
-                      date %in% (as.Date("2016-08-24")+0:9),
-                      chain_length>2) %>%
+                   #   date %in% (as.Date("2016-08-24")+0:9),
+                      chain_allocation>0.1 | chain_length>2) %>%
   group_by(placement_id) %>%
   filter(n()>=10) %>%
   ungroup() %>%

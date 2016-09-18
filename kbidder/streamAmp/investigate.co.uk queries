@@ -1,0 +1,43 @@
+select 
+  placement_id
+  , geo_country
+  , case when ua_device_type='M' then 'Mobile' else ua_device_type end device
+  ,  final_state
+  , case when length(pbsbids)>5 then least(floor( json_extract_path_text(json_extract_array_element_text(pbsbids, 0),'bid_ts')::decimal(10,2)/100)*100,5000) else 10000 end first_bid_ts
+  , left(json_extract_path_text(json_extract_array_element_text(pbsbids, 0),'code'),1) kb_win_network
+  , json_extract_path_text(a.hdbd_json,'j','rests') aol_response_time
+  , json_extract_path_text(a.hdbd_json,'l','rests') cpx_response_time
+  , json_extract_path_text(a.hdbd_json,'p','rests') pubmatic_response_time
+  , json_extract_path_text(a.hdbd_json,'S','rests') Sovrn_response_time
+  , json_extract_path_text(a.hdbd_json,'j','cpm') aol_bid
+  , json_extract_path_text(a.hdbd_json,'l','cpm') cpx_bid
+  , json_extract_path_text(a.hdbd_json,'p','cpm') pubmatic_bid
+  , json_extract_path_text(a.hdbd_json,'S','cpm') Sovrn_bid
+  , json_extract_path_text(a.hdbd_json,'j','reqts') aol_request_time
+  , json_extract_path_text(a.hdbd_json,'l','reqts') cpx_request_time
+  , json_extract_path_text(a.hdbd_json,'p','reqts') pubmatic_request_time
+  , json_extract_path_text(a.hdbd_json,'S','reqts') Sovrn_request_time
+  , case when strpos(a.hdbd_json, a.served_tag) = 1 and length(served_chain)>=4 then left(served_chain,length(served_chain)-3) else served_chain end served_chain_without_hb_tag
+  , served_chain
+  , replace(original_chain,',','|') orig_chain
+  , chain
+  , case when length(kb_sold_cpm)>0 then 1 else 0 end kb_wins
+  , case when length(a.served_tag)<2 then 0 else 1 end served
+  , case when a.served_tag='h' then 1 else 0 end house
+  , case when a.served_tag='' and a.timestamp_placement is null then '' when a.served_tag='' and a.timestamp_placement is not null then 'Unknown' 
+      when a.served_tag='h' then '' when strpos(a.hdbd_json, a.served_tag) = 0 then 'chain' else 'hdbd' end served_tag_source
+  , url
+  , served_tag_network
+  , kb_sold_cpm
+  , cpm
+from impressions a
+where placement_id in ('4afaa36d35278586ce12f73d4d57ec03','1c66fbf2f0e357e5499af1ae59680ee8','7863347e1e749653d1090eecd2c6d9e6','3f6d6d431864096c6f0bafab88d0556d','e28a9bd76d72700bba5b4cd050500e21')
+and timestamp between '2016-09-11 11:00' and '2016-09-12 11:00';
+length(a.hdbd_json)>5;
+
+select hdbd_json, pbsbids
+from impressions a
+where placement_id='4afaa36d35278586ce12f73d4d57ec03'
+and timestamp between '2016-09-11 11:00' and '2016-09-11 12:00'
+and length(a.hdbd_json)>5 
+limit 100;
