@@ -1,6 +1,6 @@
 source('../../libraries.R')
 print(1)
-a <- read.csv('ngames/chain_performance_9_18.csv',stringsAsFactors = F)
+a <- read.csv('mangas/mangapark.me_chains.csv',stringsAsFactors = F)
 a$date <- as.Date(a$date)
 a$placement_id <- as.factor(a$placement_id)
 a$week <- as.integer(floor( (a$date-min(a$date)) /7))
@@ -19,7 +19,7 @@ a$tag_rcpm_contrib <- as.numeric(a$tag_rcpm_contrib)
 
 
 a <- a %>% arrange(placement_id, date, desc(impressions), place)
-b1 <- read.csv('ngames/floor_prices_9_18.csv',stringsAsFactors = F)
+b1 <- read.csv('mangas/mangapark.me_floors.csv',stringsAsFactors = F)
 b1 <- b1 %>% rename(placement_id=tagid, date=date_)
 b1$date <- as.Date(b1$date)
 b1$week <- as.integer(floor( (b1$date-min(b1$date)) /7))
