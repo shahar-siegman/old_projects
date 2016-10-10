@@ -1,5 +1,5 @@
 
-select tagid,no_bid_chain, p.date, p.impressions kmn_cpm_impressions, p.served kmn_cpm_served, pt_win_cost, revenue,
+select tagid,no_bid_chain, p.date, p.impressions kmn_cpm_impressions, p.served kmn_cpm_served, d.pt_imps,d.pt_win_imps, d.pt_win_cost, revenue,
 	 cr.impressions chain_imps, cr.served chain_served
 from (
 	select ch.tagid, ch.no_bid_chain, c.date, max(c.impressions) impressions, sum(c.served) served, sum(c.income) revenue
@@ -36,6 +36,8 @@ from (
 inner join
 	(select placement_id
 		, date(hour) date
+        , sum(no_bid_position_impressions) pt_imps
+        , sum(no_bid_position_impressions_with_wins) pt_win_imps
         , sum(no_bid_position_total_win_cpm) pt_win_cost
     from kmn_kbidder_data 
     where hour >='2016-09-16'

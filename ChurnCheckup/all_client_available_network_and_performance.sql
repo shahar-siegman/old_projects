@@ -1,4 +1,4 @@
-explain 
+ 
 select sitename
 	, r.date
     , replace(substring_index(l.tag_url,'//',-1),'www.','') clean_url

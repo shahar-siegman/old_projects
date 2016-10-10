@@ -39,7 +39,7 @@ where l.optimization_goal_id != sst.new_goal_id
 select distinct(field)
 from kmn_history
 where entity_type='placement'
-and timestamp>unix_timestamp('2016-07-01'); #''optimization_goal_id'
+and timestamp>unix_timestamp('2016-07-01'); #'optimization_goal_id'
 
 update kmn_layouts l, tmp_shahar_placement_goal_type_change sgt
 set l.optimization_goal_id=sgt.new_goal_id
