@@ -1,0 +1,63 @@
+---
+title: "Bid caching report"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+source('session1.R')
+```
+Source
+``` {r filename}
+cat(filenames[filenum])
+```
+
+Number of impressions in sample:
+```{r imps}
+cat(bid.cache.summary$impressions.in.sample)
+```
+impression with non-blank cookie
+```{r nonblank}
+cat(sep="",bid.cache.summary$impressions.with.uid, ' (', round(100*bid.cache.summary$impressions.with.uid/bid.cache.summary$impressions.in.sample),'%)')
+```
+Number of follow-on impressions from same cookie within 60 seconds
+```{r sec60}
+cat(sep="",bid.cache.summary$impressions.with.perceding.within.time, ' (', 
+    round(100*bid.cache.summary$impressions.with.perceding.within.time/ bid.cache.summary$impressions.with.uid),'%)') 
+```
+Number of impressions where bid can be improved
+``` {r impressions.added.value}
+cat(sep="",bid.cache.summary$impressions.with.win.added.value, ' (',
+  round(100*bid.cache.summary$impressions.with.win.added.value/ bid.cache.summary$impressions.with.perceding.within.time),'%)')
+```
+Number and value of reused bids that were late in original auction
+``` {r reused_late}
+cat(sep="",
+    bid.cache.summary$impressions.where.added.value.is.from.late.bids  ,
+    ' (',
+    round(100*bid.cache.summary$impressions.where.added.value.is.from.late.bids/bid.cache.summary$impressions.with.win.added.value), 
+    '%), $',
+    round(bid.cache.summary$added.value.from.late.bids/10)/100) 
+```
+Number and value of reused bids that were actually served in original auction
+``` {r reused_already_served}
+cat(sep="",
+    bid.cache.summary$impressions.reusing.winner,
+    ' (',
+    round(100*bid.cache.summary$impressions.reusing.winner/bid.cache.summary$impressions.with.win.added.value), '%, $', round(bid.cache.summary$impressions.reusing.winner.value/10)/100,
+    ')'
+    )
+
+```
+
+Added bid value
+``` {r total.value}
+cat(sep="",'$',round(bid.cache.summary$added.bid.value/10)/100, " over base value of $", round(bid.cache.summary$sent.bids.value/10)/100, 
+    " (+", round(100*bid.cache.summary$added.bid.value/bid.cache.summary$sent.bids.value), '%)')
+```
+
+Improvement Histogram
+
+``` {r improve.hist}
+print(p2)
+```
