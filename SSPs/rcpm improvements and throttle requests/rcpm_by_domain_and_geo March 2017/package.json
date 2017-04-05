@@ -1,0 +1,11 @@
+{
+  "name": "Pubmatic_mapping_low_rcpm_tags",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "fast-csv": "^2.4.0",
+    "stream-array": "^1.1.2",
+    "through": "^2.3.8"
+  }
+}

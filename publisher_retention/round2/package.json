@@ -4,9 +4,11 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "combiner": "^0.0.1-security",
     "comparer": "file:c:\\\\Shahar\\\\node\\\\nodejs-common\\\\comparer",
     "fast-csv": "^2.4.0",
     "sort-stream": "^1.0.1",
+    "stream-combiner": "^0.2.2",
     "through": "^2.3.8"
   }
 }

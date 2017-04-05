@@ -1,0 +1,13 @@
+{
+  "name": "cookie_performance_based_filter",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "comparer": "file:c:\\\\shahar\\\\node\\\\nodejs-common\\\\comparer",
+    "fast-csv": "^2.4.0",
+    "sort-stream": "^1.0.1",
+    "stream-group-by": "file:c:\\\\shahar\\\\node\\\\nodejs-common\\\\stream-group-by",
+    "through": "^2.3.8"
+  }
+}

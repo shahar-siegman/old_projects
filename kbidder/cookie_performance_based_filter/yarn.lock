@@ -17,12 +17,22 @@ array-extended@~0.0.3, array-extended@~0.0.4, array-extended@~0.0.5:
     extended "~0.0.3"
     is-extended "~0.0.3"
 
-combiner@^0.0.1-security:
-  version "0.0.1-security"
-  resolved "https://registry.yarnpkg.com/combiner/-/combiner-0.0.1-security.tgz#8d107938460c7ee306195bf2a51d103786688305"
+assert@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/assert/-/assert-1.4.1.tgz#99912d591836b5a6f5b345c0f07eefc08fc65d91"
+  dependencies:
+    util "0.10.3"
 
-"comparer@file:c:\\\\Shahar\\\\node\\\\nodejs-common\\\\comparer":
+buffer-shims@^1.0.0:
   version "1.0.0"
+  resolved "https://registry.yarnpkg.com/buffer-shims/-/buffer-shims-1.0.0.tgz#9978ce317388c649ad8793028c3477ef044a8b51"
+
+"comparer@file:c:\\\\shahar\\\\node\\\\nodejs-common\\\\comparer":
+  version "1.0.0"
+
+core-util-is@~1.0.0:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
 
 date-extended@~0.0.3:
   version "0.0.6"
@@ -35,10 +45,6 @@ date-extended@~0.0.3:
 declare.js@~0.0.4:
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/declare.js/-/declare.js-0.0.8.tgz#0478adff9564c004f51df73d8bc134019d28dcde"
-
-duplexer@~0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/duplexer/-/duplexer-0.1.1.tgz#ace6ff808c1ce66b57d1ebf97977acb02334cfc1"
 
 extended@0.0.6, extended@~0.0.3:
   version "0.0.6"
@@ -61,11 +67,19 @@ fast-csv@^2.4.0:
     object-extended "0.0.7"
     string-extended "0.0.8"
 
+inherits@2.0.1, inherits@~2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.1.tgz#b17d08d326b4423e568eff719f91b0b1cbdf69f1"
+
 is-extended@0.0.10, is-extended@~0.0.3, is-extended@~0.0.8:
   version "0.0.10"
   resolved "https://registry.yarnpkg.com/is-extended/-/is-extended-0.0.10.tgz#244e140df75bb1c9a3106f412ff182fb534a6d62"
   dependencies:
     extended "~0.0.3"
+
+isarray@~1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
 
 object-extended@0.0.7:
   version "0.0.7"
@@ -75,18 +89,34 @@ object-extended@0.0.7:
     extended "~0.0.3"
     is-extended "~0.0.3"
 
+process-nextick-args@~1.0.6:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-1.0.7.tgz#150e20b756590ad3f91093f25a4f2ad8bff30ba3"
+
+readable-stream@^2.1.5:
+  version "2.2.6"
+  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-2.2.6.tgz#8b43aed76e71483938d12a8d46c6cf1a00b1f816"
+  dependencies:
+    buffer-shims "^1.0.0"
+    core-util-is "~1.0.0"
+    inherits "~2.0.1"
+    isarray "~1.0.0"
+    process-nextick-args "~1.0.6"
+    string_decoder "~0.10.x"
+    util-deprecate "~1.0.1"
+
 sort-stream@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/sort-stream/-/sort-stream-1.0.1.tgz#a30684c9c29ca333069c18d6a0ab0f768af61df2"
   dependencies:
     through "~2.3.1"
 
-stream-combiner@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/stream-combiner/-/stream-combiner-0.2.2.tgz#aec8cbac177b56b6f4fa479ced8c1912cee52858"
+"stream-group-by@file:c:\\\\shahar\\\\node\\\\nodejs-common\\\\stream-group-by":
+  version "1.0.0"
   dependencies:
-    duplexer "~0.1.1"
-    through "~2.3.4"
+    assert "^1.4.1"
+    through "^2.3.8"
+    through2-filter "^2.0.0"
 
 string-extended@0.0.8:
   version "0.0.8"
@@ -97,6 +127,38 @@ string-extended@0.0.8:
     extended "~0.0.3"
     is-extended "~0.0.3"
 
-through@^2.3.8, through@~2.3.1, through@~2.3.4:
+string_decoder@~0.10.x:
+  version "0.10.31"
+  resolved "https://registry.yarnpkg.com/string_decoder/-/string_decoder-0.10.31.tgz#62e203bc41766c6c28c9fc84301dab1c5310fa94"
+
+through2-filter@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/through2-filter/-/through2-filter-2.0.0.tgz#60bc55a0dacb76085db1f9dae99ab43f83d622ec"
+  dependencies:
+    through2 "~2.0.0"
+    xtend "~4.0.0"
+
+through2@~2.0.0:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/through2/-/through2-2.0.3.tgz#0004569b37c7c74ba39c43f3ced78d1ad94140be"
+  dependencies:
+    readable-stream "^2.1.5"
+    xtend "~4.0.1"
+
+through@^2.3.8, through@~2.3.1:
   version "2.3.8"
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
+
+util-deprecate@~1.0.1:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
+
+util@0.10.3:
+  version "0.10.3"
+  resolved "https://registry.yarnpkg.com/util/-/util-0.10.3.tgz#7afb1afe50805246489e3db7fe0ed379336ac0f9"
+  dependencies:
+    inherits "2.0.1"
+
+xtend@~4.0.0, xtend@~4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.1.tgz#a5c6d532be656e23db820efb943a1f04998d63af"

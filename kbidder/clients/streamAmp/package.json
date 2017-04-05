@@ -1,0 +1,11 @@
+{
+  "name": "timeoutImpact",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "comparer": "file:C:\\\\Shahar\\\\node\\\\nodejs-common\\\\comparer",
+    "fast-csv": "^2.4.0",
+    "stream-group-by": "file:C:\\\\Shahar\\\\node\\\\nodejs-common\\\\stream-group-by"
+  }
+}
