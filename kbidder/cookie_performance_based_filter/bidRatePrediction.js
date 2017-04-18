@@ -8,7 +8,6 @@ const comp = require('comparer').objectComparison2
 
 const 
     networkLetters = {S: 'sovrn', Y: 'defy', p: 'pubmatic'},
-    //networks = Object.keys(networkLetters).map(x=>x['sovrn', 'defy', 'pubmatic'],
     bid = '_bid',
     bidAboveThres = '_bidAboveThres',
     prediction = '_prediction',
