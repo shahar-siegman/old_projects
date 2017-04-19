@@ -22,7 +22,7 @@ const
 
 const networks = Object.values(networkLetters);
 var cumus = {}, lags = {};
-networks.forEach(function (net) {
+networks.concat("all").forEach(function (net) {
     cumus[net + "_cum_bids"] = gb.sum(net + bid)
     cumus[net + "_cum_bids_above"] = gb.sum(net + bidAboveThres)
     lags[net + "_lag_predict"] = gb.lag(net + prediction, 1)
@@ -47,6 +47,9 @@ function extractNetworkBidLevel(JsonColumnName, bidThreshold) {
                 data[net + bid] = data[net + bid] || 0;
                 data[net + bidAboveThres] = data[net + bidAboveThres] || 0;
             })
+
+            data["all" + bid] = networks.reduce((p, net) => Math.min(p + data[net + bid], 1), 0)
+            data["all" + bidAboveThres] = networks.reduce((p, net) => Math.min(p + data[net + bidAboveThres], 1), 0)
             this.queue(data);
         }
     )
@@ -55,7 +58,7 @@ function extractNetworkBidLevel(JsonColumnName, bidThreshold) {
 function calculatePredictionStep() {
     return through(
         function (data) {
-            networks.forEach(function (net) {
+            networks.concat("all").forEach(function (net) {
                 data[net + prediction] = parseFloat(data[net + "_cum_bids_above"]) / parseFloat(data[net + "_cum_bids"])
             })
             this.queue(data)
@@ -63,22 +66,12 @@ function calculatePredictionStep() {
     )
 }
 
-/*
-var a = fs.createReadStream(inputFile, 'utf8')
-    .pipe(fastCsv({ headers: true, delimiter: ';' }))
-    .pipe(sort(comp(['placement_id', 'uid'])))
-    .pipe(extractNetworkBidLevel('hdbd_json'))
-    .pipe(gb.groupBy(['placement_id', 'uid'], true, cumus))
-    .pipe(calculatePredictionStep())
-    .pipe(gb.groupBy(['placement_id', 'uid'], true, lags))
-    .pipe(fastCsv.createWriteStream({ headers: true }))
-    .pipe(fs.createWriteStream(outputFile, 'utf8')).on('finish', function () { console.log("counters - done") })
-*/
+
 function calculatePrediction(bidThreshold) {
     if (isNaN(bidThreshold))
-        throw new onerror('invalid bid threshold: '+ bidThreshold)
+        throw new error('invalid bid threshold: ' + bidThreshold)
     var a = combiner([sort(comp(['placement_id', 'uid'])),
-    extractNetworkBidLevel('hdbd_json',bidThreshold),
+    extractNetworkBidLevel('hdbd_json', bidThreshold),
     gb.groupBy(['placement_id', 'uid'], true, cumus),
     calculatePredictionStep(),
     gb.groupBy(['placement_id', 'uid'], true, lags)]);
