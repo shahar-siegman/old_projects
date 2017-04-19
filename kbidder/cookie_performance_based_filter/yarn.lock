@@ -46,6 +46,10 @@ declare.js@~0.0.4:
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/declare.js/-/declare.js-0.0.8.tgz#0478adff9564c004f51df73d8bc134019d28dcde"
 
+duplexer@~0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/duplexer/-/duplexer-0.1.1.tgz#ace6ff808c1ce66b57d1ebf97977acb02334cfc1"
+
 extended@0.0.6, extended@~0.0.3:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/extended/-/extended-0.0.6.tgz#7fb8bf7b9dae397586e48570acfd642c78e50669"
@@ -111,6 +115,20 @@ sort-stream@^1.0.1:
   dependencies:
     through "~2.3.1"
 
+stream-combiner@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/stream-combiner/-/stream-combiner-0.2.2.tgz#aec8cbac177b56b6f4fa479ced8c1912cee52858"
+  dependencies:
+    duplexer "~0.1.1"
+    through "~2.3.4"
+
+stream-filter@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/stream-filter/-/stream-filter-2.1.0.tgz#bdff4eee3cde4c1525e02b78dde93d821fe529bd"
+  dependencies:
+    through2 "^2.0.1"
+    xtend "^4.0.1"
+
 "stream-group-by@file:c:\\\\shahar\\\\node\\\\nodejs-common\\\\stream-group-by":
   version "1.0.0"
   dependencies:
@@ -138,14 +156,14 @@ through2-filter@^2.0.0:
     through2 "~2.0.0"
     xtend "~4.0.0"
 
-through2@~2.0.0:
+through2@^2.0.1, through2@~2.0.0:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/through2/-/through2-2.0.3.tgz#0004569b37c7c74ba39c43f3ced78d1ad94140be"
   dependencies:
     readable-stream "^2.1.5"
     xtend "~4.0.1"
 
-through@^2.3.8, through@~2.3.1:
+through@^2.3.8, through@~2.3.1, through@~2.3.4:
   version "2.3.8"
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
 
@@ -159,6 +177,6 @@ util@0.10.3:
   dependencies:
     inherits "2.0.1"
 
-xtend@~4.0.0, xtend@~4.0.1:
+xtend@^4.0.1, xtend@~4.0.0, xtend@~4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.1.tgz#a5c6d532be656e23db820efb943a1f04998d63af"
