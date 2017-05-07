@@ -17,7 +17,7 @@ var counter1 = 0;
 // analysis of predictive value of performance counters:
 // group by placement_id, impression number in session, and (binned) bid ratio from performance counters (for a single network)
 // calculate the win-rate and cpm for each such group and try to find functional relation
-var a = fs.createReadStream('./data/pc_sample_2.csv', 'utf8')
+var a = fs.createReadStream('./data/pc_sample_3.csv', 'utf8')
     .pipe(fastCsv.parse({ headers: true }))
     .pipe(through(function (data) {
         var self = this,
@@ -88,7 +88,7 @@ var g = a
 */
 
 f.pipe(fastCsv.createWriteStream({ headers: true }))
-    .pipe(fs.createWriteStream('pc_sample2_f.csv', 'utf8')).on('finish', function () { console.log('pc sample f - done') })
+    .pipe(fs.createWriteStream('pc_sample3_f.csv', 'utf8')).on('finish', function () { console.log('pc sample f - done') })
 /*    
 g.pipe(fastCsv.createWriteStream({ headers: true }))
     .pipe(fs.createWriteStream('pc_sample2_g.csv', 'utf8')).on('finish', function () { console.log('pc sample g - done') })
