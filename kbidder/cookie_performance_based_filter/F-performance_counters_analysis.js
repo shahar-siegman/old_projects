@@ -2,7 +2,7 @@
 const through = require('through')
 const combiner = require('stream-combiner')
 const gb = require('stream-group-by')
-const sort = require('sort-stream')
+const sort = require('./mySortTransform')
 const comp = require('comparer').objectComparison2
 const fastCsv = require('fast-csv')
 const fs = require('fs')
@@ -15,7 +15,7 @@ const maxFreq = 5;
 
 var counter1 = 0;
 // analysis of predictive value of performance counters:
-// group by placement_id, impression number in session, and (binned) bid ratio from performance counters (for a single network)
+// group by placement_id, network, impression number in session based on the count in pc.any.res, and (binned) bid ratio from per-network performance counters 
 // calculate the win-rate and cpm for each such group and try to find functional relation
 var a = fs.createReadStream('./data/pc_sample_3.csv', 'utf8')
     .pipe(fastCsv.parse({ headers: true }))
@@ -57,11 +57,10 @@ var a = fs.createReadStream('./data/pc_sample_3.csv', 'utf8')
 var f = a
     .pipe(sort(comp(['placement_id', 'network', 'bidRatioRound', 'frequency'])))
     .pipe(gb.groupBy(['placement_id', 'network', 'bidRatioRound', 'frequency'], false, {
-          impressions: gb.count(),
-          wins: gb.sum('isWin'),
-          winValue: gb.sum('cpm')
-      }))
-//      .pipe(through(undefined,function() {console.log('done emitting grouped rows'); this.queue(null)}))
+        impressions: gb.count(),
+        wins: gb.sum('isWin'),
+        winValue: gb.sum('cpm')
+    }))
     .pipe(through(function (data) {
         data.winRate = data.wins / data.impressions;
         data.rcpm = data.winValue / data.impressions;
@@ -71,28 +70,11 @@ var f = a
         console.log(now + ': f - checkpoint passed')
         this.queue(null);
     }));
-/*
-var g = a
-    .pipe(sort(comp(['placement_id', 'network', 'bidRatioRound'])))
-    .pipe(gb.groupBy(['placement_id', 'network', 'bidRatioRound'], false, {
-        impressions: gb.count(),
-        wins: gb.sum('isWin'),
-        winValue: gb.sum('cpm')
-    }))
-    //    .pipe(filter.obj(data => data['bidRatioRound'] != null && data.impressions > 50))
-    .pipe(through(function (data) {
-        data.winRate = data.wins / data.impressions;
-        data.rcpm = data.winValue / data.impressions;
-        this.queue(data);
-    }));
-*/
+
 
 f.pipe(fastCsv.createWriteStream({ headers: true }))
-    .pipe(fs.createWriteStream('pc_sample3_f.csv', 'utf8')).on('finish', function () { console.log('pc sample f - done') })
-/*    
-g.pipe(fastCsv.createWriteStream({ headers: true }))
-    .pipe(fs.createWriteStream('pc_sample2_g.csv', 'utf8')).on('finish', function () { console.log('pc sample g - done') })
-*/
+    .pipe(fs.createWriteStream('./data/pc_sample3_f.csv', 'utf8')).on('finish', function () { console.log('pc sample f - done') })
+
 
 var globalNow = (new Date).toISOString();
 console.log('starting at ' + globalNow);
