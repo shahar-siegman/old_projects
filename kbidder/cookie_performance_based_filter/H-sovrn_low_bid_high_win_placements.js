@@ -2,7 +2,7 @@
 const through = require('through')
 const combiner = require('stream-combiner')
 const gb = require('stream-group-by')
-const sort = require('./mySortTransform')
+const sort = require('fast-stream-sort')
 const comp = require('comparer').objectComparison2
 const fastCsv = require('fast-csv')
 const fs = require('fs')
@@ -50,41 +50,57 @@ var j = h
     }))
     .pipe(gb.groupByHyb(['placement_id', 'uid'], false, {
         impressions_in_session: gb.max('ord'),
+        requests_in_session: gb.sum('sovrn_requests'),
+        bids_in_session: gb.sum('sovrn_bids'),
         revenue_in_session: gb.sum('sovrn_revenue'),
-        bids_in_session: gb.sum('sovrn_bids')
     }))
     .pipe(gb.groupBy(['placement_id', 'uid'], true, {
+        session_cum_requests: gb.sum('sovrn_requests'),
+        session_cum_bids: gb.sum('sovrn_bids'),
         session_cum_revenue: gb.sum('sovrn_revenue'),
-        session_cum_bids: gb.sum('sovrn_bids')
-    }))
-    .pipe(through(function (data) {
-        data.cum_bids_reverese = -data.session_cum_bids;
-        this.queue(data);
     }))
     .pipe(sort(comp(['ord', 'session_cum_bids'])))
     .pipe(gb.groupBy(['ord', 'session_cum_bids'], false, {
         impressions: gb.count(),
+        requests: gb.sum('sovrn_requests'),
         bids: gb.sum('sovrn_bids'),
         revenue: gb.sum('sovrn_revenue'),
         impressions_upto_here: gb.sum('ord'),
+        requests_upto_here: gb.sum('session_cum_requests'),
         bids_upto_here: gb.sum('session_cum_bids'),
         revenue_upto_here: gb.sum('session_cum_revenue'),
         impressions_all_relevant_sessions: gb.sum('impressions_in_session'),
+        requests_all_relevant_sessions: gb.sum('requests_in_session'),
         bids_all_relevant_sessions: gb.sum('bids_in_session'),
         revenue_all_relevant_sessions: gb.sum('revenue_in_session')
     }))
     .pipe(gb.groupBy(['ord'], true, {
         impressions_upto_here_cum: gb.sum('impressions_upto_here'),
+        requests_upto_here_cum: gb.sum('requests_upto_here'),
         bids_upto_here_cum: gb.sum('bids_upto_here'),
         revenue_upto_here_cum: gb.sum('revenue_upto_here'),
         impressions_all_cum: gb.sum('impressions_all_relevant_sessions'),
+        requests_all_cum: gb.sum('requests_all_relevant_sessions'),
         bids_all_cum: gb.sum('bids_all_relevant_sessions'),
         revenue_all_cum: gb.sum('revenue_all_relevant_sessions')
     }))
-    .pipe(gb.groupBy([], true, {
-        impressions_running_total: gb.sum('impressions'),
-        bids_running_total: gb.sum('bids'),
-        revenue_running_total: gb.sum('revenue'),
+    .pipe(gb.groupByHyb([], true, {
+        impressions_total: gb.sum('impressions'),
+        requests_total: gb.sum('requests'),
+        bids_total: gb.sum('bids'),
+        revenue_total: gb.sum('revenue'),
+    }))
+    .pipe(through(function(data) {
+        data.impressions_blocked = data.impressions_all_cum - data.impressions_upto_here_cum
+        data.requests_blocked = data.requests_all_cum - data.requests_upto_here_cum
+        data.bids_blocked = data.bids_all_cum - data.bids_upto_here_cum 
+        data.revenue_blocked = data.revenue_all_cum - data.revenue_upto_here_cum
+
+        data.impressions_block_portion = data.impressions_blocked / data.impressions_total
+        data.requests_blocked_portion = data.requests_blocked/ data.requests_total
+        data.bids_block_portion = data.bids_blocked/ data.bids_total
+        data.revenue_blocked_portion = data.revenue_blocked / data.revenue_total
+        this.queue(data)
     }))
 
 /*

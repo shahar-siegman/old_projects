@@ -70,11 +70,12 @@ function calculatePredictionStep() {
 function calculatePrediction(bidThreshold) {
     if (isNaN(bidThreshold))
         throw new error('invalid bid threshold: ' + bidThreshold)
-    var a = combiner([sort(comp(['placement_id', 'uid'])),
-    extractNetworkBidLevel('hdbd_json', bidThreshold),
-    gb.groupBy(['placement_id', 'uid'], true, cumus),
-    calculatePredictionStep(),
-    gb.groupBy(['placement_id', 'uid'], true, lags)]);
+    var a = combiner(
+        [sort(comp(['placement_id', 'uid'])),
+        extractNetworkBidLevel('hdbd_json', bidThreshold),
+        gb.groupBy(['placement_id', 'uid'], true, cumus),
+        calculatePredictionStep(),
+        gb.groupBy(['placement_id', 'uid'], true, lags)]);
 
     return a;
 }

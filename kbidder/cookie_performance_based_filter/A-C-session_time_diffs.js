@@ -10,7 +10,7 @@ const filter = require('stream-filter')
 
 // find the time diff of consecutive impressions from the same cookie.
 // classify into 4 categories according to the time gap from the last impression.
-var a = fs.createReadStream('cookie_sample3.csv', 'utf8')
+var a = fs.createReadStream('./data/cookie_sample5.csv', 'utf8')
     .pipe(fastCsv.parse({ headers: true }))
     .pipe(sort(comp(['placement_id', 'uid', 'timestamp'])))
     .pipe(gb.groupBy(['placement_id', 'uid'], true, { ord: gb.count(), tsLag: gb.lag('timestamp', 1) }))
@@ -24,7 +24,9 @@ var a = fs.createReadStream('cookie_sample3.csv', 'utf8')
                 kb_code: data.kb_code,
                 kb_sold_cpm: data.kb_sold_cpm,
                 cpm: data.cpm,
-                tsDiff: data.tsLag && ((a - b) / 1000)
+                tsDiff: data.tsLag && ((a - b) / 1000),
+                hdbd_json: data.hdbd_json,
+                pc: data.pc
             };
         //data.tsDiff = (b - a) / 1000;
         this.queue(res);
@@ -67,5 +69,5 @@ var c =
 
 
 c.pipe(fastCsv.createWriteStream({ headers: true }))
-    .pipe(fs.createWriteStream('cookie_sample3_c.csv', 'utf8')).on('finish', function () { console.log('cookie sample c - done') })
+    .pipe(fs.createWriteStream('./data/cookie_sample5_c.csv', 'utf8')).on('finish', function () { console.log('cookie sample c - done') })
 

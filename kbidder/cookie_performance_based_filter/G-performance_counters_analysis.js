@@ -2,7 +2,7 @@
 const through = require('through')
 const combiner = require('stream-combiner')
 const gb = require('stream-group-by')
-const sort = require('sort-stream')
+const sort = require('./mySortTransform')
 const comp = require('comparer').objectComparison2
 const fastCsv = require('fast-csv')
 const fs = require('fs')
@@ -14,7 +14,7 @@ const networks = ['sovrn', 'pubmatic', 'cpx', 'openx']
 const maxFreq = 5;
 
 var ifNan = x => isNaN(x) ? 0 : x;
-var g = fs.createReadStream('./data/pc_sample3_f.csv', 'utf8')
+var g = fs.createReadStream('./data/pc_sample4_f.csv', 'utf8')
     .pipe(fastCsv.parse({ headers: true }))
     .pipe(through(function (data) {
         data.bidRatioReverse = data.frequency == maxFreq ? -data.bidRatioRound : -2
@@ -45,6 +45,6 @@ var g = fs.createReadStream('./data/pc_sample3_f.csv', 'utf8')
 
 
 g.pipe(fastCsv.createWriteStream({ headers: true }))
-    .pipe(fs.createWriteStream('./data/pc_sample3_g.csv', 'utf8')).on('finish', function () { console.log('pc sample g - done') })
+    .pipe(fs.createWriteStream('./data/pc_sample4_g.csv', 'utf8')).on('finish', function () { console.log('pc sample g - done') })
 
 

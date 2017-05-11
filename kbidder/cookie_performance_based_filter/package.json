@@ -6,7 +6,10 @@
   "dependencies": {
     "comparer": "file:c:\\\\shahar\\\\node\\\\nodejs-common\\\\comparer",
     "fast-csv": "^2.4.0",
+    "fast-stream-sort": "git+https://github.com/kishkash555/fast-stream-sort.git",
+    "shallow-copy": "^0.0.1",
     "sort-stream": "^1.0.1",
+    "stream-array": "^1.1.2",
     "stream-combiner": "^0.2.2",
     "stream-filter": "^2.1.0",
     "stream-group-by": "file:c:\\\\shahar\\\\node\\\\nodejs-common\\\\stream-group-by",
