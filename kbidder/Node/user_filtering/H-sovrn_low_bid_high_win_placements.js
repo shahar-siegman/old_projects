@@ -7,7 +7,7 @@ const comp = require('comparer').objectComparison2
 const fastCsv = require('fast-csv')
 const fs = require('fs')
 const filter = require('stream-filter')
-const shallowCopy = require('shallow-copy')
+
 
 var parseErrors = 0;
 
