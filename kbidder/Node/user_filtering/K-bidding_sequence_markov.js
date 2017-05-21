@@ -9,15 +9,17 @@ const fs = require('fs')
 const filter = require('stream-filter')
 const H = require('./H-sovrn_low_bid_high_win_placements.js')
 
-// var network = 'sovrn', networkLetter = 'S'
+//
 
 /** calculates, per placement_id, the probability of 
  * getting a bid conditional on the number of prior requests and prior bids 
  * per user
- * input data minimum requirements: placement_id, uid, timestamp, hdbd_json
+ * input data minimum requirements: placement_id, uid, timestamp, hdbd_json, kb_code, cpm
  */
 
-function K(network,networkLetter) {
+function K(network,networkLetter, options) {
+    var placementId = options && options.aggregate_placementId=== false ? []: ['placement_id']    // ===
+         
     return combiner(
         H.parseHdbdForNetwork(network, networkLetter),
         sort(comp(['placement_id', 'uid', 'timestamp'])),
@@ -32,23 +34,29 @@ function K(network,networkLetter) {
             data.bids_in_session = data.bids_in_session - data[network + '_bids']
             this.queue(data)
         }),
-        sort(comp(['placement_id', 'requests_in_session', 'bids_in_session'])),
-        gb.groupBy(['placement_id', 'requests_in_session', 'bids_in_session'], false, {
+        sort(comp(placementId.concat(['requests_in_session', 'bids_in_session']))),
+        gb.groupBy(placementId.concat(['requests_in_session', 'bids_in_session']), false, {
             impressions: gb.count(),
             bids: gb.sum(network + '_bids'),
             wins: gb.sum(network + '_wins'),
             revenue: gb.sum(network + '_revenue')
+        }),
+        gb.groupByHyb(['requests_in_session'],false, { impressions_at_request_level: gb.sum('impressions')}),
+        through(function(data){
+            data.bid_rate = data.bids/data.impressions;
+             this.queue(data);
         }))
+        
 }
 
-
-function runKTransform() {
+//'./data/cookie_sample_13_sovrn.csv', './data/cookie_sample12_k_sovrn.csv'
+function runKTransform(inputFile, outputFile, network, networkLetter, options) {
     var k =
-        fs.createReadStream('./data/cookie_sample_12.csv', 'utf8')
+        fs.createReadStream(inputFile, 'utf8')
             .pipe(fastCsv.parse({ headers: true }))
-            .pipe(K())
+            .pipe(K(network,networkLetter,options))
             .pipe(fastCsv.createWriteStream({ headers: true }))
-            .pipe(fs.createWriteStream('./data/cookie_sample12_k_sovrn.csv', 'utf8')).on('finish', function () { console.log('pc sample k- done.') })
+            .pipe(fs.createWriteStream(outputFile, 'utf8')).on('finish', function () { console.log('pc sample k- done.') })
 }
 
 module.exports = { K, runKTransform }
