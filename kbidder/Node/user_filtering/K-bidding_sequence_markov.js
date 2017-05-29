@@ -28,10 +28,13 @@ function K(network,networkLetter, options) {
             requests_in_session: gb.sum(network + '_requests'),
             bids_in_session: gb.sum(network + '_bids')
         }),
-        filter.obj(data => data.requests_in_session <= 20),
         through(function (data) {
             data.requests_in_session = data.requests_in_session - 1;
             data.bids_in_session = data.bids_in_session - data[network + '_bids']
+            /*if (data.requests_in_session > 50) {
+                data.requests_in_session=50;
+                data.bids_in_session=25;
+            }*/
             this.queue(data)
         }),
         sort(comp(placementId.concat(['requests_in_session', 'bids_in_session']))),

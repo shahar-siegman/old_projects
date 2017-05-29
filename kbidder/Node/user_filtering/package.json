@@ -9,6 +9,7 @@
     "d3-queue": "^3.0.7",
     "fast-csv": "^2.4.0",
     "fast-stream-sort": "git+https://github.com/kishkash555/fast-stream-sort.git",
+    "number-generator": "^0.2.12",
     "quote": "^0.4.0",
     "sort-stream": "^1.0.1",
     "stream-array": "^1.1.2",
