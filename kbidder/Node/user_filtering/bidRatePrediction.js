@@ -18,7 +18,7 @@ const
 //inputFile = './cookie_based_performance1.csv',
 //outputFile = './cookie_based_result1.csv'
 
-
+module.exports = calculatePrediction
 
 const networks = Object.values(networkLetters);
 var cumus = {}, lags = {};
@@ -65,8 +65,10 @@ function calculatePredictionStep() {
         }
     )
 }
-
-
+/**
+* verifies that bid rate is roughly consistent with historical bid rate
+* bid rate prediction is simply the historical bid rate up to one impression ago
+*/
 function calculatePrediction(bidThreshold) {
     if (isNaN(bidThreshold))
         throw new error('invalid bid threshold: ' + bidThreshold)
@@ -80,4 +82,3 @@ function calculatePrediction(bidThreshold) {
     return a;
 }
 
-module.exports = calculatePrediction

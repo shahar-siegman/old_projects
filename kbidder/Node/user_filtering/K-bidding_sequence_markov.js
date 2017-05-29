@@ -23,9 +23,9 @@ function K(network,networkLetter, options) {
     return combiner(
         H.parseHdbdForNetwork(network, networkLetter),
         sort(comp(['placement_id', 'uid', 'timestamp'])),
-        filter.obj(data => data[network + '_requests'] == 1),
+        filter.obj(data => data[network + '_responses'] == 1),
         gb.groupBy(['placement_id', 'uid'], true, {
-            requests_in_session: gb.sum(network + '_requests'),
+            requests_in_session: gb.sum(network + '_responses'),
             bids_in_session: gb.sum(network + '_bids')
         }),
         through(function (data) {

@@ -3,7 +3,7 @@ const monteCarloSimulation = require('./runMonteCarloSimulation')
 
 
 function runKTransform() {
-    k.runKTransform('./data/cookie_sample13_sovrn.csv', './data/cookie_sample13K_sovrn.csv', 'sovrn', 'S', { aggregate_placementId: false })
+    k.runKTransform('./data/cookie_sample14.csv', './data/cookie_sample14K_sovrn.csv', 'sovrn', 'S')
 }
 
 function runMonteCarloSimulation() {
@@ -12,4 +12,5 @@ function runMonteCarloSimulation() {
     })
 }
 
-//runMonteCarloSimulation();
+//monteCarloSimulation();
+runKTransform();

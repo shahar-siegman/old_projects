@@ -1,38 +1,20 @@
 "use strict"
+const rng = require('number-generator')
+const Readable = require('stream').Readable
 const through = require('through')
-const fastCsv = require('fast-csv')
 const fs = require('fs')
-const comp = require('comparer').objectComparison2
-const streamify = require('stream-array')
-const gb = require('stream-group-by')
+const fastCsv = require('fast-csv')
+
 
 const simulationMaxLength = 40,
     additionalImpressions = 40,
     additionalImpressionBidRate = 0.2;
 
-var inputFile = './data/cookie_sample13K_sovrn.csv',
-    gameCount = 100,
-    filterThres = { res: 25, wb: 0 };
+module.exports = { loadBidProbabilityDataAsync, monteCarloStream }
 
-
-module.exports = monteCarloSimulation;
-
-/** 
- * @callback simulationResultCallback
- * @param {Object} playResult
- * @param {number} playResult.res - responses
- * @param {number} playResult.wb - with bid
- * @param {boolean} playResult.isFiltered - if user was filtered
- * 
-*/
-/**
- * Loads bid probability data from a file (a sample that was processed with K-bidding_sequence_markov.js) 
- * Then calls playMonteCarlo
- * @param {simulationResultCallback}
- * */
-function monteCarloSimulation(callback) {
+function loadBidProbabilityDataAsync(inputFile, callback) {
     var bidProbabilityData = [];
-    fs.createReadStream(inputFile, 'utf8')
+    bidProbabilityData = fs.createReadStream(inputFile, 'utf8')
         .pipe(fastCsv.parse({ headers: true }))
         .pipe(through(function (data) {
             var res = data.requests_in_session,
@@ -42,77 +24,119 @@ function monteCarloSimulation(callback) {
             bidProbabilityData[res][wb] = { bidRate };
         },
             function () {
-                console.log('monte carlo simulation - loading bid probability data finished')
-                var simResult = playMonteCarlo(gameCount, bidProbabilityData)
-                calculateStats(simResult, function (stats) {
-                    if (typeof callback == 'function')
-                        callback(simResult, stats)
-                })
-            }))
+                console.log('loading bid probability data finished')
+                if (typeof callback == 'function')
+                    callback(bidProbabilityData);
+                else
+                    console.log('no callback provided, exiting')
+            })
+        )
 }
 
-function playMonteCarlo(gameCount, bidProbabilityData) {
-    gameCount || (gameCount = 1000);
-    var simResult = new Array(gameCount),
-        playResult;
-    for (var i = 0; i < gameCount; i++) {
-        playResult = playSingle(bidProbabilityData, filterThres);
-        simResult[i] = playResult;
+/**
+ * a Stream.Readable that emits an object with two random number fields
+ * @param {number} [seed=1234] - the seed for the random number generator
+ * @param {number} [count=100] - the number of objects emitted before the stream is terminated
+ * @returns {Stream.Readable}
+ */
+function randomNumbers(seed, count) {
+    seed = seed || 1234;
+    count = count || 100;
+    var myRNG = rng.aleaRNGFactory(seed),
+        rngPair = new Readable({ objectMode: true }),
+        i = count;
+    rngPair._read = function () {
+        do
+            var t = this.push({ rn1: myRNG.uFloat32(), rn2: myRNG.uFloat32() })
+        while (t & --i)
+        if (!i)
+            this.push(null);
     }
-    return simResult;
+    return rngPair;
 }
 
 
-function playSingle(bidProbabilityData, filterThreshold) {
-    var hasAnotherImpression = true,
-        res = 0,
-        wb = 0,
-        isFiltered = false;
-
-    if (filterThreshold.res < simulationMaxLength) {
-        for (; hasAnotherImpression && res < filterThreshold.res; res++) {
-            var bidRate = bidProbabilityData[res][wb].bidRate,
-                hasBid = Math.random() < bidRate ? 1 : 0,
-                hasAnotherImpression = Math.random() < nextImpressionProbability(res + 1);
-            wb += hasBid;
+/**
+ * a Through stream that reads an object, adds the fields req, uid, nip (next impression probability), isMaxSimulationLength  and emits it
+ * @returns {through.ThroughStream}
+ */
+var reqColumn = function () {
+    var prevData;
+    return through(function (data) {
+        data.req = prevData && prevData.hasAnotherImpression && !prevData.isMaxSimulationLength ? prevData.req + 1 : 1;
+        data.uid = prevData && (prevData.uid + (data.req == 1 ? 1 : 0)) || 1;
+        data.nip = nextImpressionProbability(data.req);
+        data.hasAnotherImpression = data.rn1 < data.nip;
+        data.isMaxSimulationLength = false;
+        if (data.req == simulationMaxLength) {
+            data.isMaxSimulationLength = true;
+            data.req += additionalImpressions;
         }
-        isFiltered = (res = filterThreshold.res && wb <= filterThreshold.wb);
-    }
-    for (; hasAnotherImpression && res < simulationMaxLength; res++) {
-        var bidRate = bidProbabilityData[res][wb].bidRate,
-            hasBid = Math.random() < bidRate ? 1 : 0,
-            hasAnotherImpression = Math.random() < nextImpressionProbability(res + 1);
-        wb += hasBid;
-    }
-
-    if (res == simulationMaxLength) {
-        res += additionalImpressions;
-        wb += additionalImpressions * additionalImpressionBidRate;
-    }
-    return { res, wb, isFiltered }
+        prevData = data;
+        this.queue(data);
+    })
 }
 
+/**
+ * a ThroughStream that reads an object, adds the fields pb (probability of bid), hasBid (0 or 1), wb (cumulative bids for user) and emits it
+ * @returns {Through.ThroughStream}
+ * @param{Object} bidProbabilityData - a 2D map of bid probabilities per number of requests and history of wb.
+ */
+var bidColumn = function (bidProbabilityData) {
+    var prevData;
+    //var wbTotal = 0, wbFiltered = 0, wbUnfiltered = 0;
+    return through(function (data) {
+        if (!prevData || data.req == 1)
+            var prevWb = 0
+        else
+            prevWb = prevData.wb
+        if (data.isMaxSimulationLength) {
+            data.pb = additionalImpressionBidRate;
+            data.hasBid = additionalImpressions * additionalImpressionBidRate;
+        }
+        else {
+            data.bp = bidProbabilityData[data.req - 1][prevWb].bidRate
+            data.hasBid = data.rn2 < data.bp ? 1 : 0;
+        }
+        data.wb = prevWb + data.hasBid;
+        prevData = data;
+        this.queue(data);
+    })
+}
 
+/**
+ * a ThroughStream that adds the field isFiltered
+ * @param{stateObject} thres - the state that defined the filtering
+ * @param{number} thres.res - the number of responses at which perfromance is evaluated
+ * @param{number} thres.wb - the maximum wb value to filter, at the given number of requests
+ */
+var isFilteredColumn = function (thres) {
+    var prevData;
+    return through(function (data) {
+        data.isFiltered = (data.requests === thres.res && data.wb <= thres.wb ||
+            data.requests > thres.res && prevData && prevData.isFiltered)
+        prevData = data;
+        this.queue(data);
+    })
+}
+
+/**
+ * a formula (based on an empirical data set) that approximates the probability of getting another impression from same user 
+ * @param{number} x - the number of requests seen from the user
+ */
 function nextImpressionProbability(x) {
     return 0.921 - 1.5 * Math.exp(-x * 0.79) + x * 0.0008
 }
 
-function calculateStats(originalSimResult, callback) {
-    var simResult = new Array(originalSimResult.length),
-        stats = [];
-    for (var i = 0; i < simResult.length; i++)
-        simResult[i] = originalSimResult[i];
-    simResult.sort(comp(['isFiltered']))
-    return streamify(simResult).pipe(gb.groupBy(['isFiltered'], false, {
-        runs: gb.count(),
-        impressions: gb.sum('res'),
-        bids: gb.sum('wb')
-    })).pipe(through(function (data) {
-        stats.push(data);
-    },
-        function () {
-            if (typeof callback == 'function') {
-                callback(stats)
-            }
-        }))
+/**
+ * takes a bidProbabilityData map and a set of options and returns the last step in a sequence that performs the bidding simulation
+ * @param{Object} bidProbabilityData - The two-dimensional bid probability data map
+ * @param{Object} options 
+ */
+function monteCarloStream(bidProbabilityData, options) {
+    options = Object.assign({ seed: undefined, count: undefined, thres: { res: undefined, wb: undefined } }, options || {})
+    return randomNumbers(options.seed, options.count)
+        .pipe(reqColumn())
+        .pipe(bidColumn(bidProbabilityData))
+        .pipe(isFilteredColumn(options.thres))
 }

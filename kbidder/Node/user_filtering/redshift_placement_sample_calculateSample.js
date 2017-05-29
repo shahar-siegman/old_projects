@@ -5,8 +5,8 @@ const fastCsv = require('fast-csv')
 const fs = require('fs')
 const quote = require('quote')({ quotes: "'" })
 
-const H = require('./K-bidding_sequence_markov')
-const queryQ = require('./run_redshift_placement_queries')
+
+const queryQ = require('./redshift_placement_sample_runQuery')
 /**
  * queries a placement and geo (geo: US, all others)
  * runs the K transform
