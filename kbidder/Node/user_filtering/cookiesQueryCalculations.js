@@ -10,11 +10,12 @@ module.exports = cookiesQueryCalculations
 function cookiesQueryCalculations(queryParams) {
     cookieSuffixCount = Math.ceil(queryParams.sampleRatio * 256),
         queryScope = {
-            placement_id: quote(queryParams.placementId),
+            placement_id: quote(queryParams.placementId || queryParams.placement_id),
             start_time: quote(queryParams.date + ' 00:00'),
             end_time: quote(queryParams.date + ' 23:59:59'),
             cookie_suffix: random2DigitHex(cookieSuffixCount).map(quote).join(',')
         }
+    return queryScope;
 }
 
 function random2DigitHex(n) {

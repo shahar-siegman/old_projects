@@ -6,7 +6,7 @@ const fs = require('fs')
 const quote = require('quote')({ quotes: "'" })
 
 
-const queryQ = require('./redshift_placement_sample_runQuery')
+const queryQ = require('./redshift_placement_sample_doQuery')
 /**
  * queries a placement and geo (geo: US, all others)
  * runs the K transform

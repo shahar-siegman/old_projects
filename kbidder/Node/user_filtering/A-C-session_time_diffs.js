@@ -80,7 +80,7 @@ function AC() {
     return combiner(A(), C())
 }
 
-var queryFile = 'impression_performance_for_cookie_analysis.sql'
+var queryFile = './queries/impression_performance_for_cookie_analysis.sql'
 inputFile = './data/cookie_sample5.csv',
     outputFile = './data/cookie_sample5_c.csv'
 

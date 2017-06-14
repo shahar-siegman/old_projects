@@ -43,7 +43,7 @@ function createQueryQueue(parallelCount) {
             if (error)
                 throw error;
             console.log((new Date).toISOString() + ': ' + 'done running queued tasks')
-            this.queue(null)
+            self.queue(null)
         })
     })
 }
