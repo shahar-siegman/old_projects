@@ -1,10 +1,19 @@
 suppressMessages(library(dplyr))
 # some consts
-ouputFileExtensionString = '_coeffs_no_cookies_compare.csv'
-withCookie = F
-targetMetric = 'bid_rate'
-model1Regressors = c('bid_rate_so_far', 'wb',  'res', 'interaction_factor')
-model2Regressors = 'res'
+ouputFileExtensionString = '_coeffs_w_cookies_bid_value.csv'
+#_coeffs_w_cookies_bid_value
+withCookie = T
+
+# set 1: bid rate
+#targetMetric = 'bid_rate'
+#model1Regressors = c('bid_rate_so_far', 'wb',  'res', 'interaction_factor')
+#model2Regressors = 'res'
+
+# set 2: bid value
+targetMetric = 'bid_value'
+model1Regressors = c('res_minus_wb', 'res')
+model2Regressors = c('res')
+
 
 # no hoisting - helper functions need to go at the top
 applyRegression <- function (reg,x) {
@@ -49,9 +58,12 @@ a <- data %>%
          bid_value = total_bid_value/ with_bid,
          has_cookie = as.logical(has_cookie),
          is_100percent_fill = wb==res, # catches (0,0)
-         interaction_factor = wb * res
+         interaction_factor = wb * res,
+         res_minus_wb = res-wb
   )
 networks = levels(a$network)
+
+url_by_placement <- a %>% select(placement_id, tag_url) %>% unique()
 output = data.frame()
 
 for (k in 1:length(networks)) {
@@ -69,36 +81,40 @@ for (k in 1:length(networks)) {
       print(paste0('b1: placement ', current_placement, ': ', nrow(b1), ' rows; ', nrow(b1 %>% filter(wb>0)), ' nonzero-wb rows'))
       reg1=list(coefficients=c(0,0,0,0,0),residuals=c(0,0))
     } else {
-      reg1 = lm(formula(paste0(targetMetric,' ~ ', paste0(reg1Regressors,collapse=' + '))), b1)
+      reg1 = lm(formula(paste0(targetMetric,' ~ ', paste0(model1Regressors,collapse=' + '))), b1)
     }
 
-    b2 <- d %>% filter(placement_id == current_placement,
-                       is_100percent_fill,
-                       has_cookie == withCookie)
-    if (nrow(b2)<10) {
-      print(paste0('b2: placement ', current_placement, ': ', nrow(b2), ' rows'))
-      reg2 = list(coefficients=c(0,0,0,0,0),residuals=c(0,0))
-    } else {
-      reg2 = lm(formula(paste0(targetMetric,' ~ ', paste0(reg2Regressors,collapse=' + '))), b2)
+    if (!is.null(model2Regressors)) {
+      b2 <- d %>% filter(placement_id == current_placement,
+                         is_100percent_fill,
+                         has_cookie == withCookie)
+      if (nrow(b2)<10) {
+        print(paste0('b2: placement ', current_placement, ': ', nrow(b2), ' rows'))
+        reg2 = list(coefficients=c(0,0,0,0,0),residuals=c(0,0))
+      } else {
+        reg2 = lm(formula(paste0(targetMetric,' ~ ', paste0(model2Regressors,collapse=' + '))), b2)
+      }
     }
-
     row <- data.frame(network = networks[k],
-                      placement_id = current_placement)
+                      placement_id = current_placement,
+                      tag_url = url_by_placement %>% filter(placement_id==current_placement) %>% `[[`("tag_url") %>% `[`(1) )
     for (m in 1:length(model1Regressors)) {
       row[paste0("model1_",model1Regressors[m])] = reg1$coefficients[m+1]
     }
     row$model1_intercept = reg1$coefficients[1]
-    for (m in 1:length(model2Regressors)) {
-      row[paste0("model2_",model2Regressors[m])] = reg2$coefficients[m+1]
-    }
-    row$model2_intercept = reg2$coefficients[1]
     row$model1_rms = sqrt(mean(reg1$residuals^2))
-    row$model2_rms = sqrt(mean(reg2$residuals^2))
     row$model1_5_0 = applyRegression(reg1,c(0,0,5))
     row$model1_5_5 = applyRegression(reg1,c(1,5,5,25))
-    row$model2_5_5 = applyRegression(reg2,c(5))
+    if (!is.null(model2Regressors)) {
+      for (m in 1:length(model2Regressors)) {
+        row[paste0("model2_",model2Regressors[m])] = reg2$coefficients[m+1]
+      }
+      row$model2_intercept = reg2$coefficients[1]
+      row$model2_rms = sqrt(mean(reg2$residuals^2))
 
-output <- rbind(output, row)
+      row$model2_5_5 = applyRegression(reg2,c(5))
+    }
+    output <- rbind(output, row)
   }
 }
 
