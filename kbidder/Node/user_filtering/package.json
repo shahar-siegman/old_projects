@@ -6,10 +6,12 @@
   "dependencies": {
     "comparer": "file:c:\\\\shahar\\\\node\\\\nodejs-common\\\\comparer",
     "connections": "file:///c:\\Shahar\\node\\nodejs-common\\connections",
+    "csv-parse": "^1.2.0",
     "d3-queue": "^3.0.7",
     "fast-csv": "^2.4.0",
     "fast-stream-sort": "git+https://github.com/kishkash555/fast-stream-sort.git",
     "number-generator": "^0.2.12",
+    "parse-csv": "^0.2.0",
     "quote": "^0.4.0",
     "sort-stream": "^1.0.1",
     "stream-array": "^1.1.2",

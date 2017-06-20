@@ -28,6 +28,7 @@ select
   inner join impressions i on i.placement_id = s.placement_id and i.cb = s.cb and i.client_ip = s.client_ip
 where s.timestamp between '2017-06-10 00:00' and '2017-06-12 23:59'
   and s.rests>0
+  and s.filtered !=2
   and s.placement_id in ('04fe83cd7b0a314d8e08433d2a5a6b60',
     '0642ead65fd84ad92d3917de057f79ef',
     '08a275db4970b76b1b017b24b2244a67',
