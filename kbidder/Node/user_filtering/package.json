@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "array-stream": "^0.1.1",
     "comparer": "file:c:\\\\shahar\\\\node\\\\nodejs-common\\\\comparer",
     "connections": "file:///c:\\Shahar\\node\\nodejs-common\\connections",
     "csv-parse": "^1.2.0",

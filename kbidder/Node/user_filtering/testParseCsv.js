@@ -1,14 +1,112 @@
 "use strict"
 const fs = require('fs')
 const parseCsv = require('parse-csv')
+const fastCsv = require('fast-csv')
+const streamify = require('stream-array')
 
-var str =  fs.readFileSync('./data/grouped_by_res_wb_sample1N_coeffs.csv','utf8')
-if (!str)
-    throw new error("couldn't read file")
 
-console.log('str preview:' + str.slice(0,22))
-//fs.readFileSync('./data/grouped_by_res_wb_sample1N_coeffs.csv','utf8')
-var records = JSON.parse(parseCsv('json', str, { headers: { included: true } }))
+var successProb = {}, bidValue = {}, i = 0
 
-console.log(typeof records)
-console.log(`parsed  ${records.length} rows\n ${Object.keys(records[0]).length} columns. first row:\n${JSON.stringify(records[0])}`)
+test()
+
+function test() {
+    var records = JSON.parse(parseCsv('json', fs.readFileSync('./data/grouped_by_res_wb_sample2N_coeffs.csv', 'utf8'), { headers: { included: true } }))
+    generateProbabilityFromModelRecords(records)
+    var flatData = iterateBidProbAndValue()
+    streamify(flatData).pipe(fastCsv.format({ headers: true })).pipe(fs.createWriteStream('bidProbTest.csv', 'utf8')).on('finish', function () { console.log('test parse done') })
+}
+
+
+function generateProbabilityFromModelRecords(records) {
+    var modelMap = {}
+    records.forEach(function (record) {
+        modelMap[record.placement_id] = modelMap[record.placement_id] || {};
+        modelMap[record.placement_id][record.network] = modelMap[record.placement_id][record.network] || {}
+        modelMap[record.placement_id][record.network][record.target] = {
+            res: +record.res,
+            wb: +record.wb,
+            wb_res_interaction: +record.wb_res_interaction,
+            bid_rate_so_far: +record.bid_rate_so_far,
+            intercept: +record.ones
+        }
+    })
+    Object.keys(modelMap).forEach(function (placement_id) {
+        successProb[placement_id] = {};
+        bidValue[placement_id] = {};
+        Object.keys(modelMap[placement_id]).forEach(function (network) {
+            successProb[placement_id][network] = {};
+            bidValue[placement_id][network] = {};
+            var SPcoeffsNotEq = modelMap[placement_id][network].bid_rate_not_eq,
+                SPcoeffsEq = modelMap[placement_id][network].bid_rate_eq || {
+                    res: null,
+                    wb: null,
+                    wb_res_interaction: null,
+                    bid_rate_so_far: null,
+                    intercept: null
+                },
+                BVcoeffNotEq = modelMap[placement_id][network].bid_value_not_eq || {
+                    res: null,
+                    wb: null,
+                    wb_res_interaction: null,
+                    bid_rate_so_far: null,
+                    intercept: null
+                },
+                BVcoeffEq = modelMap[placement_id][network].bid_value_eq || {
+                    res: null,
+                    wb: null,
+                    wb_res_interaction: null,
+                    bid_rate_so_far: null,
+                    intercept: null
+                };
+            for (var res = 1; res < 50; res++) {
+                for (var wb = 0; wb < res; wb++) {
+                    successProb[placement_id][network][res] = successProb[placement_id][network][res] || {};
+                    successProb[placement_id][network][res][wb] =
+                        SPcoeffsNotEq.res * res 
+                        + SPcoeffsNotEq.wb * wb 
+                        + SPcoeffsNotEq.wb_res_interaction * wb * res 
+                        + SPcoeffsNotEq.bid_rate_so_far * wb / res
+                        + SPcoeffsNotEq.intercept;
+                    bidValue[placement_id][network][res] = bidValue[placement_id][network][res] || {};
+                    bidValue[placement_id][network][res][wb] =
+                        BVcoeffNotEq.res * res 
+                        + BVcoeffNotEq.wb * wb 
+                        + BVcoeffNotEq.wb_res_interaction * wb * res 
+                        + BVcoeffNotEq.bid_rate_so_far * wb / res
+                        + BVcoeffNotEq.intercept;
+                }
+                successProb[placement_id][network][res][res] =
+                    SPcoeffsEq.res * res + SPcoeffsEq.intercept;
+                bidValue[placement_id][network][res][res] =
+                    BVcoeffEq.res * res + BVcoeffEq.intercept;
+            }
+        })
+    })
+}
+
+function iterateBidProbAndValue() {
+    var result = []
+    Object.keys(bidValue).forEach(function (placement_id) {
+        Object.keys(bidValue[placement_id]).forEach(function (network) {
+            Object.keys(bidValue[placement_id][network]).forEach(function (res) {
+                Object.keys(bidValue[placement_id][network][res]).forEach(function (wb) {
+                    var row = {
+                        placement_id: placement_id,
+                        network: network,
+                        res: res,
+                        wb: wb,
+                        bidValue: bidValue[placement_id][network][res][wb]
+                    }
+                    try {
+                        row.successProb = successProb[placement_id][network][res][wb]
+                    } catch (err) {
+                        row.successProb = null;
+                    }
+                    console.log(i++)
+                    result.push(row)
+                })
+            })
+        })
+    })
+    return result;
+}

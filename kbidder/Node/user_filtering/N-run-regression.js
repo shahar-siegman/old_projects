@@ -26,7 +26,7 @@ fs.createReadStream(inputFile, 'utf8')
             network: data.network,
             has_cookie: data.has_cookie,
             res: data.res,
-//            res_cookies: data.has_cookie? data.res: 0,
+            //            res_cookies: data.has_cookie? data.res: 0,
             wb: data.wb == data.res ? null : data.wb,
             wb_res_interaction: data.wb == data.res ? null : data.res * data.wb,
             bid_rate_so_far: data.wb == data.res ? null : data.wb / data.res,
@@ -38,11 +38,15 @@ fs.createReadStream(inputFile, 'utf8')
         }
         this.queue(res);
     }))
-    .pipe(fastCsv.createWriteStream({ headers: true }))
+/*    .pipe(sort(comp(['placement_id', 'network'])))
+    .pipe(gb.groupByHyb(['placement_id', 'network'], false, { n_points: gb.count() }))
+    .pipe(filter.obj(x => x.n_points > 3))
+ */   .pipe(fastCsv.createWriteStream({ headers: true }))
     .pipe(fs.createWriteStream(dataFile, 'utf8')).on('finish', function () {
         console.log('running R script')
         var success = runRScript(rScriptFile,
             [dataFile, 'tag_url,placement_id,network,has_cookie', 'bid_rate_eq,bid_rate_not_eq,bid_value_eq,bid_value_not_eq'],
             rOutputFile)
+            
         console.log('R script complete with status ' + success)
     })

@@ -45,7 +45,7 @@ dataNames <- names(data)
 requiredColumnNames <- c(splitColumnNames, targetColumnNames)
 missingColumns <- setdiff(requiredColumnNames, dataNames )
 if (length(missingColumns) >0 )
-    stop(paste0("missing columns in data: ", paste0(missingColumns, collapse = ',')))
+  stop(paste0("missing columns in data: ", paste0(missingColumns, collapse = ',')))
 
 rhsColumns <- setdiff(dataNames, c(splitColumnNames, targetColumnNames))
 
@@ -63,33 +63,38 @@ regressionWrap <- function(rData, rhsColumns, lhsColumn) {
   columnNACount <- colSums(is.na(rData[,rhsColumns]),1)
   nr <- nrow(rData)
   reducedRhsColumns <- rhsColumns
-
-  for (i in 1:length(rhsColumns))
+  if (nr > 3) {
+    for (i in 1:length(rhsColumns))
       if (columnNACount[i]==nr) {
         # drop this column from regression
         # print(paste0('dropping Rhs Column ', rhsColumns[i]))
         reducedRhsColumns <- setdiff(reducedRhsColumns,rhsColumns[i])
       } else if (columnNACount[i] > 0)
-          stop(paste0(columnNACount[i], " NAs found in column ", rhsColumns[i]))
+        stop(paste0(columnNACount[i], " NAs found in column ", rhsColumns[i]))
 
-  print(paste0('levels: ', paste0(rData[1, splitColumnNames],collapse=','), ', total rows: ', chunkLength,
-               ' no NAs: ',nrow(rData), ' rhs columns: ', length(reducedRhsColumns)))
+    print(paste0('levels: ', paste0(rData[1, splitColumnNames],collapse=','), ', total rows: ', chunkLength,
+                 ' no NAs: ',nrow(rData), ' rhs columns: ', length(reducedRhsColumns)))
 
-  # finally ready to run regression
-  myFormula <- paste0(lhsColumn,' ~ ', paste0(reducedRhsColumns,collapse=' + '),' + 0')
+    # finally ready to run regression
+    myFormula <- paste0(lhsColumn,' ~ ', paste0(reducedRhsColumns,collapse=' + '),' + 0')
 
-   reg <- lm(myFormula, rData)
+    reg <- lm(myFormula, rData)
 
-  # match the coefficients to the original columns
-  ret <- rep(0, length(rhsColumns))
-  names(ret) <- rhsColumns
-  for (i in 1:length(reg$coefficients)) {
-    ret[names(reg$coefficients)[i]] <- reg$coefficients[i]
+    # match the coefficients to the original columns
+    ret <- rep(0, length(rhsColumns))
+    names(ret) <- rhsColumns
+    for (i in 1:length(reg$coefficients)) {
+      ret[names(reg$coefficients)[i]] <- reg$coefficients[i]
+    }
+    ret <- c(ret, lhsColumn, mean(rData[[lhsColumn]]), nr, sqrt(mean(reg$residuals^2)))
+    names(ret) <- c(rhsColumns, 'target','target_mean','nPoints','rms')
+
+
+    return (ret)
+  } else {
+    print(paste0('levels: ', paste0(rData[1, splitColumnNames],collapse=','), ' - cannot run model on ',nr,' points'))
+    return (c())
   }
-  ret <- c(ret, lhsColumn, mean(rData[[lhsColumn]]), nrow(rData), sqrt(mean(reg$residuals^2)))
-  names(ret) <- c(rhsColumns, 'target','target_mean','nPoints','rms')
-
-  return (ret)
 }
 
 output <- data.frame()
@@ -100,4 +105,4 @@ for (i in 1:length(targetColumnNames)) {
   ret <- ddply(data, splitColumnNames, regressionWrap, rhsColumns, target)
   output <- rbind(output,ret)
 }
-write.csv(output, outputFile)
+write.csv(output, outputFile, row.names=F)

@@ -5,7 +5,7 @@ select
   s.network,
   least(s.pc_res, 50) res,
   case when s.pc_res>=50 then 0 else s.pc_wb end wb,
-  length(i.uid)>2 has_cookie,
+  count(distinct concat(s.client_ip, s.cb)) sessions,
   count(1) with_response,
   sum(case when s.received_ssp_bid>0 then 1 else 0 end) with_bid,
   sum(s.received_ssp_bid) total_bid_value,
