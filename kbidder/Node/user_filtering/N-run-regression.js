@@ -9,10 +9,10 @@ const fs = require('fs')
 const filter = require('stream-filter')
 const runRScript = require('./RScriptWrapper')
 
-const inputFile = './data/grouped_by_res_wb_sample2.csv',
-    dataFile = './data/grouped_by_res_wb_sample2N.csv',
+const inputFile = './data/grouped_by_res_wb_sample3.csv',
+    dataFile = './data/grouped_by_res_wb_sample3N.csv',
     rScriptFile = './bidrate_sequential_prediction/extract_linear_coefficients2.R',
-    rOutputFile = './data/grouped_by_res_wb_sample2N_coeffs.csv'
+    rOutputFile = './data/grouped_by_res_wb_sample3N_coeffs.csv'
 
 
 fs.createReadStream(inputFile, 'utf8')

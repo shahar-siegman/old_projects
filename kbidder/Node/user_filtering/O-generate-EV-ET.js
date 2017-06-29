@@ -36,14 +36,14 @@ function recursiveValueCalculation(playProb, successProb, bidValue, horizon) {
                 // + horizon impressions in the landing states weighted by the landing state probability 
                 expectedBids: successProb[res][wb] + playProb[res] * (
                     successProb[res][wb] * result[res + 1][wb + 1].expectedBids + (1 - successProb[res][wb]) * result[res + 1][wb].expectedBids),
-                // expecte value: same principle
+                // expected value: same principle
                 expectedValue: successProb[res][wb] * bidValue[res][wb] + playProb[res] * (
                     (1 - successProb[res][wb]) * result[res + 1][wb].expectedValue
                     + successProb[res][wb] * result[res + 1][wb + 1].expectedValue)
             };
-            var pretty = {}
+            /* var pretty = {}
             Object.keys(currentData).forEach(function (key) { pretty[key] = Math.round(currentData[key] * 1000) / 1000 })
-            //console.log(JSON.stringify([res, wb]) + ': ' + JSON.stringify(pretty))
+            console.log(JSON.stringify([res, wb]) + ': ' + JSON.stringify(pretty)) */
             result[res] = result[res] || {};
             result[res][wb] = currentData;
         }
