@@ -15,6 +15,7 @@ const rawDataFile = './data/grouped_by_res_wb_sample3.csv',
     outputFile = './data/grouped_by_res_wb_sample3P.csv',
     horizonRes = 50;
 
+module.exports = { arrayToLookup, runP }
 /**
  * @callback tr1
  * @param {Object} record
@@ -55,6 +56,7 @@ function arrayToLookup(records, keys, transform) {
  * Uses records (the rows produced by transformation N), each containing the linear coefficients of one model type for one placement and network.
  * Stores (in the form of a nested map) the values predicted by each model for each network, placement, res and wb
  * @param {Object[]} records - Array containing linear models for Bid Value and "Success" (probability of bid).
+ * @returns {successProb, bidValue}
  */
 function applyLinearModelsToAllResWbInRange(records) {
     // converts the records into a more accessible structure of nested keys

@@ -8,7 +8,7 @@ const fastCsv = require('fast-csv')
 const fs = require('fs')
 const filter = require('stream-filter')
 
-module.exports = { recursiveValueCalculation }
+module.exports = { recursiveValueCalculation, forwardFrequencyCalculation }
 /**
  * Calcualtes value at each res, wb, backwards from the "horizon" (res=50)
  * @param {*} playProb 
@@ -16,15 +16,20 @@ module.exports = { recursiveValueCalculation }
  * @param {*} bidValue 
  * @param {*} horizon 
  */
-function recursiveValueCalculation(playProb, successProb, bidValue, horizon) {
+function recursiveValueCalculation(playProb, successProb, bidValue, maxRes) {
     /*
     playProb: [playProb[0], playProb[1],... , playProb[50]]
     successProb: { 0: [succesProb0_0], 1: [successProb1_0, successProb1_1]}
     horizon: { 50: { 0: { expectedImps: eImps, expectedBids: eBids expectedValue: eValue }}}
     */
-    var maxRes = Object.keys(horizon)[0],
-        result = {};
-    result[maxRes] = horizon[maxRes]
+    var result = {};
+    result[maxRes] = {}
+    for (var i = 0; i <= maxRes; i++)
+        result[maxRes][i] = {
+            expectedImps: playProb[maxRes],
+            expectedBids: successProb[maxRes][i] * playProb[maxRes],
+            expectedValue: bidValue[maxRes][i] * playProb[maxRes]
+        };
     for (var res = maxRes - 1; res > 0; res--) {
         for (var wb = 0; wb <= res; wb++) {
             var currentData = {
@@ -51,6 +56,27 @@ function recursiveValueCalculation(playProb, successProb, bidValue, horizon) {
     return result;
 }
 
+function forwardFrequencyCalculation(playProb, successProb, maxRes) {
+    var probMap = { 0: { 0: 1 } },
+    sumProbs = 0;
+    //playProb[0] = 1;
+    var currentResLevelProbIndex = 1;
+    for (var res = 1; res <= maxRes; res++) {
+        probMap[res] = {}
+        for (var wb = 0; wb <= res; wb++) {
+            probMap[res][wb] = playProb[res] * (
+                (wb < res ? probMap[res - 1][wb] * (1 - successProb[res - 1][wb]) : 0) +
+                (wb > 0 ? probMap[res - 1][wb - 1] * successProb[res - 1][wb - 1] : 0)
+                )
+            sumProbs += probMap[res][wb]
+        }
+    }
+    var recip = 1/sumProbs
+    for (var res = 1; res <= maxRes; res++) 
+        for (var wb = 0; wb <= res; wb++) 
+            probMap[res][wb] *= recip
+    return probMap;
+}
 /*
 function universalProbabilityCalculation(playProb, successProb) {
     var maxRes = Math.max(...Object.keys(playProb)),

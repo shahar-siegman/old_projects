@@ -8,46 +8,79 @@ const fastCsv = require('fast-csv')
 const parseCsv = require('parse-csv')
 const fs = require('fs')
 const filter = require('stream-filter')
-
 const evTv = require('./O-generate-EV-ET')
+const arrayToLookup = require('./P-generate-data-EV-ET').arrayToLookup
+
+const playProbFile = './data/cookie_based_session_length_sample1_playProbs.csv',
+    inputFile = './data/grouped_by_res_wb_sample3N_coeffs.csv',
+    outputFile = './data/grouped_by_res_wb_sample3Q.csv',
+    horizonRes = 50;
 
 var placementNetworkCompare = comp(['placement_id', 'network']),
     prevData = [],
+    prevData2 = [],
     modelCoeffs,
     modelsSoFar;
 
-function extractCoeffs(x) {
-    return {
-        res: +x.res,
-        wb: +x.wb,
-        wb_res_interaction: +x.wb_res_interaction,
-        bid_rate_so_far: +x.bid_rate_so_far,
-        intercept: +x.ones
-    }
-}
+var playProbRecords = JSON.parse(parseCsv('json', fs.readFileSync(playProbFile, 'utf8'), { headers: { included: true } })),
+    playProbMap = arrayToLookup(playProbRecords, ['placement_id', 'impression'], function (record) {
+        return {
+            play_prob: record.play_prob,
+            cum_relative_imps: record.cum_relative_imps
+        }
+    });
+
+
+
+
+
+
 
 fs.createReadStream(inputFile, 'utf8')
     .pipe(fastCsv.parse({ headers: true }))
-    .pipe(through(function (data) {
+    .pipe(sort(comp(['tag_url', 'placement_id', 'network'])))
+    .pipe(passModelsAsBatch())
+    .pipe(expandValueModel())
+    .pipe(streamGenerateEvEt())
+    .pipe(fastCsv.createWriteStream({ headers: true }))
+    .pipe(fs.createWriteStream(outputFile, 'utf8')).on('finish', function () { console.log('generate EV-TV Q - done.') })
+
+function passModelsAsBatch() {
+    var prevData = []
+    var extractCoeffs = function (x) {
+        return {
+            res: +x.res,
+            wb: +x.wb,
+            wb_res_interaction: +x.wb_res_interaction,
+            bid_rate_so_far: +x.bid_rate_so_far,
+            intercept: +x.ones
+        }
+    }
+    var handleEndOfBatch = function (queue) {
+        if (prevData.length < 4)
+            console.log(`${prevData[0].placement_id}, ${prevData[0].network}: found ${prevData.length} models, skipping`)
+        else {
+            var toPush = arrayToLookup(prevData, ['target'], extractCoeffs)
+            toPush.placement_id = prevData[0].placement_id;
+            toPush.network = prevData[0].network
+            queue(toPush)
+        }
+    }
+    return through(function (data) {
         if (prevData.length && placementNetworkCompare(prevData[0], data)) {
-            if (prevData.length < 4)
-                console.log(`${data.placement_id}, ${data.network}: found ${modelsSoFar} models, skipping`)
-            else {
-                var toPush = arrayToLookup(prevData, ['target'], extractCoeffs)
-                toPush.placement_id = prevData[0].placement_id;
-                toPush.network = prevData[0].network
-                this.queue(toPush)
-                prevData = []
-            }
+            handleEndOfBatch(this.queue)
+            prevData = []
         }
         prevData.push(data);
-    }))
-    .pipe(expandValueModel())
-    .pipe(addPlayProbColumn())
+    },
+        function () {
+            handleEndOfBatch(this.queue)
+        })
+}
 
 function expandValueModel() {
     return through(function (models) {
-        for (var res = 1; res <= horizonRes; res++) {
+        for (var res = 0; res <= horizonRes; res++) {
             for (var wb = 0; wb < res; wb++) {
                 var successProb =
                     models.bid_rate_not_eq.res * res
@@ -83,4 +116,52 @@ function expandValueModel() {
             })
         }
     })
+}
+/*
+function addPlayProbColumn() {
+    return through(function (data) {
+        var playProb = playProbMap[data.placement_id] && playProbMap[data.placement_id][data.res].play_prob
+        data.play_prob = playProb
+        this.queue(data)
+    })
+}
+*/
+function streamGenerateEvEt() {
+    var prevData = [];
+    var handleEndOfBatch = function (queue) {
+        var successProb = {}, bidValue = {}, playProb = {}, relativeTraffic = {};
+        prevData.forEach(function (record) {
+            successProb[record.res] = successProb[record.res] || {};
+            successProb[record.res][record.wb] = record.successProb;
+            bidValue[record.res] = bidValue[record.res] || {};
+            bidValue[record.res][record.wb] = record.bidValue;
+        })
+        Object.keys(playProbMap[prevData[0].placement_id]).forEach(function (res) {
+            playProb[res] = playProbMap[prevData[0].placement_id][res].play_prob
+            relativeTraffic[res] = playProbMap[prevData[0].placement_id][res].cum_relative_imps
+        })
+        var valueResult = evTv.recursiveValueCalculation(playProb, successProb, bidValue, horizonRes)
+        var frequenceyResult = evTv.forwardFrequencyCalculation(playProb,successProb, horizonRes)
+        for (var res = 1; res <= horizonRes; res++)
+            for (var wb = 0; wb <= res; wb++)
+                queue({
+                    placement_id: prevData[0].placement_id,
+                    network: prevData[0].network,
+                    res: res,
+                    wb: wb,
+                    expectedImps: valueResult[res][wb].expectedImps,
+                    expectedBids: valueResult[res][wb].expectedBids,
+                    expectedValue: valueResult[res][wb].expectedValue,
+                    relativeTrafficForRes: relativeTraffic[res],
+                    frequncy: frequenceyResult[res][wb]
+
+                })
+        prevData = [];
+    }
+    return through(function (data) {
+        if (prevData.length && placementNetworkCompare(prevData[0], data)) {
+            handleEndOfBatch(this.queue)
+        }
+        prevData.push(data)
+    }, function () { handleEndOfBatch(this.queue) })
 }
