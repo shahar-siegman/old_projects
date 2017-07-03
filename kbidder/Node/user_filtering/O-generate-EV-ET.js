@@ -8,15 +8,16 @@ const fastCsv = require('fast-csv')
 const fs = require('fs')
 const filter = require('stream-filter')
 
-module.exports = { recursiveValueCalculation, forwardFrequencyCalculation }
+module.exports = { universalProbabilityCalculation, valueAheadCalculation, valueSoFarCalculation }
 /**
  * Calcualtes value at each res, wb, backwards from the "horizon" (res=50)
  * @param {*} playProb 
  * @param {*} successProb 
  * @param {*} bidValue 
  * @param {*} horizon 
+ * @returns {object}  - object contains expectedImps, expectedBids, expectedValue for each [res][wb] double-index
  */
-function recursiveValueCalculation(playProb, successProb, bidValue, maxRes) {
+function valueAheadCalculation(playProb, successProb, bidValue, maxRes) {
     /*
     playProb: [playProb[0], playProb[1],... , playProb[50]]
     successProb: { 0: [succesProb0_0], 1: [successProb1_0, successProb1_1]}
@@ -56,9 +57,26 @@ function recursiveValueCalculation(playProb, successProb, bidValue, maxRes) {
     return result;
 }
 
-function forwardFrequencyCalculation(playProb, successProb, maxRes) {
+function valueSoFarCalculation(universalProbMap, successProb, bidValue, maxRes) {
+    var valueMap = { 0: { 0: 0 } }
+    for (var res = 1; res <= maxRes; res++) {
+        valueMap[res] = {}
+        for (var wb = 0; wb <= res; wb++) {
+            // un-normalized prob of getting here from (res-1,wb-1)
+            valueMap[res][wb] = 0;
+            var prob1 = wb > 0 ? successProb[res - 1][wb - 1] * universalProbMap[res - 1][wb - 1] : 0,
+                prob2 = wb < res ? (1 - successProb[res - 1][wb]) * universalProbMap[res - 1][wb] : 0;
+            prob1 > 0 && (valueMap[res][wb] += valueMap[res - 1][wb - 1] * (prob1 / (prob1 + prob2)));
+            prob2 > 0 && (valueMap[res][wb] += valueMap[res - 1][wb] * (prob2 / (prob1 + prob2)))
+            valueMap[res][wb] += bidValue[res][wb] * successProb[res][wb]
+        }
+    }
+    return valueMap;
+}
+
+function universalProbabilityCalculation(playProb, successProb, maxRes) {
     var probMap = { 0: { 0: 1 } },
-    sumProbs = 0;
+        sumProbs = 0;
     //playProb[0] = 1;
     var currentResLevelProbIndex = 1;
     for (var res = 1; res <= maxRes; res++) {
@@ -67,28 +85,24 @@ function forwardFrequencyCalculation(playProb, successProb, maxRes) {
             probMap[res][wb] = playProb[res] * (
                 (wb < res ? probMap[res - 1][wb] * (1 - successProb[res - 1][wb]) : 0) +
                 (wb > 0 ? probMap[res - 1][wb - 1] * successProb[res - 1][wb - 1] : 0)
-                )
+            )
             sumProbs += probMap[res][wb]
         }
     }
-    var recip = 1/sumProbs
-    for (var res = 1; res <= maxRes; res++) 
-        for (var wb = 0; wb <= res; wb++) 
+    var recip = 1 / sumProbs
+    for (var res = 1; res <= maxRes; res++)
+        for (var wb = 0; wb <= res; wb++)
             probMap[res][wb] *= recip
     return probMap;
 }
-/*
-function universalProbabilityCalculation(playProb, successProb) {
-    var maxRes = Math.max(...Object.keys(playProb)),
-        result = { 0: { 0: 1 } };
-    for (var res = 1; res <= maxRes; res++) {
-        for (var wb = 0; wb <= res; wb++) {
-            result[res][wb] = result[res - 1][wb] * playProb[res - 1] * (1 - successProb[res - 1][wb])
-            if (wb > 0)
-                result[res][wb] += result[res - 1][wb - 1] * playProb[res - 1] * successProb[res - 1][wb - 1]
-        }
-    }
-    return result;
-}
 
-*/
+function expectedValueForRes(probMap, valueMap, res) {
+    // normalize probMap to res
+    var sumProbs = 0;
+    for (var r = 1; r <= res; r++)
+        for (var wb = 0; wb <= res; wb++)
+            sumProbs += probMap[r][wb]
+
+
+
+}

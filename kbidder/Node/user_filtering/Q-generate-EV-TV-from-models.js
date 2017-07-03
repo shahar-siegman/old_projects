@@ -117,15 +117,7 @@ function expandValueModel() {
         }
     })
 }
-/*
-function addPlayProbColumn() {
-    return through(function (data) {
-        var playProb = playProbMap[data.placement_id] && playProbMap[data.placement_id][data.res].play_prob
-        data.play_prob = playProb
-        this.queue(data)
-    })
-}
-*/
+
 function streamGenerateEvEt() {
     var prevData = [];
     var handleEndOfBatch = function (queue) {
@@ -140,8 +132,9 @@ function streamGenerateEvEt() {
             playProb[res] = playProbMap[prevData[0].placement_id][res].play_prob
             relativeTraffic[res] = playProbMap[prevData[0].placement_id][res].cum_relative_imps
         })
-        var valueResult = evTv.recursiveValueCalculation(playProb, successProb, bidValue, horizonRes)
-        var frequenceyResult = evTv.forwardFrequencyCalculation(playProb,successProb, horizonRes)
+        var valueAheadResult = evTv.valueAheadCalculation(playProb, successProb, bidValue, horizonRes),
+            frequenceyResult = evTv.universalProbabilityCalculation(playProb,successProb, horizonRes),
+            valueSoFarResult = evTv.valueSoFarCalculation(frequenceyResult,successProb,bidValue,horizonRes);
         for (var res = 1; res <= horizonRes; res++)
             for (var wb = 0; wb <= res; wb++)
                 queue({
@@ -149,12 +142,12 @@ function streamGenerateEvEt() {
                     network: prevData[0].network,
                     res: res,
                     wb: wb,
-                    expectedImps: valueResult[res][wb].expectedImps,
-                    expectedBids: valueResult[res][wb].expectedBids,
-                    expectedValue: valueResult[res][wb].expectedValue,
+                    expectedImps: valueAheadResult[res][wb].expectedImps,
+                    expectedBids: valueAheadResult[res][wb].expectedBids,
+                    expectedValue: valueAheadResult[res][wb].expectedValue,
                     relativeTrafficForRes: relativeTraffic[res],
-                    frequncy: frequenceyResult[res][wb]
-
+                    frequency: frequenceyResult[res][wb],
+                    valueSoFar: valueSoFarResult[res][wb]
                 })
         prevData = [];
     }
