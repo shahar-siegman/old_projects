@@ -8,7 +8,13 @@ const fastCsv = require('fast-csv')
 const fs = require('fs')
 const filter = require('stream-filter')
 
-module.exports = { universalProbabilityCalculation, valueAheadCalculation, valueSoFarCalculation }
+module.exports = {
+    universalProbabilityCalculation,
+    valueAheadCalculation,
+    valueSoFarCalculation,
+    cumulativeImpsAndValueForLastStaters,
+    allowedAndBlockedImpressions,
+}
 /**
  * Calcualtes value at each res, wb, backwards from the "horizon" (res=50)
  * @param {*} playProb 
@@ -52,6 +58,8 @@ function valueAheadCalculation(playProb, successProb, bidValue, maxRes) {
             console.log(JSON.stringify([res, wb]) + ': ' + JSON.stringify(pretty)) */
             result[res] = result[res] || {};
             result[res][wb] = currentData;
+             if (Object.keys(currentData).some(key => typeof currentData[key] != 'number' ))
+                throw new Error(`valueAheadCalculation encountered non-number`)
         }
     }
     return result;
@@ -96,13 +104,45 @@ function universalProbabilityCalculation(playProb, successProb, maxRes) {
     return probMap;
 }
 
-function expectedValueForRes(probMap, valueMap, res) {
+function cumulativeImpsAndValueForLastStaters(valueSoFar, playProb, maxRes) {
     // normalize probMap to res
-    var sumProbs = 0;
-    for (var r = 1; r <= res; r++)
-        for (var wb = 0; wb <= res; wb++)
-            sumProbs += probMap[r][wb]
+    var sumValue = 0, sumImps = 0, result = {};
+    for (var res = 1; res < maxRes; res++) {
+        for (var wb = 0; wb <= res; wb++) {
+            sumValue += valueSoFar[res][wb] * (1 - playProb[res])
+        }
+        sumImps += res * (1 - playProb[res])
+        result[res] = { value: sumValue, impressions: sumImps };
+        if (typeof sumImps != 'number' || typeof sumValue != 'number' || sumImps <0 || sumValue <0)
+            throw new Error(`cumulative encountered non-number or negative: res= ${res}, wb=${wb}, sumImps= ${sumImps}, sumValue=${sumValue}`)
+    }
+    return result;
+}
 
+function allowedAndBlockedImpressions(cumImpsAndValueIfLastState, valueAhead, maxRes) {
+    var sumValue = 0, sumImps = 0, result = {};
+    for (var res = 1; res < maxRes; res++) {
+        result[res] = {};
+        var blockedImpressionsAhead = 0,
+            blockedValueAhead = 0,
+            allowedImpressionsAhead = Object.keys(valueAhead[res]).reduce((sum, wb) => sum + valueAhead[res][wb].expectedImps, 0),
+            allowedValueAhead = Object.keys(valueAhead[res]).reduce((sum, wb) => sum + valueAhead[res][wb].expectedValue, 0)
+        for (var wb = 0; wb <= res; wb++) {
+            blockedImpressionsAhead += valueAhead[res][wb].expectedImps
+            blockedValueAhead += valueAhead[res][wb].expectedValue
+            allowedImpressionsAhead -= valueAhead[res][wb].expectedImps
+            allowedValueAhead -= valueAhead[res][wb].expectedValue
+            result[res][wb] = {
+                allowedImpressions: cumImpsAndValueIfLastState[res].impressions + allowedImpressionsAhead,
+                allowedValue: cumImpsAndValueIfLastState[res].value + allowedValueAhead,
+                blockedImpressions: blockedImpressionsAhead,
+                blockedValue: blockedValueAhead
+            }
+            
+            if (Object.keys(result[res][wb]).some(key => typeof result[res][wb][key] != 'number' ))
+                throw new Error(`allowed and blocked encountered non-number`)
 
-
+        }
+    }
+    return result;
 }

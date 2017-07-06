@@ -16,11 +16,7 @@ const playProbFile = './data/cookie_based_session_length_sample1_playProbs.csv',
     outputFile = './data/grouped_by_res_wb_sample3Q.csv',
     horizonRes = 50;
 
-var placementNetworkCompare = comp(['placement_id', 'network']),
-    prevData = [],
-    prevData2 = [],
-    modelCoeffs,
-    modelsSoFar;
+var placementNetworkCompare = comp(['placement_id', 'network']);
 
 var playProbRecords = JSON.parse(parseCsv('json', fs.readFileSync(playProbFile, 'utf8'), { headers: { included: true } })),
     playProbMap = arrayToLookup(playProbRecords, ['placement_id', 'impression'], function (record) {
@@ -119,7 +115,7 @@ function expandValueModel() {
 }
 
 function streamGenerateEvEt() {
-    var prevData = [];
+    var prevData = [], horizonImps = {};
     var handleEndOfBatch = function (queue) {
         var successProb = {}, bidValue = {}, playProb = {}, relativeTraffic = {};
         prevData.forEach(function (record) {
@@ -129,13 +125,19 @@ function streamGenerateEvEt() {
             bidValue[record.res][record.wb] = record.bidValue;
         })
         Object.keys(playProbMap[prevData[0].placement_id]).forEach(function (res) {
-            playProb[res] = playProbMap[prevData[0].placement_id][res].play_prob
             relativeTraffic[res] = playProbMap[prevData[0].placement_id][res].cum_relative_imps
+            playProb[res] = playProbMap[prevData[0].placement_id][res].play_prob
+            if (res == horizonRes) {
+                horizonImps[prevData[0].placement_id] = playProb[res];
+                playProb[res] = 0;
+            }
         })
         var valueAheadResult = evTv.valueAheadCalculation(playProb, successProb, bidValue, horizonRes),
-            frequenceyResult = evTv.universalProbabilityCalculation(playProb,successProb, horizonRes),
-            valueSoFarResult = evTv.valueSoFarCalculation(frequenceyResult,successProb,bidValue,horizonRes);
-        for (var res = 1; res <= horizonRes; res++)
+            frequenceyResult = evTv.universalProbabilityCalculation(playProb, successProb, horizonRes),
+            valueSoFarResult = evTv.valueSoFarCalculation(frequenceyResult, successProb, bidValue, horizonRes),
+            cumValueSoFar = evTv.cumulativeImpsAndValueForLastStaters(valueSoFarResult, playProb, horizonRes),
+            dataForRocCurve = evTv.allowedAndBlockedImpressions(cumValueSoFar, valueAheadResult, horizonRes)
+        for (var res = 1; res < horizonRes; res++)
             for (var wb = 0; wb <= res; wb++)
                 queue({
                     placement_id: prevData[0].placement_id,
@@ -147,7 +149,13 @@ function streamGenerateEvEt() {
                     expectedValue: valueAheadResult[res][wb].expectedValue,
                     relativeTrafficForRes: relativeTraffic[res],
                     frequency: frequenceyResult[res][wb],
-                    valueSoFar: valueSoFarResult[res][wb]
+                    valueSoFar: valueSoFarResult[res][wb],
+                    cumImpsSoFarLastStaters: cumValueSoFar[res].impressions,
+                    cumValueSoFarLastStaters: cumValueSoFar[res].value,
+                    allowedImpressions: dataForRocCurve[res][wb].allowedImpressions,
+                    allowedValue: dataForRocCurve[res][wb].allowedValue,
+                    blockedImpressions: dataForRocCurve[res][wb].blockedImpressions,
+                    blockedValue: dataForRocCurve[res][wb].blockedValue
                 })
         prevData = [];
     }
