@@ -58,7 +58,6 @@ regressionWrap <- function(regressData) {
   pred$n_cookies_predict[50]=t
   pred$cum_relative_imps = cumsum(pred$n_cookies_predict)/sum(pred$n_cookies_predict)
   pred$play_prob = pred$n_cookies_predict/exp(res$coefficients[1] + res$coefficients[2]*sqrt(pred$impression-1))
-  pred$play_prob[1]=1
   return(pred)
 }
 

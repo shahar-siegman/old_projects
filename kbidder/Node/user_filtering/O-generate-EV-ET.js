@@ -82,6 +82,12 @@ function valueSoFarCalculation(universalProbMap, successProb, bidValue, maxRes) 
     return valueMap;
 }
 
+/**
+ * The probability that a path, up to length
+ * @param {*} playProb 
+ * @param {*} successProb 
+ * @param {*} maxRes 
+ */
 function universalProbabilityCalculation(playProb, successProb, maxRes) {
     var probMap = { 0: { 0: 1 } },
         sumProbs = 0;
@@ -103,6 +109,9 @@ function universalProbabilityCalculation(playProb, successProb, maxRes) {
             probMap[res][wb] *= recip
     return probMap;
 }
+
+
+
 
 function cumulativeImpsAndValueForLastStaters(valueSoFar, playProb, maxRes) {
     // normalize probMap to res
