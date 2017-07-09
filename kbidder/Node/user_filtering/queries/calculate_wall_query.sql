@@ -1,4 +1,4 @@
-select 
+ select 
       l.name,
       l.tag_url,
       s.placement_id,

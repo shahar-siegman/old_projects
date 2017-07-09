@@ -54,7 +54,6 @@ var range = function (a, b) {
     return ret;
 }
 
-var placementNetworkCompare = comp(['placement_id', 'network']);
 
 var playProbRecords = JSON.parse(parseCsv('json', fs.readFileSync(playProbFile, 'utf8'), { headers: { included: true } })),
     playProb = arrayToLookup(playProbRecords, ['placement_id', 'impression'], (record) => record.play_prob);
@@ -73,8 +72,15 @@ fs.createReadStream(inputFile, 'utf8')
     .pipe(fastCsv.createWriteStream({ headers: true }))
     .pipe(fs.createWriteStream(outputFile, 'utf8')).on('finish', function () { console.log('generate EV-TV Q - done.') })
 
+/**
+ * @returns a through element that collects input rows belonging to a placement_id and network, 
+ * with different "target" fields, and queues them as an object with "target" field and the model linear 
+ * coefficients in the data
+ */
 function passModelsAsBatch() {
     var prevData = []
+    var placementNetworkCompare = comp(['placement_id', 'network']);
+
     var extractCoeffs = function (x) {
         return {
             res: +x.res,
@@ -94,7 +100,7 @@ function passModelsAsBatch() {
             queue(toPush)
         }
     }
-    // return value
+    // passModelsAsBatch return statement
     return through(function (data) {
         if (prevData.length && placementNetworkCompare(prevData[0], data)) {
             handleEndOfBatch(this.queue)
@@ -107,8 +113,11 @@ function passModelsAsBatch() {
         })
 }
 
-
-//function expandValueModel() {
+/**
+ * 
+ * @param {*} playProb 
+ * @param {*} horizonRes 
+ */
 function modelsToTransitionMap(playProb, horizonRes) {
     return through(function (models) {
         var successProb = function (res, wb) {
@@ -199,74 +208,8 @@ function characetristicCurve(minResForCalc, maxResForCalc, horizonRes) {
                 })
 
             }
-            /*
-            this.queue({
-                    placement_id: data.placement_id,
-                    network: data.network,
-                    res: res,
-                    wb: wb,
-                    probMap: probMap[res][res],
-                    blocked_impressions: null,
-                    blocked_value: null,
-                    allowed_impressions: null,
-                    allowed_value: null
-            })
-            */
         }
     }
     )
 }
 
-/*
-function streamGenerateEvEt() {
-    var prevData = [], horizonImps = {};
-    var handleEndOfBatch = function (queue) {
-        var successProb = {}, bidValue = {}, playProb = {}, relativeTraffic = {};
-        prevData.forEach(function (record) {
-            successProb[record.res] = successProb[record.res] || {};
-            successProb[record.res][record.wb] = record.successProb;
-            bidValue[record.res] = bidValue[record.res] || {};
-            bidValue[record.res][record.wb] = record.bidValue;
-        })
-        Object.keys(playProbMap[prevData[0].placement_id]).forEach(function (res) {
-            relativeTraffic[res] = playProbMap[prevData[0].placement_id][res].cum_relative_imps
-            playProb[res] = playProbMap[prevData[0].placement_id][res].play_prob
-            if (res == horizonRes) {
-                horizonImps[prevData[0].placement_id] = playProb[res];
-                playProb[res] = 0;
-            }
-        })
-        var valueAheadResult = evTv.valueAheadCalculation(playProb, successProb, bidValue, horizonRes),
-            frequenceyResult = evTv.universalProbabilityCalculation(playProb, successProb, horizonRes),
-            valueSoFarResult = evTv.valueSoFarCalculation(frequenceyResult, successProb, bidValue, horizonRes),
-            cumValueSoFar = evTv.cumulativeImpsAndValueForLastStaters(valueSoFarResult, playProb, horizonRes),
-            dataForRocCurve = evTv.allowedAndBlockedImpressions(cumValueSoFar, valueAheadResult, horizonRes)
-        for (var res = 1; res < horizonRes; res++)
-            for (var wb = 0; wb <= res; wb++)
-                queue({
-                    placement_id: prevData[0].placement_id,
-                    network: prevData[0].network,
-                    res: res,
-                    wb: wb,
-                    expectedImps: valueAheadResult[res][wb].expectedImps,
-                    expectedBids: valueAheadResult[res][wb].expectedBids,
-                    expectedValue: valueAheadResult[res][wb].expectedValue,
-                    relativeTrafficForRes: relativeTraffic[res],
-                    frequency: frequenceyResult[res][wb],
-                    valueSoFar: valueSoFarResult[res][wb],
-                    cumImpsSoFarLastStaters: cumValueSoFar[res].impressions,
-                    cumValueSoFarLastStaters: cumValueSoFar[res].value,
-                    allowedImpressions: dataForRocCurve[res][wb].allowedImpressions,
-                    allowedValue: dataForRocCurve[res][wb].allowedValue,
-                    blockedImpressions: dataForRocCurve[res][wb].blockedImpressions,
-                    blockedValue: dataForRocCurve[res][wb].blockedValue
-                })
-        prevData = [];
-    }
-    return through(function (data) {
-        if (prevData.length && placementNetworkCompare(prevData[0], data)) {
-            handleEndOfBatch(this.queue)
-        }
-        prevData.push(data)
-    }, function () { handleEndOfBatch(this.queue) })
-}*/

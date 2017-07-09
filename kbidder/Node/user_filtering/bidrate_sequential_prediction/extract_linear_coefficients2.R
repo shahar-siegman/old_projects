@@ -1,3 +1,19 @@
+# extract_linear_coefficients2.R
+#
+# args[1]: name of csv file to load
+# args[2]: comma-separated list of split (grouping) variables
+# args[3]: comma-separated list of target variables
+# the variables that don't appear in either are explanatory variables
+# an explanatory variable that has NAs where the target variable is not NA
+# is dropped from the specific model.
+# if there are a few NA's (i.e. at least one, that is not matched by an NA in the tartget),
+# that's an error
+# The model is run separately per each group.
+# the number of output rows is the number of distinct groups in the input
+# the output is saved in the same directory as the input, with the addendum "_coeffs"
+# and with the extension ".csv".
+# this script is used in transformation N-run-regression.js
+
 suppressMessages(library(plyr))
 ouputFileExtensionString = '_coeffs.csv'
 print('Hello R!')
@@ -8,13 +24,6 @@ if (exists('externalArgs')) {
   args <- commandArgs(trailingOnly = TRUE)
 }
 
-# args[1]: name of csv file to load
-# args[2]: comma-separated list of split (grouping) variables
-# args[3]: comma-separated list of target variables
-# the variables that don't appear in either are explanatory variables
-# an explanatory variable that has NAs where the target variable is not NA
-# is dropped from the specific model.
-# if there are a few NA's, that's an error
 argument1 <- args[1]
 argument2 <- args[2]
 argument3 <- args[3]
