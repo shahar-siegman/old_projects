@@ -3,13 +3,7 @@
 module.exports = { constructUniversalTransitionMap, pathImpsAndValueSingleState }
 
 function constructUniversalTransitionMap(playProb, successProb, bidValue, horizonRes) {
-    return function (res, wb) {/*
-        var lastTransition0Prob = playProb[res - 1] * (1 - successProb(res - 1, wb)),
-            lastTransition1Prob = playProb[res - 1] * successProb(res - 1, wb - 1),
-            transitionImps = res == horizonRes ? playProb[res] : 1,
-            lastTransition1Value = bidValue(res - 1,wb - 1) * transitionImps
-        return { lastTransition0Prob, lastTransition1Prob, transitionImps, lastTransition1Value } */
-
+    return function (res, wb) {
         var currSuccessProb = successProb(res, wb),
             transition0Prob = playProb[res] * (1 - currSuccessProb),
             transition1Prob = playProb[res] * currSuccessProb,
@@ -21,12 +15,13 @@ function constructUniversalTransitionMap(playProb, successProb, bidValue, horizo
 
 function pathImpsAndValueSingleState(pathStartState, universalTransitionMap, maxRes, returnProbMap) {
     var probMap = {},
+        valueMap = {},
         cumulativeImps = 0,
-        cumulativeValue = 0;
-    var maxFeasibleWb = res => res - pathStartState.res + pathStartState.wb;
+        cumulativeValue = 0,
+        maxFeasibleWb = res => res - pathStartState.res + pathStartState.wb;
     probMap[pathStartState.res] = {}
     probMap[pathStartState.res][pathStartState.wb] = 1;
-    for (var res = pathStartState.res; res < maxRes; res++) {
+    for (var res = pathStartState.res; res <= maxRes; res++) {
         probMap[res + 1] = {}
         for (var wb = pathStartState.wb; wb <= maxFeasibleWb(res); wb++) {
             var t = universalTransitionMap(res, wb);
@@ -36,8 +31,17 @@ function pathImpsAndValueSingleState(pathStartState, universalTransitionMap, max
             cumulativeValue += probMap[res][wb] * t.transition1Prob * t.transition1Value;
         }
     }
-    if (returnProbMap)
-        var ret = { impressions: cumulativeImps, value: cumulativeValue, probMap: probMap };
+    if (returnProbMap) {
+        for (res = maxRes; res >= pathStartState.res; res--) {
+            valueMap[res] = {}
+            for (var wb = pathStartState.wb; wb <= maxFeasibleWb(res); wb++) {
+                t = universalTransitionMap(res, wb);
+                var nextStepsExpectedValue = valueMap[res + 1] && t.transition1Prob * valueMap[res + 1][wb + 1] + t.transition0Prob * valueMap[res + 1][wb] || 0;
+                valueMap[res][wb] = nextStepsExpectedValue + t.transition1Prob * t.transition1Value;
+            }
+        }
+        var ret = { impressions: cumulativeImps, value: cumulativeValue, probMap: probMap, valueMap: valueMap };
+    }
     else
         var ret = { impressions: cumulativeImps, value: cumulativeValue };
     return ret;

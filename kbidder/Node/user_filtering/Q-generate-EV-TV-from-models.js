@@ -17,24 +17,50 @@ const playProbFile = './data/cookie_based_session_length_sample1_playProbs.csv',
     outputFile = './data/grouped_by_res_wb_sample3Q.csv',
     horizonRes = 50;
 
+/**
+ * @returns {number} the "dot product" of the two objects, by multiplying and summing matching keys 
+ * @param {object} t1 - Map of numbers
+ * @param {object} t2 - Map of numbers, contains the fields that t1 contains
+ */ 
+var dotProduct = function (t1, t2) {
+    var t1Keys = Object.keys(t1)
+    return t1Keys.reduce(function (sum, key) {
+        return sum + t1[key] * t2[key]
+    }, 0)
+}
+
+/**
+ * @returns {number} the sum of all values in the "leaves" 
+ * @param {*} obj - a multi-level nested object. all leaves should be cast-able to number
+ * @param {String[]} keysForSum - the keys to take into account at the top level. subsequent levels have all their keys taken.
+ */
+var sumMapRecursive = function (obj, keysForSum) {
+    return keysForSum.reduce(function (sum, key) {
+        if (typeof obj[key] == 'object')
+            return sum + sumMapRecursive(obj[key], Object.keys(obj[key]))
+        return sum + obj[key]
+    }, 0)
+}
+
+/**
+ * @returns {number[]} - array of numbers starting with a ending with b (both integers)
+ * @param {number} a - start of range
+ * @param {number} b - end of range
+ */
+var range = function (a, b) {
+    var ret = new Array(b - a + 1)
+    for (var i = 0; i < ret.length; i++)
+        ret[i] = i + a;
+    return ret;
+}
+
 var placementNetworkCompare = comp(['placement_id', 'network']);
-var sumMapElements = (map, summee) => Object.keys(map).reduce((sum, key) => sum + summee(map[key]), 0)
 
 var playProbRecords = JSON.parse(parseCsv('json', fs.readFileSync(playProbFile, 'utf8'), { headers: { included: true } })),
     playProb = arrayToLookup(playProbRecords, ['placement_id', 'impression'], (record) => record.play_prob);
 Object.keys(playProb).forEach(function (placement_id) {
     playProb[placement_id][0] = 1;
 })
-/*playProbMap = arrayToLookup(playProbRecords, ['placement_id', 'impression'], function (record) {
-    return {
-        play_prob: record.play_prob,
-        cum_relative_imps: record.cum_relative_imps
-    }
-});*/
-
-
-
-
 
 
 
@@ -88,7 +114,7 @@ function modelsToTransitionMap(playProb, horizonRes) {
         var successProb = function (res, wb) {
             if (wb < 0 || res < 0 || res > horizonRes)
                 var r = 0;
-            else if (wb > res )
+            else if (wb > res)
                 r = 1;
             else if (wb == res)
                 r = models.bid_rate_eq.res * res + models.bid_rate_eq.intercept
@@ -124,14 +150,18 @@ function modelsToTransitionMap(playProb, horizonRes) {
 
 function characetristicCurve(minResForCalc, maxResForCalc, horizonRes) {
     return through(function (data) { //universal transition map
-        var probMap = markov.pathImpsAndValueSingleState({ res: 0, wb: 0 }, data.utm, maxResForCalc, true).probMap;
+        var probAndValue = markov.pathImpsAndValueSingleState({ res: 0, wb: 0 }, data.utm, horizonRes, true),
+            probMap = probAndValue.probMap,
+            valueMap = probAndValue.valueMap;
+
+        var soFar = markov.pathImpsAndValueSingleState({ res: 0, wb: 0 }, data.utm, maxResForCalc),
+            impsAndValuePerWb = {},
+            totalImpsAndValue = { impressions: 0, value: 0 },
+            totalNormFactor = 0;
+        var soFar2Value = valueMap[0][0] - dotProduct(probMap[maxResForCalc + 1], valueMap[maxResForCalc + 1])
+        var soFar2Impressions = sumMapRecursive(probMap, range(1, maxResForCalc + 1))
 
         for (var res = minResForCalc; res <= maxResForCalc; res++) {
-            var soFar = markov.pathImpsAndValueSingleState({ res: 0, wb: 0 }, data.utm, maxResForCalc),
-                impsAndValuePerWb = {},
-                totalImpsAndValue = { impressions: 0, value: 0 },
-                totalNormFactor = 0;
-            //normFactor = sumMapElements(soFar.probMap[res], x => x)
             for (var wb = 0; wb <= res; wb++) {
                 impsAndValuePerWb[wb] = markov.pathImpsAndValueSingleState({ res: res, wb: wb }, data.utm, horizonRes)
                 totalImpsAndValue.impressions += probMap[res][wb] * impsAndValuePerWb[wb].impressions;
@@ -161,7 +191,7 @@ function characetristicCurve(minResForCalc, maxResForCalc, horizonRes) {
                     wb: wb,
                     probMap: probMap[res][wb],
                     blockedNormFactor: blockedNormFactor,
-                    blocked_impressions: blocked.impressions ,
+                    blocked_impressions: blocked.impressions,
                     blocked_value: blocked.value,
                     allowedNormFactor: allowedNormFactor,
                     allowed_impressions: soFar.impressions + allowed.impressions,
